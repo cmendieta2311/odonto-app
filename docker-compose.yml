@@ -9,6 +9,7 @@ services:
       PORT: ${BACKEND_PORT}
       JWT_SECRET: ${JWT_SECRET}
       CORS_ORIGIN: ${CORS_ORIGIN}
+      FORCE_REBUILD: "true"
     ports:
       - "3001:${BACKEND_PORT}"
     depends_on:
