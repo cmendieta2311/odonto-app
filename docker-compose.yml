@@ -10,7 +10,7 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       CORS_ORIGIN: ${CORS_ORIGIN}
     ports:
-      - "${BACKEND_PORT}:${BACKEND_PORT}"
+      - "3001:${BACKEND_PORT}"
     depends_on:
       - db
     restart: always
