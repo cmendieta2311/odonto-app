@@ -10,7 +10,7 @@ async function bootstrap() {
     forbidNonWhitelisted: true,
     transform: true,
   }));
-  app.setGlobalPrefix('api');
+  app.setGlobalPrefix('api/v1');
   app.enableCors({
     origin: process.env.CORS_ORIGIN || '*',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
