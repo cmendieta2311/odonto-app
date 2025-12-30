@@ -12,6 +12,8 @@ services:
       FORCE_REBUILD: "true"
     ports:
       - "3001:${BACKEND_PORT}"
+    networks:
+      - dokploy-network
     depends_on:
       - db
     restart: always
@@ -25,6 +27,8 @@ services:
       FORCE_REBUILD: "true"
     ports:
       - "${FRONTEND_PORT:-8085}:80"
+    networks:
+      - dokploy-network
     depends_on:
       - backend
     restart: always
@@ -38,9 +42,16 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
     ports:
       - "5433:5432"
+    networks:
+      - dokploy-network
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: always
 
 volumes:
   postgres_data:
+
+
+networks:
+  dokploy-network:
+    external: true
