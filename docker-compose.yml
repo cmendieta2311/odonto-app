@@ -21,6 +21,8 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     container_name: sgodonto_frontend
+    environment:
+      FORCE_REBUILD: "true"
     ports:
       - "${FRONTEND_PORT:-8085}:80"
     depends_on:
