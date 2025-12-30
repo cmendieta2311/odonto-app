@@ -17,3 +17,7 @@ Thumbs.db
 # Build outputs
 dist/
 build/
+
+# Documentation
+Analisis/
+Design/
