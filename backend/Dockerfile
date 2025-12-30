@@ -5,6 +5,7 @@ WORKDIR /app
 COPY package*.json ./
 COPY prisma ./prisma/
 
+RUN rm -rf dist node_modules
 RUN npm ci
 
 COPY . .
