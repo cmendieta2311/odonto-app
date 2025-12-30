@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Catálogo de Servicios - DentalManager</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#13c8ec",
+                        "background-light": "#f6f8f8",
+                        "background-dark": "#101f22",
+                        "surface-light": "#ffffff",
+                        "surface-dark": "#1a2c30",
+                        "text-main": "#111718",
+                        "text-secondary": "#618389",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }.scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="font-display bg-background-light dark:bg-background-dark text-text-main dark:text-white antialiased transition-colors duration-200">
+<div class="relative flex min-h-screen flex-col overflow-x-hidden">
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#f0f4f4] dark:border-b-gray-800 bg-surface-light dark:bg-surface-dark px-6 py-3 lg:px-10">
+<div class="flex items-center gap-4 text-text-main dark:text-white">
+<div class="size-8 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-3xl">dentistry</span>
+</div>
+<h2 class="text-text-main dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">DentalManager</h2>
+</div>
+<div class="flex flex-1 justify-end gap-8">
+<div class="hidden md:flex items-center gap-6 xl:gap-9">
+<a class="text-text-main dark:text-gray-300 hover:text-primary text-sm font-medium leading-normal transition-colors" href="#">Dashboard</a>
+<a class="text-text-main dark:text-gray-300 hover:text-primary text-sm font-medium leading-normal transition-colors" href="#">Agenda</a>
+<a class="text-text-main dark:text-gray-300 hover:text-primary text-sm font-medium leading-normal transition-colors" href="#">Pacientes</a>
+<a class="text-text-main dark:text-gray-300 hover:text-primary text-sm font-medium leading-normal transition-colors" href="#">Presupuestos</a>
+<a class="text-primary text-sm font-bold leading-normal" href="#">Catálogo</a>
+<a class="text-text-main dark:text-gray-300 hover:text-primary text-sm font-medium leading-normal transition-colors" href="#">Facturación</a>
+</div>
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 ring-2 ring-gray-100 dark:ring-gray-700" data-alt="Doctor profile picture showing a smiling professional in a white coat" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuD2IO8Q-u5hNr6r7e-omNmPZub5UUvrOkfaDxPa4I6AsyPA-LKALjSJ_ndvpC2Etkl30kHB5bGZVJgW8y06wdx-2N6ddR-ZOltYJiVjz2YqLkEw6tu7cf8FARv2RUCFtOIfZwNtILfO5uBwpGslya97N8k6ot_uy3qVS4-cKVaMu-ejzQRp3x7k6ZBCqXg3NRZ80tKHPVgCnpr5TzgIlauTwA0kqdzS5tdSD6ZoOZ6TS_u_TCbtQZInMmn0ix-W8Z_wy7IsRfzvHBk");'>
+</div>
+</div>
+</header>
+<main class="flex-1 px-4 lg:px-40 py-5">
+<div class="mx-auto max-w-[1200px] flex flex-col gap-6">
+<div class="flex flex-wrap gap-2 px-4">
+<a class="text-text-secondary dark:text-gray-400 text-sm font-medium hover:text-primary" href="#">Inicio</a>
+<span class="text-text-secondary dark:text-gray-400 text-sm font-medium">/</span>
+<a class="text-text-secondary dark:text-gray-400 text-sm font-medium hover:text-primary" href="#">Configuración</a>
+<span class="text-text-secondary dark:text-gray-400 text-sm font-medium">/</span>
+<span class="text-text-main dark:text-white text-sm font-medium">Catálogo de Servicios</span>
+</div>
+<div class="flex flex-wrap justify-between items-end gap-4 px-4">
+<div class="flex flex-col gap-2">
+<h1 class="text-text-main dark:text-white text-3xl md:text-4xl font-black leading-tight tracking-[-0.033em]">Catálogo de Servicios</h1>
+<p class="text-text-secondary dark:text-gray-400 text-base font-normal max-w-xl">Administra especialidades, categorías y servicios de tus tratamientos.</p>
+</div>
+<div class="flex gap-3">
+<button class="flex items-center gap-2 px-4 h-10 rounded-lg bg-surface-light dark:bg-surface-dark border border-gray-200 dark:border-gray-700 text-text-main dark:text-white text-sm font-bold hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+<span class="material-symbols-outlined text-[20px]">file_download</span>
+<span class="hidden sm:inline">Exportar</span>
+</button>
+<button class="flex items-center gap-2 px-4 h-10 rounded-lg bg-primary text-white text-sm font-bold hover:bg-[#11b4d5] transition-colors shadow-sm shadow-primary/30">
+<span class="material-symbols-outlined text-[20px]">add</span>
+<span>Nuevo Servicio</span>
+</button>
+</div>
+</div>
+<div class="flex flex-col gap-4 mt-4">
+<div class="flex flex-col md:flex-row items-center gap-4">
+<label class="flex flex-col h-10 w-full md:flex-1">
+<div class="flex w-full flex-1 items-stretch rounded-lg h-full bg-[#f0f4f4] dark:bg-gray-800">
+<div class="text-[#618389] dark:text-gray-400 flex border-none items-center justify-center pl-4 rounded-l-lg border-r-0">
+<span class="material-symbols-outlined">search</span>
+</div>
+<input class="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-main dark:text-white focus:outline-0 focus:ring-0 border-none bg-transparent focus:border-none h-full placeholder:text-[#618389] dark:placeholder:text-gray-500 px-4 rounded-l-none border-l-0 pl-2 text-sm font-normal leading-normal" placeholder="Buscar por código o nombre del servicio..." value=""/>
+</div>
+</label>
+<div class="flex gap-3 w-full md:w-auto">
+<div class="relative h-10 w-full md:w-48">
+<select class="h-full w-full appearance-none rounded-lg bg-[#f0f4f4] dark:bg-gray-800 text-text-main dark:text-white px-4 pr-8 text-sm focus:outline-none focus:ring-1 focus:ring-primary border-none cursor-pointer">
+<option>Todos los Tipos</option>
+<option>Consultorio</option>
+<option>Laboratorio</option>
+<option>Tercerizado</option>
+</select>
+<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-text-secondary dark:text-gray-400">
+<span class="material-symbols-outlined">expand_more</span>
+</div>
+</div>
+<div class="relative" x-data="{ open: false }">
+<button :aria-expanded="open" @click="open = !open" class="flex items-center gap-2 px-4 h-10 rounded-lg bg-surface-light dark:bg-surface-dark border border-gray-200 dark:border-gray-700 text-text-main dark:text-white text-sm font-bold hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+<span class="material-symbols-outlined text-[20px]">filter_alt</span>
+<span>Filtros</span>
+<span :class="open ? 'rotate-180' : ''" class="material-symbols-outlined text-[20px] transition-transform">expand_more</span>
+</button>
+<div @click.away="open = false" class="absolute right-0 mt-2 w-72 origin-top-right rounded-lg shadow-lg bg-surface-light dark:bg-surface-dark ring-1 ring-black ring-opacity-5 focus:outline-none z-10 p-4 border border-gray-100 dark:border-gray-800" x-show="open" x-transition:enter="transition ease-out duration-200" x-transition:enter-end="opacity-100 scale-100" x-transition:enter-start="opacity-0 scale-95" x-transition:leave="transition ease-in duration-150" x-transition:leave-end="opacity-0 scale-95" x-transition:leave-start="opacity-100 scale-100">
+<h3 class="text-text-main dark:text-white text-lg font-bold mb-3">Filtrar por Área y Categoría</h3>
+<div class="flex flex-col gap-4">
+<div>
+<label class="block text-xs font-bold text-text-secondary dark:text-gray-400 uppercase tracking-wide mb-1" for="area-select">Área / Especialidad</label>
+<div class="relative">
+<select class="block w-full appearance-none rounded-lg bg-[#f0f4f4] dark:bg-gray-800 text-text-main dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary border-none cursor-pointer" id="area-select">
+<option selected="">Ortodoncia</option>
+<option>Operatoria Dental</option>
+<option>Periodoncia</option>
+<option>Endodoncia</option>
+<option>Cirugía Oral</option>
+<option>Odontopediatría</option>
+</select>
+<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-text-secondary dark:text-gray-400">
+<span class="material-symbols-outlined">expand_more</span>
+</div>
+</div>
+</div>
+<div>
+<label class="block text-xs font-bold text-text-secondary dark:text-gray-400 uppercase tracking-wide mb-1">Categorías</label>
+<nav class="flex flex-col gap-1 max-h-48 overflow-y-auto scrollbar-hide">
+<a class="flex items-center px-3 py-2 rounded-lg bg-primary/10 text-primary font-bold border-l-4 border-primary" href="#">
+<span>Todas las Categorías</span>
+</a>
+<a class="flex items-center px-3 py-2 rounded-lg text-text-secondary dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 font-medium transition-colors" href="#">
+<span>Diagnóstico</span>
+</a>
+<a class="flex items-center px-3 py-2 rounded-lg text-text-secondary dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 font-medium transition-colors" href="#">
+<span>Aparatología Fija</span>
+</a>
+<a class="flex items-center px-3 py-2 rounded-lg text-text-secondary dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 font-medium transition-colors" href="#">
+<span>Aparatología Removible</span>
+</a>
+<a class="flex items-center px-3 py-2 rounded-lg text-text-secondary dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 font-medium transition-colors" href="#">
+<span>Alineadores (Invisalign)</span>
+</a>
+<a class="flex items-center px-3 py-2 rounded-lg text-text-secondary dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 font-medium transition-colors" href="#">
+<span>Contención / Retenedores</span>
+</a>
+<a class="flex items-center px-3 py-2 rounded-lg text-text-secondary dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 font-medium transition-colors" href="#">
+<span>Otros Procedimientos</span>
+</a>
+</nav>
+</div>
+<div class="bg-primary/5 dark:bg-primary/10 rounded-lg p-3 border border-primary/20 flex flex-col gap-2">
+<div class="flex items-center gap-2 text-primary font-bold">
+<span class="material-symbols-outlined text-[18px]">info</span>
+<span class="text-xs">Administración</span>
+</div>
+<p class="text-xs text-text-secondary dark:text-gray-400">Las Áreas y Categorías se gestionan en la sección de <a class="text-primary hover:underline" href="#">Configuración</a>.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden flex flex-col flex-1">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-gray-50 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-800">
+<th class="p-4 text-xs font-bold text-text-secondary dark:text-gray-400 uppercase tracking-wider w-24">Código</th>
+<th class="p-4 text-xs font-bold text-text-secondary dark:text-gray-400 uppercase tracking-wider">Descripción</th>
+<th class="p-4 text-xs font-bold text-text-secondary dark:text-gray-400 uppercase tracking-wider w-32">Tipo</th>
+<th class="p-4 text-xs font-bold text-text-secondary dark:text-gray-400 uppercase tracking-wider text-right w-32">Precio</th>
+<th class="p-4 text-xs font-bold text-text-secondary dark:text-gray-400 uppercase tracking-wider w-20 text-center">Acciones</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-gray-50 dark:divide-gray-800">
+<tr class="group hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+<td class="p-4 text-sm font-medium text-text-secondary dark:text-gray-400">ORT-100</td>
+<td class="p-4 text-sm font-bold text-text-main dark:text-white">
+                                                Consulta de Ortodoncia
+                                                <span class="block text-xs font-normal text-text-secondary dark:text-gray-500 mt-0.5">Diagnóstico inicial y estudio</span>
+</td>
+<td class="p-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                                                    Consultorio
+                                                </span>
+</td>
+<td class="p-4 text-sm font-bold text-text-main dark:text-white text-right">$40.00</td>
+<td class="p-4 text-center">
+<div class="flex justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="text-text-secondary hover:text-primary transition-colors" title="Editar">
+<span class="material-symbols-outlined text-[20px]">edit</span>
+</button>
+<button class="text-text-secondary hover:text-red-500 transition-colors" title="Eliminar">
+<span class="material-symbols-outlined text-[20px]">delete</span>
+</button>
+</div>
+</td>
+</tr>
+<tr class="group hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+<td class="p-4 text-sm font-medium text-text-secondary dark:text-gray-400">ORT-201</td>
+<td class="p-4 text-sm font-bold text-text-main dark:text-white">
+                                                Instalación Brackets Metálicos (Arcada)
+                                            </td>
+<td class="p-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                                                    Consultorio
+                                                </span>
+</td>
+<td class="p-4 text-sm font-bold text-text-main dark:text-white text-right">$350.00</td>
+<td class="p-4 text-center">
+<div class="flex justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="text-text-secondary hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">edit</span>
+</button>
+<button class="text-text-secondary hover:text-red-500 transition-colors">
+<span class="material-symbols-outlined text-[20px]">delete</span>
+</button>
+</div>
+</td>
+</tr>
+<tr class="group hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+<td class="p-4 text-sm font-medium text-text-secondary dark:text-gray-400">ORT-205</td>
+<td class="p-4 text-sm font-bold text-text-main dark:text-white">
+                                                Control Mensual Ortodoncia
+                                            </td>
+<td class="p-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                                                    Consultorio
+                                                </span>
+</td>
+<td class="p-4 text-sm font-bold text-text-main dark:text-white text-right">$50.00</td>
+<td class="p-4 text-center">
+<div class="flex justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="text-text-secondary hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">edit</span>
+</button>
+<button class="text-text-secondary hover:text-red-500 transition-colors">
+<span class="material-symbols-outlined text-[20px]">delete</span>
+</button>
+</div>
+</td>
+</tr>
+<tr class="group hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+<td class="p-4 text-sm font-medium text-text-secondary dark:text-gray-400">ORT-301</td>
+<td class="p-4 text-sm font-bold text-text-main dark:text-white">
+                                                Aparato de Expansión (Hyrax)
+                                                <span class="block text-xs font-normal text-text-secondary dark:text-gray-500 mt-0.5">Confección en laboratorio</span>
+</td>
+<td class="p-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
+                                                    Laboratorio
+                                                </span>
+</td>
+<td class="p-4 text-sm font-bold text-text-main dark:text-white text-right">$200.00</td>
+<td class="p-4 text-center">
+<div class="flex justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="text-text-secondary hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">edit</span>
+</button>
+<button class="text-text-secondary hover:text-red-500 transition-colors">
+<span class="material-symbols-outlined text-[20px]">delete</span>
+</button>
+</div>
+</td>
+</tr>
+<tr class="group hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+<td class="p-4 text-sm font-medium text-text-secondary dark:text-gray-400">ORT-402</td>
+<td class="p-4 text-sm font-bold text-text-main dark:text-white">
+                                                Set Alineadores Invisibles (Leve)
+                                                <span class="block text-xs font-normal text-text-secondary dark:text-gray-500 mt-0.5">Marca externa</span>
+</td>
+<td class="p-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
+                                                    Tercerizado
+                                                </span>
+</td>
+<td class="p-4 text-sm font-bold text-text-main dark:text-white text-right">$1,200.00</td>
+<td class="p-4 text-center">
+<div class="flex justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="text-text-secondary hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">edit</span>
+</button>
+<button class="text-text-secondary hover:text-red-500 transition-colors">
+<span class="material-symbols-outlined text-[20px]">delete</span>
+</button>
+</div>
+</td>
+</tr>
+<tr class="group hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+<td class="p-4 text-sm font-medium text-text-secondary dark:text-gray-400">ORT-500</td>
+<td class="p-4 text-sm font-bold text-text-main dark:text-white">
+                                                Retenedor Fijo 3a3
+                                            </td>
+<td class="p-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                                                    Consultorio
+                                                </span>
+</td>
+<td class="p-4 text-sm font-bold text-text-main dark:text-white text-right">$120.00</td>
+<td class="p-4 text-center">
+<div class="flex justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="text-text-secondary hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">edit</span>
+</button>
+<button class="text-text-secondary hover:text-red-500 transition-colors">
+<span class="material-symbols-outlined text-[20px]">delete</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-4 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between">
+<p class="text-sm text-text-secondary dark:text-gray-400">
+                                    Mostrando <span class="font-bold text-text-main dark:text-white">1</span> a <span class="font-bold text-text-main dark:text-white">6</span> de <span class="font-bold text-text-main dark:text-white">45</span> servicios
+                                </p>
+<div class="flex gap-2">
+<button class="size-8 flex items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 text-text-secondary dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50">
+<span class="material-symbols-outlined text-sm">chevron_left</span>
+</button>
+<button class="size-8 flex items-center justify-center rounded-lg bg-primary text-white text-sm font-bold">1</button>
+<button class="size-8 flex items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 text-text-secondary dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800">2</button>
+<button class="size-8 flex items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 text-text-secondary dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800">3</button>
+<button class="size-8 flex items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 text-text-secondary dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800">
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<script defer="" src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</body></html>

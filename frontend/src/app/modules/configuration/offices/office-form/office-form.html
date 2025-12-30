@@ -1,0 +1,50 @@
+<div class="flex flex-col h-full bg-white dark:bg-[#152326] p-6 rounded-xl">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-6">
+        <h2 class="text-xl font-bold text-[#111718] dark:text-white">
+            {{ isEdit ? 'Editar Consultorio' : 'Nuevo Consultorio' }}
+        </h2>
+        <button (click)="close()" class="text-[#618389] hover:text-[#111718] dark:hover:text-white transition-colors">
+            <span class="material-symbols-outlined">close</span>
+        </button>
+    </div>
+
+    <!-- Form -->
+    <form [formGroup]="form" (ngSubmit)="save()" class="flex flex-col gap-4">
+        <!-- Name -->
+        <div class="flex flex-col gap-2">
+            <label class="text-sm font-medium text-[#618389] dark:text-gray-400">Nombre del Consultorio <span
+                    class="text-red-500">*</span></label>
+            <input formControlName="name"
+                class="w-full rounded-lg border border-[#dbe4e6] dark:border-gray-700 bg-background-light dark:bg-black/20 h-12 px-4 text-base text-[#111718] dark:text-white focus:border-primary focus:ring-0 placeholder:text-gray-300"
+                placeholder="Ej: Consultorio 1">
+        </div>
+
+        <!-- Location -->
+        <div class="flex flex-col gap-2">
+            <label class="text-sm font-medium text-[#618389] dark:text-gray-400">Ubicación / Descripción</label>
+            <input formControlName="location"
+                class="w-full rounded-lg border border-[#dbe4e6] dark:border-gray-700 bg-background-light dark:bg-black/20 h-12 px-4 text-base text-[#111718] dark:text-white focus:border-primary focus:ring-0 placeholder:text-gray-300"
+                placeholder="Ej: Planta Baja, al fondo">
+        </div>
+
+        <!-- Is Active -->
+        <div class="flex items-center gap-3 mt-2">
+            <input type="checkbox" formControlName="isActive" id="isActive"
+                class="w-5 h-5 text-primary border-gray-300 rounded focus:ring-primary">
+            <label for="isActive" class="text-base text-[#111718] dark:text-white">Activo</label>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex justify-end gap-3 mt-6">
+            <button type="button" (click)="close()"
+                class="px-6 py-3 rounded-lg border border-transparent text-[#618389] hover:text-[#111718] font-bold transition-colors">
+                Cancelar
+            </button>
+            <button type="submit" [disabled]="form.invalid"
+                class="px-6 py-3 rounded-lg bg-primary hover:bg-primary/90 text-white font-bold shadow-lg shadow-primary/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                Guardar
+            </button>
+        </div>
+    </form>
+</div>

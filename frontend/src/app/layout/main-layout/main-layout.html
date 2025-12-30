@@ -1,0 +1,86 @@
+<div class="flex h-screen w-full overflow-hidden">
+    <!-- Sidebar -->
+    <aside
+        class="flex w-64 flex-col border-r border-[#dbe4e6] dark:border-[#2a3e42] bg-surface-light dark:bg-surface-dark transition-colors duration-200 hidden md:flex">
+        <div class="flex h-full flex-col justify-between p-4">
+            <div class="flex flex-col gap-6 overflow-y-auto">
+                <!-- Logo / User Profile -->
+                <a routerLink="/profile"
+                    class="flex gap-3 items-center mb-2 px-2 hover:bg-gray-50 dark:hover:bg-white/5 p-2 rounded-lg transition-colors group cursor-pointer">
+                    <div
+                        class="bg-primary/20 rounded-full size-12 flex items-center justify-center text-primary group-hover:scale-105 transition-transform">
+                        <span class="material-symbols-outlined fill" style="font-size: 32px;">account_circle</span>
+                    </div>
+                    <div class="flex flex-col">
+                        <h1 class="text-text-main-light dark:text-text-main-dark text-base font-bold leading-normal">
+                            {{ authService.currentUser()?.name || 'Usuario' }}
+                        </h1>
+                        <p
+                            class="text-text-secondary-light dark:text-text-secondary-dark text-xs font-normal leading-normal">
+                            {{ authService.currentUser()?.role || 'Personal' }}
+                        </p>
+                    </div>
+                </a>
+
+                <!-- Navigation Groups -->
+                <div class="flex flex-col gap-6">
+                    <div *ngFor="let group of menuGroups">
+                        <p class="text-[#618389] text-xs font-bold uppercase tracking-wider mb-3 px-3">{{group.title}}
+                        </p>
+                        <nav class="flex flex-col gap-1">
+                            <ng-container *ngFor="let item of group.items">
+                                <!-- Item with Children (Accordion style) -->
+                                <div *ngIf="item.children" class="flex flex-col gap-1">
+                                    <div
+                                        class="px-3 py-2 flex items-center gap-3 text-gray-600 dark:text-gray-300 font-medium">
+                                        <span class="material-symbols-outlined text-[20px]">{{item.icon}}</span>
+                                        <span class="text-sm flex-1">{{item.label}}</span>
+                                    </div>
+                                    <div
+                                        class="flex flex-col gap-1 pl-10 border-l border-gray-200 dark:border-gray-700 ml-5">
+                                        <a *ngFor="let child of item.children" [routerLink]="child.route"
+                                            routerLinkActive="text-primary font-bold"
+                                            class="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white py-1 transition-colors">
+                                            {{child.label}}
+                                        </a>
+                                    </div>
+                                </div>
+
+                                <!-- Standard Item -->
+                                <a *ngIf="!item.children"
+                                    class="nav-link flex items-center gap-3 px-3 py-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
+                                    [routerLink]="item.route"
+                                    routerLinkActive="active bg-primary/10 text-primary font-medium">
+                                    <span class="material-symbols-outlined text-[20px]"
+                                        [ngClass]="{'fill-1': item.icon === 'receipt_long'}">{{item.icon}}</span>
+                                    <span class="text-sm">{{item.label}}</span>
+                                </a>
+                            </ng-container>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+
+            <div class="px-3 py-2">
+                <button
+                    class="flex items-center gap-3 text-text-secondary-light dark:text-text-secondary-dark hover:text-primary transition-colors"
+                    (click)="logout()">
+                    <span class="material-symbols-outlined">logout</span>
+                    <span class="text-sm font-medium">Cerrar Sesión</span>
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col h-full overflow-hidden bg-background-light dark:bg-background-dark relative">
+        <app-nav-bar></app-nav-bar>
+
+        <div class="flex-1 overflow-y-auto p-4 md:p-8">
+            <div class="max-w-7xl mx-auto flex flex-col gap-6">
+                <router-outlet></router-outlet>
+            </div>
+            <div class="h-20"></div> <!-- Spacer for scrolling breathing room -->
+        </div>
+    </main>
+</div>

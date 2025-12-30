@@ -1,0 +1,46 @@
+<div class="p-6">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold text-gray-800">Consultorios</h1>
+        <button (click)="openOfficeForm()"
+            class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition">
+            + Nuevo Consultorio
+        </button>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <table class="w-full text-left">
+            <thead class="bg-gray-50 border-b border-gray-100">
+                <tr>
+                    <th class="p-4 font-semibold text-gray-600">Nombre</th>
+                    <th class="p-4 font-semibold text-gray-600">Ubicación</th>
+                    <th class="p-4 font-semibold text-gray-600">Estado</th>
+                    <th class="p-4 font-semibold text-gray-600 text-right">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let office of offices" class="border-b border-gray-50 hover:bg-gray-50/50 transition">
+                    <td class="p-4 font-medium text-gray-800">{{office.name}}</td>
+                    <td class="p-4 text-gray-600">{{office.location || '-'}}</td>
+                    <td class="p-4">
+                        <span [class.bg-green-100]="office.isActive" [class.text-green-700]="office.isActive"
+                            [class.bg-red-100]="!office.isActive" [class.text-red-700]="!office.isActive"
+                            class="px-2 py-1 rounded-full text-xs font-bold">
+                            {{office.isActive ? 'ACTIVO' : 'INACTIVO'}}
+                        </span>
+                    </td>
+                    <td class="p-4 text-right space-x-2">
+                        <button (click)="openOfficeForm(office)"
+                            class="text-blue-600 hover:text-blue-800 font-medium text-sm">Editar</button>
+                        <button (click)="deleteOffice(office)"
+                            class="text-red-600 hover:text-red-800 font-medium text-sm">Eliminar</button>
+                    </td>
+                </tr>
+                <tr *ngIf="offices.length === 0">
+                    <td colspan="4" class="p-8 text-center text-gray-500">
+                        No hay consultorios registrados.
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

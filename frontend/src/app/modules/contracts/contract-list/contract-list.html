@@ -1,0 +1,174 @@
+<div class="flex-1 flex flex-col gap-8 p-4 md:p-8 scroll-smooth max-w-[1400px] mx-auto">
+    <!-- Breadcrumbs & Header -->
+    <div class="flex flex-col gap-6">
+        <div class="flex items-center gap-2 text-sm">
+            <a class="text-text-secondary-light dark:text-[#8baab0] font-medium hover:text-primary transition-colors cursor-pointer"
+                routerLink="/">Inicio</a>
+            <span
+                class="text-text-secondary-light dark:text-[#8baab0] material-symbols-outlined text-[16px]">chevron_right</span>
+            <span class="text-text-primary-light dark:text-white font-bold">Listado de Contratos</span>
+        </div>
+
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <div class="flex flex-col gap-2">
+                <h1
+                    class="text-text-primary-light dark:text-white text-3xl md:text-4xl font-black leading-tight tracking-[-0.033em]">
+                    Gestión de Contratos</h1>
+                <p class="text-text-secondary-light dark:text-[#8baab0] text-base font-normal">Administre y monitoree el
+                    estado de los contratos y planes de financiamiento.</p>
+            </div>
+            <div class="flex gap-3">
+                <button routerLink="/commercial/quotes"
+                    class="flex items-center gap-2 px-4 py-2 bg-primary border border-primary text-white rounded-lg font-bold text-sm hover:bg-primary/90 transition-colors shadow-sm">
+                    <span class="material-symbols-outlined text-[20px]">add</span>
+                    Nuevo Contrato
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="bg-white dark:bg-[#1a2c30] rounded-xl p-4 shadow-sm border border-border-light dark:border-[#2a3c40]">
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+            <div class="md:col-span-6 lg:col-span-5">
+                <label class="flex flex-col gap-1.5">
+                    <span
+                        class="text-xs font-bold text-text-secondary-light dark:text-[#8baab0] uppercase tracking-wide">Búsqueda
+                        Rápida</span>
+                    <div class="relative w-full">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <span
+                                class="material-symbols-outlined text-text-secondary-light dark:text-[#8baab0]">search</span>
+                        </div>
+                        <input [(ngModel)]="searchQuery" (ngModelChange)="applyFilters()"
+                            class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-border-light dark:border-[#2a3c40] bg-background-light dark:bg-[#101f22] text-text-primary-light dark:text-white placeholder-text-secondary-light dark:placeholder-[#8baab0] text-sm focus:ring-primary focus:border-primary outline-none"
+                            placeholder="Buscar por paciente, contrato o presupuesto..." type="text" />
+                    </div>
+                </label>
+            </div>
+            <div class="md:col-span-3 lg:col-span-3">
+                <label class="flex flex-col gap-1.5">
+                    <span
+                        class="text-xs font-bold text-text-secondary-light dark:text-[#8baab0] uppercase tracking-wide">Estado</span>
+                    <select [(ngModel)]="statusFilter" (ngModelChange)="applyFilters()"
+                        class="w-full py-2.5 px-3 rounded-lg border border-border-light dark:border-[#2a3c40] bg-white dark:bg-[#101f22] text-text-primary-light dark:text-white text-sm focus:ring-primary focus:border-primary outline-none cursor-pointer">
+                        <option value="">Todos los estados</option>
+                        <option value="ACTIVE">Activo</option>
+                        <option value="COMPLETED">Finalizado</option>
+                        <option value="CANCELLED">Anulado</option>
+                    </select>
+                </label>
+            </div>
+            <div class="md:col-span-3 lg:col-span-4">
+                <label class="flex flex-col gap-1.5">
+                    <span
+                        class="text-xs font-bold text-text-secondary-light dark:text-[#8baab0] uppercase tracking-wide">Forma
+                        de Pago</span>
+                    <select [(ngModel)]="methodFilter" (ngModelChange)="applyFilters()"
+                        class="w-full py-2.5 px-3 rounded-lg border border-border-light dark:border-[#2a3c40] bg-white dark:bg-[#101f22] text-text-primary-light dark:text-white text-sm focus:ring-primary focus:border-primary outline-none cursor-pointer">
+                        <option value="">Todas las formas</option>
+                        <option value="CASH">Contado</option>
+                        <option value="CREDIT">Crédito / Financiado</option>
+                    </select>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contracts Table -->
+    <div
+        class="bg-white dark:bg-[#1a2c30] shadow-sm border border-border-light dark:border-[#2a3c40] rounded-xl overflow-hidden">
+        <app-custom-table [columns]="columns" [data]="filteredContracts" [showEdit]="false" [showDelete]="false"
+            [extraActionsTemplate]="extraActions"
+            [columnTemplates]="{ patient: patientTmpl, id: idTmpl, createdAt: dateTmpl, total: totalTmpl, financed: financedTmpl, status: statusTmpl }">
+        </app-custom-table>
+    </div>
+
+    <!-- Cell Templates -->
+    <ng-template #patientTmpl let-contract>
+        <div class="flex items-center gap-3">
+            <div
+                class="size-9 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-sm">
+                {{ contract.quote?.patient?.firstName?.charAt(0) }}{{ contract.quote?.patient?.lastName?.charAt(0) }}
+            </div>
+            <div class="flex flex-col">
+                <span class="text-sm font-bold text-text-primary-light dark:text-white">{{
+                    contract.quote?.patient?.firstName }} {{ contract.quote?.patient?.lastName }}</span>
+                <span class="text-xs text-text-secondary-light">DNI: {{ contract.quote?.patient?.dni }}</span>
+            </div>
+        </div>
+    </ng-template>
+
+    <ng-template #idTmpl let-contract>
+        <div class="flex flex-col">
+            <span class="text-sm font-bold text-base font-mono text-text-primary-light dark:text-white">{{
+                contract.id.slice(0, 8) | uppercase }}</span>
+            <span class="text-[10px] text-text-secondary-light uppercase tracking-tighter">PRE: {{
+                contract.quoteId.slice(0, 8) }}</span>
+        </div>
+    </ng-template>
+
+    <ng-template #dateTmpl let-contract>
+        <span class="text-sm text-text-primary-light dark:text-white">{{ (contract.createdAt ||
+            contract.quote?.createdAt) | date:'dd MMM yyyy' }}</span>
+    </ng-template>
+
+    <ng-template #totalTmpl let-contract>
+        <span class="text-sm font-bold text-text-primary-light dark:text-white">{{ contract.total | currency }}</span>
+    </ng-template>
+
+    <ng-template #financedTmpl let-contract>
+        <div class="flex flex-col" *ngIf="contract.paymentMethod === 'CREDIT'; else cashTmpl">
+            <span class="text-sm font-bold text-primary">{{ (contract.total) | currency }}</span>
+            <span class="text-[10px] text-text-secondary-light">Financiado ({{ contract.installments }} cuotas)</span>
+        </div>
+        <ng-template #cashTmpl>
+            <span class="text-sm text-text-secondary-light italic">Contado</span>
+        </ng-template>
+    </ng-template>
+
+    <ng-template #statusTmpl let-contract>
+        <div class="flex justify-center">
+            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase border" [ngClass]="{
+                'bg-green-50 border-green-200 text-green-600 dark:bg-green-900/30 dark:border-green-800 dark:text-green-400': contract.status === 'ACTIVE' || contract.status === 'activo',
+                'bg-blue-50 border-blue-200 text-blue-600 dark:bg-blue-900/30 dark:border-blue-800 dark:text-blue-400': contract.status === 'COMPLETED' || contract.status === 'finalizado',
+                'bg-red-50 border-red-200 text-red-600 dark:bg-red-900/30 dark:border-red-800 dark:text-red-400': contract.status === 'CANCELLED' || contract.status === 'anulado'
+            }">
+                {{ contract.status === 'ACTIVE' || contract.status === 'activo' ? 'Activo' :
+                (contract.status === 'COMPLETED' || contract.status === 'finalizado' ? 'Finalizado' : 'Anulado') }}
+            </span>
+        </div>
+    </ng-template>
+
+    <ng-template #extraActions let-contract>
+        <div class="flex items-center justify-end gap-1">
+            <!-- Ver Detalle - Navigate to contract details or show dialog -->
+            <button (click)="viewContractDetails(contract)"
+                class="p-2 text-text-secondary-light dark:text-[#8baab0] hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
+                title="Ver Detalle">
+                <span class="material-symbols-outlined text-[20px]">visibility</span>
+            </button>
+
+            <!-- Ver Cronograma - Only for CREDIT contracts -->
+            <button *ngIf="contract.paymentMethod === 'CREDIT'" (click)="viewSchedule(contract)"
+                class="p-2 text-text-secondary-light dark:text-[#8baab0] hover:text-blue-600 hover:bg-blue-600/10 rounded-lg transition-colors"
+                title="Ver Cronograma">
+                <span class="material-symbols-outlined text-[20px]">calendar_month</span>
+            </button>
+
+            <!-- Gestionar Pagos - Only for ACTIVE contracts with balance -->
+            <button *ngIf="contract.status === 'ACTIVE' && contract.balance > 0" (click)="registerPayment(contract)"
+                class="p-2 text-text-secondary-light dark:text-[#8baab0] hover:text-green-600 hover:bg-green-600/10 rounded-lg transition-colors"
+                title="Registrar Pago">
+                <span class="material-symbols-outlined text-[20px]">payments</span>
+            </button>
+
+            <!-- Generar Proforma - For all contracts -->
+            <button (click)="generateProforma(contract)"
+                class="p-2 text-text-secondary-light dark:text-[#8baab0] hover:text-purple-600 hover:bg-purple-600/10 rounded-lg transition-colors"
+                title="Generar Proforma">
+                <span class="material-symbols-outlined text-[20px]">description</span>
+            </button>
+        </div>
+    </ng-template>
+</div>

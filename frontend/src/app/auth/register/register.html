@@ -1,0 +1,137 @@
+<div class="register-wrapper">
+    <!-- Left Section: Visual / Branding (Hidden on mobile, visible on desktop) -->
+    <div class="register-visual">
+      <!-- Background Image -->
+      <div class="visual-background">
+        <img 
+          alt="Modern clean dental office equipment with blue lighting" 
+          src="https://lh3.googleusercontent.com/aida-public/AB6AXuAJQg0hu-y5uKlkehkJWjI9f2asyVaPBMlA7_dcjP1Ut22raVLasZoMRRuFTiVnBshDUv9whBKmTRs6jMsuqe3PIqP-0Cg-R8juY0aanhdWLWioisAWwc46cUnM0czdpSQrVSuJ1X63YwqUUt0V8dP_zv6R4hRwmUFeYd-kIw1IOjH-kvSM_JAFzFO1qQwb0JJg7Z1RejaXdKZBOVYqJCxPK9AeBSkMj6eyKG0pzYpc3FPI31foknXrTHFYyqJU_Bx-iL4DOCk_4_g"
+          class="visual-image"
+        />
+        <div class="visual-overlay-gradient"></div>
+        <div class="visual-overlay-primary"></div>
+      </div>
+      
+      <!-- Content Overlay -->
+      <div class="visual-content">
+        <div class="visual-logo">
+          <span class="material-symbols-outlined">dentistry</span>
+          <span class="logo-text">SGOdonto</span>
+        </div>
+        
+        <div class="visual-message">
+          <h1 class="visual-title">Comienza a transformar tu práctica hoy.</h1>
+          <p class="visual-subtitle">Únete a cientos de profesionales que confían en SGOdonto para administrar sus clínicas.</p>
+        </div>
+        
+        <div class="visual-indicators">
+          <div class="indicator"></div>
+          <div class="indicator active"></div>
+          <div class="indicator"></div>
+        </div>
+      </div>
+    </div>
+  
+    <!-- Right Section: Form -->
+    <div class="register-form-section">
+      <!-- Mobile Logo (Visible only on small screens) -->
+      <div class="mobile-logo">
+        <span class="material-symbols-outlined">dentistry</span>
+        <span class="logo-text">SGOdonto</span>
+      </div>
+  
+      <div class="form-container">
+        <div class="form-content">
+          <!-- Page Heading -->
+          <div class="form-header">
+            <p class="form-title">Registrar Consultorio</p>
+            <p class="form-subtitle">Crea tu cuenta administrativa</p>
+          </div>
+  
+          <!-- Register Form -->
+          <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="register-form">
+            
+            <!-- Name Field -->
+            <div class="form-field">
+                <label class="field-label">Nombre Completo</label>
+                <div class="input-wrapper">
+                  <span class="material-symbols-outlined input-icon">badge</span>
+                  <input 
+                    class="form-input"
+                    formControlName="name"
+                    type="text"
+                    placeholder="Dr. Juan Pérez"
+                  />
+                </div>
+              </div>
+
+            <!-- Email Field -->
+            <div class="form-field">
+              <label class="field-label">Correo Electrónico</label>
+              <div class="input-wrapper">
+                <span class="material-symbols-outlined input-icon">mail</span>
+                <input 
+                  class="form-input"
+                  formControlName="email"
+                  type="email"
+                  placeholder="ejemplo@clinica.com"
+                />
+              </div>
+            </div>
+  
+            <!-- Password Field -->
+            <div class="form-field">
+              <div class="field-header">
+                <label class="field-label">Contraseña</label>
+              </div>
+              <div class="input-wrapper">
+                <span class="material-symbols-outlined input-icon">lock</span>
+                <input 
+                  class="form-input password-input"
+                  formControlName="password"
+                  [type]="showPassword ? 'text' : 'password'"
+                  placeholder="Mínimo 6 caracteres"
+                />
+                <button 
+                  class="toggle-password"
+                  type="button"
+                  (click)="togglePasswordVisibility()"
+                >
+                  <span class="material-symbols-outlined">{{ showPassword ? 'visibility_off' : 'visibility' }}</span>
+                </button>
+              </div>
+            </div>
+  
+            <!-- Submit Button -->
+            <button 
+              class="submit-button"
+              type="submit"
+              [disabled]="registerForm.invalid || isSubmitting"
+            >
+              <span class="button-text">{{ isSubmitting ? 'REGISTRANDO...' : 'CREAR CUENTA' }}</span>
+            </button>
+          </form>
+  
+          <!-- Divider -->
+          <div class="divider">
+            <div class="divider-line"></div>
+            <span class="divider-text">o</span>
+            <div class="divider-line"></div>
+          </div>
+  
+          <!-- Login Link -->
+          <div class="login-link-section">
+            <p class="login-text">
+              ¿Ya tienes una cuenta? 
+              <a routerLink="/login" class="login-link">Iniciar sesión</a>
+            </p>
+          </div>
+        </div>
+      </div>
+  
+      <!-- Footer -->
+      <div class="register-footer">
+        <p class="footer-text">© 2024 SGOdonto Systems. v1.2.0</p>
+      </div>
+    </div>
+  </div>

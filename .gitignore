@@ -1,0 +1,19 @@
+# MSoft SGOdonto Root .gitignore
+
+# Environment variables
+.env
+
+# Dependencies
+node_modules/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+
+# Build outputs
+dist/
+build/

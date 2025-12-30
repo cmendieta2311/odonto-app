@@ -1,0 +1,156 @@
+<div class="layout-content-container flex flex-col max-w-[1200px] flex-1 gap-6 w-full mx-auto px-4">
+    <!-- Header -->
+    <div class="flex flex-wrap justify-between items-end gap-3 mt-4">
+        <div class="flex flex-col gap-2">
+            <h1 class="text-[#111718] dark:text-white text-4xl font-black leading-tight tracking-[-0.033em]">
+                Cuentas por Cobrar
+            </h1>
+            <p class="text-[#618389] dark:text-gray-400 text-base font-normal leading-normal">
+                Gestión de cuotas pendientes y vencidas
+            </p>
+        </div>
+        <button routerLink="/payments/new"
+            class="flex items-center gap-2 px-6 py-3 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold transition-all shadow-lg shadow-primary/20">
+            <span class="material-symbols-outlined">add_card</span>
+            Registrar Pago
+        </button>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-white dark:bg-[#152326] p-5 rounded-xl border border-[#eef4f6] dark:border-gray-800 shadow-sm">
+            <span class="text-[#618389] text-sm font-medium uppercase tracking-wider">Total Pendiente</span>
+            <div class="flex items-end gap-2 mt-1">
+                <span class="text-3xl font-bold text-[#111718] dark:text-white">{{ totalPending | currency }}</span>
+                <span class="text-xs text-green-500 font-bold mb-1.5 flex items-center">
+                    <span class="material-symbols-outlined text-[16px]">trending_up</span>
+                    Proyectado
+                </span>
+            </div>
+        </div>
+        <div class="bg-white dark:bg-[#152326] p-5 rounded-xl border border-[#eef4f6] dark:border-gray-800 shadow-sm">
+            <span class="text-[#618389] text-sm font-medium uppercase tracking-wider">Vencido</span>
+            <div class="flex items-end gap-2 mt-1">
+                <span class="text-3xl font-bold text-red-500">{{ totalOverdue | currency }}</span>
+                <span class="text-xs text-red-400 font-bold mb-1.5 animate-pulse">
+                    ¡Atención!
+                </span>
+            </div>
+        </div>
+        <div class="bg-white dark:bg-[#152326] p-5 rounded-xl border border-[#eef4f6] dark:border-gray-800 shadow-sm">
+            <span class="text-[#618389] text-sm font-medium uppercase tracking-wider">Cuotas Pendientes</span>
+            <div class="flex items-end gap-2 mt-1">
+                <span class="text-3xl font-bold text-[#111718] dark:text-white">{{ countPending }}</span>
+                <span class="text-xs text-[#618389] mb-1.5">cuotas</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search & Filters -->
+    <div class="flex flex-col sm:flex-row gap-4">
+        <div class="relative flex flex-1 items-center">
+            <span class="absolute left-4 text-[#618389] material-symbols-outlined z-10">search</span>
+            <input [(ngModel)]="searchTerm" (input)="filter()"
+                class="form-input flex w-full rounded-xl text-[#111718] dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-[#dbe4e6] dark:border-gray-700 bg-white dark:bg-[#152326] h-12 pl-12 pr-4 text-base font-normal placeholder:text-[#618389]"
+                placeholder="Buscar por paciente..." />
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div
+        class="bg-white dark:bg-[#152326] rounded-xl border border-[#dbe4e6] dark:border-gray-800 shadow-sm overflow-hidden flex flex-col h-full">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-[#f0f4f4] dark:bg-[#1a2c30] border-b border-[#dbe4e6] dark:border-gray-800">
+                        <th class="py-4 px-6 text-xs font-bold uppercase tracking-wider text-[#618389]">Próximo
+                            Vencimiento</th>
+                        <th class="py-4 px-6 text-xs font-bold uppercase tracking-wider text-[#618389]">Paciente</th>
+                        <th class="py-4 px-6 text-xs font-bold uppercase tracking-wider text-[#618389]">Contrato</th>
+                        <th class="py-4 px-6 text-xs font-bold uppercase tracking-wider text-[#618389]">Estado</th>
+                        <th class="py-4 px-6 text-right text-xs font-bold uppercase tracking-wider text-[#618389]">Monto
+                            Contrato</th>
+                        <th class="py-4 px-6 text-right text-xs font-bold uppercase tracking-wider text-[#618389]">Deuda
+                            Pendiente</th>
+                        <th class="py-4 px-6 w-20"></th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-[#dbe4e6] dark:divide-gray-800">
+                    <tr *ngFor="let item of filteredReceivables"
+                        class="hover:bg-gray-50 dark:hover:bg-black/20 transition-colors group">
+                        <td class="py-4 px-6 text-sm">
+                            <div class="flex flex-col">
+                                <span class="font-bold text-[#111718] dark:text-white">{{ item.nextDueDate |
+                                    date:'mediumDate' }}</span>
+                                <span class="text-xs text-[#618389]">{{ item.nextDueDate | date:'EEEE' }}</span>
+                            </div>
+                        </td>
+                        <td class="py-4 px-6 text-sm">
+                            <div class="flex items-center gap-3">
+                                <div
+                                    class="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-400 to-cyan-300 flex items-center justify-center text-white font-bold text-xs uppercase">
+                                    {{ item.patientName.substring(0,2) }}
+                                </div>
+                                <span class="font-medium text-[#111718] dark:text-white">{{ item.patientName }}</span>
+                            </div>
+                        </td>
+                        <td class="py-4 px-6 text-sm">
+                            <div class="flex flex-col">
+                                <span class="text-[#111718] dark:text-white">Contrato ...{{ item.contractId | slice:-6
+                                    }}</span>
+                                <span class="text-xs text-[#618389] font-medium badge badge-ghost gap-1">
+                                    {{ item.pendingCount }} cuotas pendientes
+                                </span>
+                            </div>
+                        </td>
+                        <td class="py-4 px-6">
+                            <span *ngIf="item.status === 'OVERDUE'"
+                                class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 text-xs font-bold">
+                                <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span> MOROSO ({{item.overdueCount}})
+                            </span>
+                            <span *ngIf="item.status === 'PENDING'"
+                                class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 text-xs font-bold">
+                                <span class="w-1.5 h-1.5 rounded-full bg-yellow-500"></span> AL DÍA
+                            </span>
+                        </td>
+                        <td class="py-4 px-6 text-right">
+                            <span class="font-medium text-[#618389] dark:text-gray-400 text-sm">
+                                {{ item.contractTotal | currency }}
+                            </span>
+                        </td>
+                        <td class="py-4 px-6 text-right">
+                            <span class="font-bold text-[#111718] dark:text-white text-lg"
+                                [class.text-red-500]="item.status === 'OVERDUE'">
+                                {{ item.totalAmount | currency }}
+                            </span>
+                        </td>
+                        <td class="py-4 px-6 text-right">
+                            <button (click)="payItem(item)"
+                                class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-primary hover:bg-primary/10 transition-colors"
+                                title="Registrar Pago">
+                                <span class="material-symbols-outlined">payments</span>
+                            </button>
+                        </td>
+                    </tr>
+                    <tr *ngIf="filteredReceivables.length === 0 && !isLoading">
+                        <td colspan="7" class="py-12 text-center">
+                            <div class="flex flex-col items-center gap-3">
+                                <div
+                                    class="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-400">
+                                    <span class="material-symbols-outlined text-3xl">check_circle</span>
+                                </div>
+                                <h3 class="text-lg font-bold text-[#111718] dark:text-white">Todo al día</h3>
+                                <p class="text-[#618389]">No hay contratos con deuda pendiente.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr *ngIf="isLoading">
+                        <td colspan="7" class="py-12 text-center text-[#618389]">
+                            Cargando información...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,11 @@
+.nav-link {
+    @apply flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-secondary-light dark:text-text-secondary-dark hover:bg-background-light dark:hover:bg-background-dark transition-colors;
+}
+
+.nav-link.active {
+    @apply bg-primary/10 text-primary dark:text-primary;
+}
+
+.nav-link.active span {
+    font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}

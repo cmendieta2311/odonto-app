@@ -1,0 +1,73 @@
+<div
+    class="flex flex-col max-h-[80vh] bg-background-light dark:bg-background-dark rounded-2xl overflow-hidden shadow-2xl border border-[#dbe4e6] dark:border-[#2a3e42]">
+    <!-- Header -->
+    <div
+        class="px-6 py-4 border-b border-[#dbe4e6] dark:border-[#2a3e42] bg-surface-light dark:bg-surface-dark/50 flex justify-between items-center">
+        <div class="flex items-center gap-3">
+            <div class="size-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                <span class="material-symbols-outlined">calendar_month</span>
+            </div>
+            <div>
+                <h2 class="text-xl font-extra-bold text-text-main-light dark:text-text-main-dark tracking-tight">
+                    Cronograma de Pagos</h2>
+                <p class="text-xs text-text-secondary-light dark:text-text-secondary-dark">Resumen de cuotas y fechas de
+                    vencimiento.</p>
+            </div>
+        </div>
+        <button (click)="dialogRef.close()"
+            class="size-8 rounded-lg flex items-center justify-center hover:bg-surface-white dark:hover:bg-surface-dark text-text-secondary-light transition-all">
+            <span class="material-symbols-outlined" style="font-size: 20px;">close</span>
+        </button>
+    </div>
+
+    <!-- Content -->
+    <div class="flex-1 overflow-y-auto p-6">
+        <div class="rounded-xl border border-[#dbe4e6] dark:border-[#2a3e42] overflow-hidden">
+            <table class="w-full text-left border-collapse">
+                <thead
+                    class="bg-surface-light dark:bg-surface-dark text-[10px] uppercase font-bold tracking-widest text-text-secondary-light">
+                    <tr>
+                        <th class="px-4 py-3 border-b border-[#dbe4e6] dark:border-[#2a3e42]">Cuota</th>
+                        <th class="px-4 py-3 border-b border-[#dbe4e6] dark:border-[#2a3e42]">Vencimiento</th>
+                        <th class="px-4 py-3 border-b border-[#dbe4e6] dark:border-[#2a3e42] text-right">Monto</th>
+                        <th class="px-4 py-3 border-b border-[#dbe4e6] dark:border-[#2a3e42] text-center">Estado</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-[#dbe4e6] dark:divide-[#2a3e42]">
+                    <tr *ngFor="let item of data.schedule; let i = index"
+                        class="hover:bg-surface-white dark:hover:bg-surface-dark transition-colors">
+                        <td class="px-4 py-3 text-xs font-bold text-text-main-light dark:text-text-main-dark">#{{ i + 1
+                            }}</td>
+                        <td class="px-4 py-3 text-xs text-text-secondary-light dark:text-text-secondary-dark">{{
+                            item.dueDate | date:'mediumDate' }}</td>
+                        <td class="px-4 py-3 text-xs font-black text-primary text-right">{{ item.amount | currency }}
+                        </td>
+                        <td class="px-4 py-3 text-center">
+                            <span
+                                class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-tighter border"
+                                [ngClass]="{
+                      'bg-green-50 border-green-200 text-green-600': item.status === 'PAID',
+                      'bg-orange-50 border-orange-200 text-orange-600': item.status === 'PENDING',
+                      'bg-red-50 border-red-200 text-red-600': item.status === 'OVERDUE'
+                    }">
+                                {{ item.status === 'PAID' ? 'Pagado' : (item.status === 'PENDING' ? 'Pendiente' :
+                                'Mora') }}
+                            </span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div
+        class="px-6 py-4 border-t border-[#dbe4e6] dark:border-[#2a3e42] bg-surface-light dark:bg-surface-dark/50 flex justify-end">
+        <button (click)="dialogRef.close()"
+            class="h-10 px-6 rounded-xl border border-[#dbe4e6] dark:border-[#2a3e42] text-sm font-bold text-text-secondary-light hover:bg-surface-white dark:hover:bg-surface-dark transition-all">
+            Cerrar
+        </button>
+    </div>
+</div>
+Riverside
+Riverside

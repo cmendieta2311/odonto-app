@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Configuración del Sistema - DentalSys</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet"/>
+<!-- Material Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Theme Config -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#136dec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101822",
+                        "surface-light": "#ffffff",
+                        "surface-dark": "#1a2634",
+                        "border-light": "#f0f2f4",
+                        "border-dark": "#2a3b4d",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom Scrollbar for cleaner look */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+        .dark ::-webkit-scrollbar-thumb {
+            background: #475569; 
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-[#111418] dark:text-white font-display flex flex-col h-screen overflow-hidden transition-colors duration-200">
+<!-- Top Navigation -->
+<header class="flex items-center justify-between whitespace-nowrap border-b border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark px-6 py-3 h-16 shrink-0 z-20">
+<div class="flex items-center gap-4 text-[#111418] dark:text-white">
+<div class="size-8 flex items-center justify-center text-primary bg-primary/10 rounded-lg">
+<span class="material-symbols-outlined text-2xl">dentistry</span>
+</div>
+<h2 class="text-lg font-bold leading-tight tracking-[-0.015em]">DentalSys Admin</h2>
+</div>
+<div class="flex flex-1 justify-end gap-6 items-center">
+<div class="flex gap-2">
+<button class="flex size-10 cursor-pointer items-center justify-center overflow-hidden rounded-full hover:bg-background-light dark:hover:bg-background-dark text-[#111418] dark:text-white transition-colors">
+<span class="material-symbols-outlined">search</span>
+</button>
+<button class="flex size-10 cursor-pointer items-center justify-center overflow-hidden rounded-full hover:bg-background-light dark:hover:bg-background-dark text-[#111418] dark:text-white transition-colors relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 size-2 bg-red-500 rounded-full border-2 border-surface-light dark:border-surface-dark"></span>
+</button>
+</div>
+<div class="flex items-center gap-3 pl-4 border-l border-border-light dark:border-border-dark">
+<div class="text-right hidden sm:block">
+<p class="text-sm font-bold leading-none">Dr. Alejandro V.</p>
+<p class="text-xs text-[#617289] dark:text-gray-400 mt-1">Administrador</p>
+</div>
+<div class="bg-center bg-no-repeat bg-cover rounded-full size-10 border-2 border-border-light dark:border-border-dark" data-alt="Profile picture of a male doctor smiling" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuA8FCkZ-BKmOZ-5UiNRDC72b9LQKK-D190lCtYlgOa_lck76aFSt9ulDmfQqlOIM3O4XdRI_Slr9Keoz5G1y7J-aiMyJTxQtP0teL-gtQr0IxT6-W3NxeXAVirDHWhbekpmcLzSBpX_AJKV1HrJEslDkQxJrNkVPksjBO5HZHo2nRjbk9ZOKj7drKH6ThyZJr-J87E23iKqP8aJjYJlgU6sNdXjP80qNcVu4HBgD67sOBZoo4v-nrDXmYfeq1jO2FOY5v2hJpht_70");'></div>
+</div>
+</div>
+</header>
+<div class="flex flex-1 overflow-hidden relative">
+<!-- Side Navigation -->
+<aside class="w-64 bg-surface-light dark:bg-surface-dark border-r border-border-light dark:border-border-dark flex-col hidden md:flex shrink-0 overflow-y-auto">
+<div class="p-4 flex flex-col gap-6">
+<div class="flex flex-col gap-2">
+<h3 class="px-3 text-xs font-bold text-[#617289] dark:text-gray-400 uppercase tracking-wider">Configuración</h3>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/10 text-primary group transition-all" href="#">
+<span class="material-symbols-outlined filled">settings</span>
+<span class="text-sm font-bold">General</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#617289] dark:text-gray-400 hover:bg-background-light dark:hover:bg-background-dark hover:text-[#111418] dark:hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined">payments</span>
+<span class="text-sm font-medium">Facturación</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#617289] dark:text-gray-400 hover:bg-background-light dark:hover:bg-background-dark hover:text-[#111418] dark:hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined">medical_services</span>
+<span class="text-sm font-medium">Servicios</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#617289] dark:text-gray-400 hover:bg-background-light dark:hover:bg-background-dark hover:text-[#111418] dark:hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="text-sm font-medium">Usuarios y Roles</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#617289] dark:text-gray-400 hover:bg-background-light dark:hover:bg-background-dark hover:text-[#111418] dark:hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined">print</span>
+<span class="text-sm font-medium">Impresión</span>
+</a>
+</div>
+<div class="h-px bg-border-light dark:bg-border-dark mx-3"></div>
+<div class="flex flex-col gap-2">
+<h3 class="px-3 text-xs font-bold text-[#617289] dark:text-gray-400 uppercase tracking-wider">Sistema</h3>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#617289] dark:text-gray-400 hover:bg-background-light dark:hover:bg-background-dark hover:text-[#111418] dark:hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined">database</span>
+<span class="text-sm font-medium">Copia de Seguridad</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#617289] dark:text-gray-400 hover:bg-background-light dark:hover:bg-background-dark hover:text-[#111418] dark:hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined">history</span>
+<span class="text-sm font-medium">Logs de Auditoría</span>
+</a>
+</div>
+</div>
+<div class="mt-auto p-4 border-t border-border-light dark:border-border-dark">
+<button class="flex items-center gap-3 px-3 py-2 w-full rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 transition-all">
+<span class="material-symbols-outlined">logout</span>
+<span class="text-sm font-bold">Cerrar Sesión</span>
+</button>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 overflow-y-auto bg-background-light dark:bg-background-dark">
+<div class="max-w-5xl mx-auto px-6 py-8 flex flex-col gap-8 pb-32">
+<!-- Breadcrumbs & Heading -->
+<div class="flex flex-col gap-4">
+<div class="flex items-center gap-2 text-sm text-[#617289] dark:text-gray-400">
+<a class="hover:text-primary transition-colors" href="#">Inicio</a>
+<span class="material-symbols-outlined text-base">chevron_right</span>
+<span class="text-[#111418] dark:text-white font-medium">Configuración</span>
+</div>
+<div class="flex flex-wrap justify-between items-end gap-4">
+<div>
+<h1 class="text-3xl font-bold text-[#111418] dark:text-white tracking-tight">Configuración del Sistema</h1>
+<p class="text-[#617289] dark:text-gray-400 mt-1">Administre los parámetros globales, facturación y accesos del consultorio.</p>
+</div>
+<div class="flex gap-3">
+<button class="px-4 py-2 rounded-lg border border-border-light dark:border-border-dark bg-white dark:bg-surface-dark text-[#111418] dark:text-white font-bold text-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors shadow-sm">
+                                Cancelar
+                            </button>
+<button class="px-4 py-2 rounded-lg bg-primary text-white font-bold text-sm hover:bg-primary/90 transition-colors shadow-sm flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">save</span>
+                                Guardar Cambios
+                            </button>
+</div>
+</div>
+</div>
+<!-- Section: General Information -->
+<section class="bg-white dark:bg-surface-dark rounded-xl shadow-sm border border-border-light dark:border-border-dark overflow-hidden">
+<div class="px-6 py-4 border-b border-border-light dark:border-border-dark flex items-center gap-3">
+<div class="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-primary">
+<span class="material-symbols-outlined">apartment</span>
+</div>
+<h3 class="text-lg font-bold text-[#111418] dark:text-white">Datos del Consultorio</h3>
+</div>
+<div class="p-6 grid grid-cols-1 md:grid-cols-12 gap-8">
+<!-- Logo Upload -->
+<div class="md:col-span-4 flex flex-col gap-3">
+<label class="block text-sm font-bold text-[#111418] dark:text-white">Logotipo del Consultorio</label>
+<div class="aspect-square w-full relative rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-600 bg-background-light dark:bg-background-dark flex flex-col items-center justify-center cursor-pointer hover:border-primary transition-colors group">
+<div class="size-16 rounded-full bg-white dark:bg-surface-dark shadow-sm flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-primary text-3xl">cloud_upload</span>
+</div>
+<p class="text-sm font-medium text-[#617289] dark:text-gray-400 text-center px-4">Arrastra tu logo aquí o <span class="text-primary">haz clic</span> para subir</p>
+<p class="text-xs text-gray-400 mt-1">PNG, JPG (Max 2MB)</p>
+</div>
+</div>
+<!-- Form Fields -->
+<div class="md:col-span-8 flex flex-col gap-5">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+<div class="flex flex-col gap-1.5">
+<label class="text-sm font-bold text-[#111418] dark:text-white">Nombre Comercial</label>
+<input class="w-full h-11 px-4 rounded-lg bg-background-light dark:bg-background-dark border-transparent focus:border-primary focus:ring-0 text-sm font-medium text-[#111418] dark:text-white placeholder-gray-400 transition-all" type="text" value="DentalSys Clinic"/>
+</div>
+<div class="flex flex-col gap-1.5">
+<label class="text-sm font-bold text-[#111418] dark:text-white">RUC / Identificación Fiscal</label>
+<input class="w-full h-11 px-4 rounded-lg bg-background-light dark:bg-background-dark border-transparent focus:border-primary focus:ring-0 text-sm font-medium text-[#111418] dark:text-white placeholder-gray-400 transition-all" type="text" value="20555678901"/>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+<div class="flex flex-col gap-1.5">
+<label class="text-sm font-bold text-[#111418] dark:text-white">Teléfono Principal</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-[20px]">phone</span>
+<input class="w-full h-11 pl-10 pr-4 rounded-lg bg-background-light dark:bg-background-dark border-transparent focus:border-primary focus:ring-0 text-sm font-medium text-[#111418] dark:text-white placeholder-gray-400 transition-all" type="tel" value="+51 987 654 321"/>
+</div>
+</div>
+<div class="flex flex-col gap-1.5">
+<label class="text-sm font-bold text-[#111418] dark:text-white">Correo Electrónico</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-[20px]">mail</span>
+<input class="w-full h-11 pl-10 pr-4 rounded-lg bg-background-light dark:bg-background-dark border-transparent focus:border-primary focus:ring-0 text-sm font-medium text-[#111418] dark:text-white placeholder-gray-400 transition-all" type="email" value="contacto@dentalclinic.com"/>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-1.5">
+<label class="text-sm font-bold text-[#111418] dark:text-white">Dirección Fiscal</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-3.5 text-gray-400 text-[20px]">location_on</span>
+<textarea class="w-full p-3 pl-10 rounded-lg bg-background-light dark:bg-background-dark border-transparent focus:border-primary focus:ring-0 text-sm font-medium text-[#111418] dark:text-white placeholder-gray-400 resize-none transition-all" rows="2">Av. Javier Prado Este 1234, Oficina 505, San Isidro, Lima</textarea>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Section: Billing -->
+<section class="bg-white dark:bg-surface-dark rounded-xl shadow-sm border border-border-light dark:border-border-dark overflow-hidden">
+<div class="px-6 py-4 border-b border-border-light dark:border-border-dark flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="p-2 bg-green-50 dark:bg-green-900/20 rounded-lg text-green-600 dark:text-green-400">
+<span class="material-symbols-outlined">receipt_long</span>
+</div>
+<h3 class="text-lg font-bold text-[#111418] dark:text-white">Configuración de Facturación</h3>
+</div>
+<div class="flex items-center gap-2">
+<span class="text-sm font-medium text-[#617289] dark:text-gray-400 mr-2">Facturación Electrónica</span>
+<button class="w-11 h-6 bg-primary rounded-full relative cursor-pointer transition-colors">
+<span class="absolute right-1 top-1 size-4 bg-white rounded-full shadow-sm transition-transform"></span>
+</button>
+</div>
+</div>
+<div class="p-6">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+<div class="flex flex-col gap-1.5">
+<label class="text-sm font-bold text-[#111418] dark:text-white">Moneda Principal</label>
+<select class="w-full h-11 px-4 rounded-lg bg-background-light dark:bg-background-dark border-transparent focus:border-primary focus:ring-0 text-sm font-medium text-[#111418] dark:text-white transition-all">
+<option value="PEN">Soles (S/)</option>
+<option value="USD">Dólares ($)</option>
+</select>
+</div>
+<div class="flex flex-col gap-1.5">
+<label class="text-sm font-bold text-[#111418] dark:text-white">Impuesto (IGV/IVA) %</label>
+<input class="w-full h-11 px-4 rounded-lg bg-background-light dark:bg-background-dark border-transparent focus:border-primary focus:ring-0 text-sm font-medium text-[#111418] dark:text-white transition-all" type="number" value="18"/>
+</div>
+<div class="flex flex-col gap-1.5">
+<label class="text-sm font-bold text-[#111418] dark:text-white">Días de vencimiento default</label>
+<input class="w-full h-11 px-4 rounded-lg bg-background-light dark:bg-background-dark border-transparent focus:border-primary focus:ring-0 text-sm font-medium text-[#111418] dark:text-white transition-all" type="number" value="7"/>
+</div>
+</div>
+<div class="rounded-lg border border-border-light dark:border-border-dark overflow-hidden">
+<div class="bg-background-light dark:bg-background-dark px-4 py-3 flex justify-between items-center border-b border-border-light dark:border-border-dark">
+<h4 class="text-sm font-bold text-[#111418] dark:text-white">Series y Puntos de Venta</h4>
+<button class="text-primary text-sm font-bold hover:underline flex items-center gap-1">
+<span class="material-symbols-outlined text-lg">add</span> Agregar
+                                </button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-sm text-left">
+<thead class="bg-white dark:bg-surface-dark text-[#617289] dark:text-gray-400 font-medium">
+<tr>
+<th class="px-4 py-3">Código</th>
+<th class="px-4 py-3">Tipo</th>
+<th class="px-4 py-3">Serie</th>
+<th class="px-4 py-3">Correlativo Actual</th>
+<th class="px-4 py-3 text-right">Acciones</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-border-light dark:divide-border-dark">
+<tr class="hover:bg-background-light dark:hover:bg-background-dark/50">
+<td class="px-4 py-3 text-[#111418] dark:text-white font-medium">PV001</td>
+<td class="px-4 py-3">Factura</td>
+<td class="px-4 py-3">F001</td>
+<td class="px-4 py-3">00001245</td>
+<td class="px-4 py-3 text-right">
+<button class="text-[#617289] hover:text-primary transition-colors"><span class="material-symbols-outlined text-lg">edit</span></button>
+</td>
+</tr>
+<tr class="hover:bg-background-light dark:hover:bg-background-dark/50">
+<td class="px-4 py-3 text-[#111418] dark:text-white font-medium">PV001</td>
+<td class="px-4 py-3">Boleta</td>
+<td class="px-4 py-3">B001</td>
+<td class="px-4 py-3">00003421</td>
+<td class="px-4 py-3 text-right">
+<button class="text-[#617289] hover:text-primary transition-colors"><span class="material-symbols-outlined text-lg">edit</span></button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</section>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+<!-- Section: Users -->
+<section class="bg-white dark:bg-surface-dark rounded-xl shadow-sm border border-border-light dark:border-border-dark overflow-hidden flex flex-col h-full">
+<div class="px-6 py-4 border-b border-border-light dark:border-border-dark flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="p-2 bg-purple-50 dark:bg-purple-900/20 rounded-lg text-purple-600 dark:text-purple-400">
+<span class="material-symbols-outlined">manage_accounts</span>
+</div>
+<h3 class="text-lg font-bold text-[#111418] dark:text-white">Usuarios y Roles</h3>
+</div>
+<button class="size-8 rounded-lg bg-background-light dark:bg-background-dark flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+<span class="material-symbols-outlined">add</span>
+</button>
+</div>
+<div class="p-0 overflow-x-auto flex-1">
+<table class="w-full text-sm text-left">
+<tbody class="divide-y divide-border-light dark:divide-border-dark">
+<tr class="group hover:bg-background-light dark:hover:bg-background-dark/50 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="size-9 rounded-full bg-cover bg-center" data-alt="Avatar of Dr. Alejandro" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDNe6eJ2rZNlGI9ZI2EWAb5aDfc4m_dmocfUYyBw89R2UzVkSMDztUTR52gfMINuipyecRF4UZJgnvLcACrePABTZaAoH50f1ywDBZpkLIXNeZi0bhZkvGMiajIOJ4KFn3nYHvVp5Zm2476xOaRnz1zOH27wIEKg59J5h4T1YunnqHUETixGFr0_BTxw-PRO-VpBpR2v9ViD0X3PU6oPf-fCZ93eSWALA1828zggt9c6nCaKaK76ChUIqEbmjeZyFB0ezMMEeLQiQY");'></div>
+<div>
+<p class="font-bold text-[#111418] dark:text-white">Dr. Alejandro V.</p>
+<p class="text-xs text-[#617289] dark:text-gray-400">alejandro@dental.com</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
+                                                Administrador
+                                            </span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-[#617289] hover:text-primary transition-colors opacity-0 group-hover:opacity-100"><span class="material-symbols-outlined">more_vert</span></button>
+</td>
+</tr>
+<tr class="group hover:bg-background-light dark:hover:bg-background-dark/50 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="size-9 rounded-full bg-cover bg-center" data-alt="Avatar of Dra. Sofia" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCn7EV-J0hUcGKpot8SAiZT9amT8s_aqMndGiL9hwjz7CVM8OqTunwhYnPaSDbtheUvZ2C46PRArEHMEA5Rps_QZ2w6l6DV7NgNCqnZrpLvHuyFmWsF83r44jyvj52Zv_gaCnKhzChiHRKhwCYJ3_spdWjehXGvFTuUYifVqH73jGQpgYXGR4jy0q9dtmTeJSBaxc9WcbF5fWPzG60FC-gM9WwZlBBre1R0xRpi6LOkT9k8ekyT3zRUzUg6ZnhCfbfhNhKTeokO2C8");'></div>
+<div>
+<p class="font-bold text-[#111418] dark:text-white">Dra. Sofia M.</p>
+<p class="text-xs text-[#617289] dark:text-gray-400">sofia@dental.com</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                                                Odontólogo
+                                            </span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-[#617289] hover:text-primary transition-colors opacity-0 group-hover:opacity-100"><span class="material-symbols-outlined">more_vert</span></button>
+</td>
+</tr>
+<tr class="group hover:bg-background-light dark:hover:bg-background-dark/50 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="size-9 rounded-full bg-cover bg-center" data-alt="Avatar of Receptionist Carla" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAJ0pyHnBliw6jYueZQDB4U9nUZ_6NQruG1m7307Mdvl-yARkEUUnEhrmGU8AM5B-fEmmR0swWqtWuj8YuHAxXGiDxcMdHNRwWSsM5xEhBAfPeRY120XZfI_-WrrfIXbLiHeQcZCJtJsmLdeEzcg6H_uFaFXphh5Q27aWGnXrrgumjp42cI7XaQyBoW15GTUMuBQs1sKpso63FX7OQGyyhH7Fc7-1lFHcG68_K1H6qhxBbFznPLEcIYmsNWqXxbvbkK0tvzXqEOn7o");'></div>
+<div>
+<p class="font-bold text-[#111418] dark:text-white">Carla R.</p>
+<p class="text-xs text-[#617289] dark:text-gray-400">recepcion@dental.com</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
+                                                Recepción
+                                            </span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-[#617289] hover:text-primary transition-colors opacity-0 group-hover:opacity-100"><span class="material-symbols-outlined">more_vert</span></button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<!-- Section: Printing -->
+<section class="bg-white dark:bg-surface-dark rounded-xl shadow-sm border border-border-light dark:border-border-dark overflow-hidden flex flex-col h-full">
+<div class="px-6 py-4 border-b border-border-light dark:border-border-dark flex items-center gap-3">
+<div class="p-2 bg-orange-50 dark:bg-orange-900/20 rounded-lg text-orange-600 dark:text-orange-400">
+<span class="material-symbols-outlined">print</span>
+</div>
+<h3 class="text-lg font-bold text-[#111418] dark:text-white">Documentos e Impresión</h3>
+</div>
+<div class="p-6 flex flex-col gap-6 flex-1">
+<div class="flex items-center justify-between">
+<div class="flex flex-col">
+<span class="text-sm font-bold text-[#111418] dark:text-white">Incluir Logo en Documentos</span>
+<span class="text-xs text-[#617289] dark:text-gray-400">Afecta facturas, recetas y proformas</span>
+</div>
+<button class="w-11 h-6 bg-primary rounded-full relative cursor-pointer transition-colors">
+<span class="absolute right-1 top-1 size-4 bg-white rounded-full shadow-sm transition-transform"></span>
+</button>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex flex-col">
+<span class="text-sm font-bold text-[#111418] dark:text-white">Imprimir Duplicado</span>
+<span class="text-xs text-[#617289] dark:text-gray-400">Generar copia de archivo para facturas</span>
+</div>
+<button class="w-11 h-6 bg-gray-200 dark:bg-gray-700 rounded-full relative cursor-pointer transition-colors">
+<span class="absolute left-1 top-1 size-4 bg-white rounded-full shadow-sm transition-transform"></span>
+</button>
+</div>
+<div class="flex flex-col gap-2 mt-2">
+<label class="text-sm font-bold text-[#111418] dark:text-white">Texto Legal (Pie de Página)</label>
+<textarea class="w-full p-3 rounded-lg bg-background-light dark:bg-background-dark border-transparent focus:border-primary focus:ring-0 text-xs font-medium text-[#111418] dark:text-white placeholder-gray-400 resize-none transition-all" rows="3">Los precios están sujetos a cambios sin previo aviso. La validez de este presupuesto es de 15 días.</textarea>
+</div>
+</div>
+</section>
+</div>
+</div>
+</main>
+</div>
+</body></html>

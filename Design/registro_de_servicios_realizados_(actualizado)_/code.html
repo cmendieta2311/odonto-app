@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Registro de Servicios Realizados</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Theme Configuration -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#13c8ec",
+              "primary-dark": "#0ea5c3",
+              "background-light": "#f6f8f8",
+              "background-dark": "#101f22",
+              "surface-light": "#ffffff",
+              "surface-dark": "#18282b",
+              "text-main": "#111718",
+              "text-secondary": "#618389",
+            },
+            fontFamily: {
+              "display": ["Manrope", "sans-serif"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        /* Custom scrollbar for webkit */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+        .dark ::-webkit-scrollbar-thumb {
+            background: #334155; 
+        }
+        .dark ::-webkit-scrollbar-thumb:hover {
+            background: #475569; 
+        }
+    </style>
+</head>
+<body class="font-display bg-background-light dark:bg-background-dark text-text-main dark:text-gray-100 antialiased overflow-hidden">
+<div class="flex h-screen w-full overflow-hidden">
+<!-- Side Navigation -->
+<aside class="hidden md:flex w-64 flex-col bg-surface-light dark:bg-surface-dark border-r border-[#f0f4f4] dark:border-gray-800 h-full">
+<div class="p-6 pb-2">
+<div class="flex items-center gap-3 mb-8">
+<div class="bg-center bg-no-repeat bg-cover rounded-full size-10 bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">dentistry</span>
+</div>
+<div class="flex flex-col">
+<h1 class="text-text-main dark:text-white text-base font-bold leading-normal">DentalManage</h1>
+<p class="text-text-secondary dark:text-gray-400 text-xs font-normal">v2.4</p>
+</div>
+</div>
+<nav class="flex flex-col gap-2">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-main dark:text-gray-300 hover:bg-background-light dark:hover:bg-gray-800 transition-colors group" href="#">
+<span class="material-symbols-outlined text-text-secondary group-hover:text-primary dark:text-gray-400">calendar_today</span>
+<span class="text-sm font-medium">Agenda</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-main dark:text-gray-300 hover:bg-background-light dark:hover:bg-gray-800 transition-colors group" href="#">
+<span class="material-symbols-outlined text-text-secondary group-hover:text-primary dark:text-gray-400">group</span>
+<span class="text-sm font-medium">Pacientes</span>
+</a>
+<!-- Active State -->
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/10 text-primary dark:text-primary font-bold" href="#">
+<span class="material-symbols-outlined fill-current">medical_services</span>
+<span class="text-sm">Tratamientos</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-main dark:text-gray-300 hover:bg-background-light dark:hover:bg-gray-800 transition-colors group" href="#">
+<span class="material-symbols-outlined text-text-secondary group-hover:text-primary dark:text-gray-400">credit_card</span>
+<span class="text-sm font-medium">Facturación</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-main dark:text-gray-300 hover:bg-background-light dark:hover:bg-gray-800 transition-colors group" href="#">
+<span class="material-symbols-outlined text-text-secondary group-hover:text-primary dark:text-gray-400">settings</span>
+<span class="text-sm font-medium">Configuración</span>
+</a>
+</nav>
+</div>
+<div class="mt-auto p-6">
+<div class="flex items-center gap-3 p-3 rounded-xl bg-background-light dark:bg-gray-800">
+<div class="bg-center bg-no-repeat bg-cover rounded-full size-10" data-alt="Doctor profile picture showing a smiling professional" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDEo2X8-6AAesVaZCHREIDhWu0GOjoTjN0cOZnrytI-HuIHkCmHFgdIev1_q6R7NIZJ9aweDMsJebAaAJiuwGskefeCu7gbn03eS5H7OCoxyLP3dYQmyN58ox11ERZNUotnW5LHUwzidBJ5abP5Dl3KGqJH9sHBDLQYZgJKJdC892hFUL97haQib23fVEoylAMOMebcz2iWe9fvcaz0fdUBiXr_dTzzFluHUOg3uShvVso1ov9Xh6mrTSzkvJwwLRteoYonhfbeN1c");'></div>
+<div class="flex flex-col overflow-hidden">
+<p class="text-text-main dark:text-white text-sm font-bold truncate">Dr. Roberto S.</p>
+<p class="text-text-secondary dark:text-gray-400 text-xs truncate">Odontólogo General</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Wrapper -->
+<main class="flex-1 flex flex-col h-full relative overflow-hidden">
+<!-- Top Navigation -->
+<header class="flex items-center justify-between border-b border-[#f0f4f4] dark:border-gray-800 px-6 py-4 bg-surface-light dark:bg-surface-dark shrink-0 z-10">
+<div class="flex items-center gap-4">
+<button class="md:hidden p-2 text-text-main dark:text-white">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<h2 class="text-text-main dark:text-white text-xl font-bold tracking-tight">Registro Clínico</h2>
+</div>
+<div class="flex items-center gap-4 md:gap-6">
+<!-- Search Bar -->
+<div class="hidden md:flex items-center bg-background-light dark:bg-gray-800 rounded-lg px-3 py-2 w-64">
+<span class="material-symbols-outlined text-text-secondary dark:text-gray-400 text-[20px]">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm w-full text-text-main dark:text-white placeholder-text-secondary" placeholder="Buscar paciente o ID..." type="text"/>
+</div>
+<div class="flex gap-2">
+<button class="flex items-center justify-center size-10 rounded-lg bg-background-light dark:bg-gray-800 text-text-main dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors relative">
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+<span class="absolute top-2 right-2 size-2 bg-red-500 rounded-full border-2 border-white dark:border-gray-800"></span>
+</button>
+<button class="flex items-center justify-center size-10 rounded-lg bg-background-light dark:bg-gray-800 text-text-main dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+<span class="material-symbols-outlined text-[20px]">chat_bubble</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Scrollable Content -->
+<div class="flex-1 overflow-y-auto p-4 md:p-8 scroll-smooth">
+<div class="max-w-7xl mx-auto flex flex-col gap-6">
+<!-- Page Header & Title -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+<div>
+<h1 class="text-3xl font-extrabold text-text-main dark:text-white tracking-tight">Registro de Servicios</h1>
+<p class="text-text-secondary dark:text-gray-400 mt-1">Gestión operativa por paciente • Dr. Roberto Suarez</p>
+</div>
+<div class="flex items-center gap-2">
+<span class="px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs font-bold border border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800 flex items-center gap-1">
+<span class="size-2 rounded-full bg-green-500"></span>
+                                Sesión Activa
+                             </span>
+</div>
+</div>
+<!-- Patient Context Card -->
+<div class="bg-surface-light dark:bg-surface-dark rounded-2xl p-6 shadow-sm border border-[#f0f4f4] dark:border-gray-800">
+<div class="flex flex-col lg:flex-row gap-8">
+<!-- Patient Info -->
+<div class="flex items-start gap-4 min-w-[300px]">
+<div class="bg-center bg-no-repeat bg-cover rounded-xl size-20 shrink-0" data-alt="Patient portrait photo, young adult male" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCPkMy4O03TrPZFAC7An0DqI2TIsByoZ8VI3k8GcCgfiF0pG1gCp1yysMw3PLPC2TXogyBiCDLDJMSa3nQp8Vy0ok3GugnKaunbTDvknI96aVwc3a5ybCapDBI_oN-ffXVXLN35lv5G8TFNDE6KMz-NjNWz6zdooqQGVcjnng972B39WlVAxuvne-kfSN2-R_w_GLR09ZTIfJg5WI8tkwwmHm7S_keCuZnQqyyFen-b72TQZMIeDUP3qSnW63kpKPafbg5SoMpCBUs");'></div>
+<div>
+<h3 class="text-xl font-bold text-text-main dark:text-white">Juan Pérez</h3>
+<p class="text-sm text-text-secondary dark:text-gray-400 mt-0.5">ID: JP-9928 | 34 años</p>
+<div class="flex flex-wrap gap-2 mt-3">
+<span class="px-2 py-1 bg-background-light dark:bg-gray-800 rounded text-xs font-medium text-text-secondary dark:text-gray-300">Alergia: Penicilina</span>
+<span class="px-2 py-1 bg-background-light dark:bg-gray-800 rounded text-xs font-medium text-text-secondary dark:text-gray-300">Tipo: VIP</span>
+</div>
+</div>
+</div>
+<!-- Treatment Plan Selector & Stats -->
+<div class="flex-1 flex flex-col gap-4 border-t lg:border-t-0 lg:border-l border-gray-100 dark:border-gray-800 pt-4 lg:pt-0 lg:pl-8">
+<div class="flex flex-wrap items-end gap-4 justify-between">
+<div class="flex flex-col w-full max-w-md">
+<label class="text-xs font-bold uppercase tracking-wider text-text-secondary dark:text-gray-400 mb-1.5">Plan de Tratamiento Activo</label>
+<div class="relative">
+<select class="w-full h-11 pl-4 pr-10 bg-background-light dark:bg-gray-800 border-none rounded-lg text-sm font-semibold text-text-main dark:text-white focus:ring-2 focus:ring-primary cursor-pointer appearance-none">
+<option>#TRAT-2023-889 - Ortodoncia Fase 1 (Activo)</option>
+<option>#TRAT-2022-104 - Blanqueamiento (Finalizado)</option>
+</select>
+<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-text-secondary">
+<span class="material-symbols-outlined text-sm">expand_more</span>
+</div>
+</div>
+</div>
+<!-- Stats Mini Cards -->
+<div class="flex gap-4">
+<div class="text-center">
+<p class="text-xs text-text-secondary dark:text-gray-400">Visitas</p>
+<p class="text-lg font-bold text-text-main dark:text-white">4/12</p>
+</div>
+<div class="w-px h-8 bg-gray-200 dark:bg-gray-700"></div>
+<div class="text-center">
+<p class="text-xs text-text-secondary dark:text-gray-400">Servicios</p>
+<p class="text-lg font-bold text-primary">8</p>
+</div>
+<div class="w-px h-8 bg-gray-200 dark:bg-gray-700"></div>
+<div class="text-center">
+<p class="text-xs text-text-secondary dark:text-gray-400">Pendientes</p>
+<p class="text-lg font-bold text-orange-500">14</p>
+</div>
+</div>
+</div>
+<!-- Progress Bar -->
+<div class="w-full flex flex-col gap-1">
+<div class="flex justify-between text-xs font-medium text-text-secondary dark:text-gray-400">
+<span>Progreso del Contrato</span>
+<span>33%</span>
+</div>
+<div class="h-2 w-full bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full" style="width: 33%"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Main Grid Area -->
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
+<!-- Left Column: Service Entry Form -->
+<div class="xl:col-span-4 flex flex-col gap-6">
+<div class="bg-surface-light dark:bg-surface-dark rounded-2xl p-6 shadow-sm border border-[#f0f4f4] dark:border-gray-800 sticky top-4">
+<div class="flex items-center gap-2 mb-6">
+<span class="p-2 rounded-lg bg-primary/10 text-primary">
+<span class="material-symbols-outlined">edit_note</span>
+</span>
+<h3 class="text-lg font-bold text-text-main dark:text-white">Nuevo Registro</h3>
+</div>
+<form class="flex flex-col gap-5">
+<!-- Service Selector -->
+<label class="flex flex-col gap-1.5">
+<span class="text-sm font-semibold text-text-main dark:text-gray-200">Servicio Realizado</span>
+<div class="relative">
+<span class="absolute inset-y-0 left-0 flex items-center pl-3 text-text-secondary">
+<span class="material-symbols-outlined text-[20px]">search</span>
+</span>
+<input class="w-full bg-background-light dark:bg-gray-800 border-none rounded-lg py-2.5 pl-10 pr-4 text-sm text-text-main dark:text-white focus:ring-2 focus:ring-primary placeholder-text-secondary dark:placeholder-gray-500" list="services-list" placeholder="Buscar procedimiento..." type="text"/>
+<datalist id="services-list">
+<option value="Profilaxis General">
+</option><option value="Resina Compuesta (1 cara)">
+</option><option value="Exodoncia Simple">
+</option><option value="Ajuste de Brackets (Arco Superior)">
+</option></datalist>
+</div>
+</label>
+<!-- Tooth Selector (Visual Sim) -->
+<div class="flex flex-col gap-1.5">
+<span class="text-sm font-semibold text-text-main dark:text-gray-200">Pieza Dental / Región</span>
+<div class="flex gap-2">
+<input class="flex-1 bg-background-light dark:bg-gray-800 border-none rounded-lg py-2.5 px-4 text-sm text-text-main dark:text-white focus:ring-2 focus:ring-primary placeholder-text-secondary" placeholder="Ej: 18, 24" type="text"/>
+<button class="px-3 py-2 bg-background-light dark:bg-gray-800 rounded-lg text-text-secondary hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors border border-transparent hover:border-gray-300 dark:hover:border-gray-600" title="Ver Odontograma" type="button">
+<span class="material-symbols-outlined">grid_view</span>
+</button>
+</div>
+<!-- Quick Quadrant Selectors -->
+<div class="grid grid-cols-4 gap-2 mt-1">
+<button class="text-xs py-1.5 rounded bg-background-light dark:bg-gray-800 text-text-secondary hover:bg-primary/20 hover:text-primary transition-colors" type="button">UR</button>
+<button class="text-xs py-1.5 rounded bg-background-light dark:bg-gray-800 text-text-secondary hover:bg-primary/20 hover:text-primary transition-colors" type="button">UL</button>
+<button class="text-xs py-1.5 rounded bg-background-light dark:bg-gray-800 text-text-secondary hover:bg-primary/20 hover:text-primary transition-colors" type="button">LR</button>
+<button class="text-xs py-1.5 rounded bg-background-light dark:bg-gray-800 text-text-secondary hover:bg-primary/20 hover:text-primary transition-colors" type="button">LL</button>
+</div>
+</div>
+<!-- Date & Time -->
+<div class="grid grid-cols-2 gap-4">
+<label class="flex flex-col gap-1.5">
+<span class="text-sm font-semibold text-text-main dark:text-gray-200">Fecha</span>
+<input class="w-full bg-background-light dark:bg-gray-800 border-none rounded-lg py-2.5 px-3 text-sm text-text-main dark:text-white focus:ring-2 focus:ring-primary" type="date" value="2023-10-24"/>
+</label>
+<label class="flex flex-col gap-1.5">
+<span class="text-sm font-semibold text-text-main dark:text-gray-200">Duración</span>
+<select class="w-full bg-background-light dark:bg-gray-800 border-none rounded-lg py-2.5 px-3 text-sm text-text-main dark:text-white focus:ring-2 focus:ring-primary">
+<option>15 min</option>
+<option>30 min</option>
+<option selected="">45 min</option>
+<option>60 min</option>
+<option>90 min</option>
+</select>
+</label>
+</div>
+<!-- Notes -->
+<label class="flex flex-col gap-1.5">
+<span class="text-sm font-semibold text-text-main dark:text-gray-200">Notas Clínicas</span>
+<textarea class="w-full bg-background-light dark:bg-gray-800 border-none rounded-lg py-3 px-4 text-sm text-text-main dark:text-white focus:ring-2 focus:ring-primary placeholder-text-secondary resize-none" placeholder="Describe el procedimiento, complicaciones o observaciones..." rows="4"></textarea>
+</label>
+<!-- Actions -->
+<div class="pt-2">
+<button class="w-full bg-primary hover:bg-primary-dark text-white font-bold py-3 px-4 rounded-xl shadow-lg shadow-cyan-500/20 transition-all active:scale-[0.98] flex items-center justify-center gap-2" type="button">
+<span class="material-symbols-outlined">save</span>
+                                            Registrar Servicio
+                                        </button>
+</div>
+</form>
+</div>
+</div>
+<!-- Right Column: Historical Timeline -->
+<div class="xl:col-span-8 flex flex-col gap-6">
+<div class="bg-surface-light dark:bg-surface-dark rounded-2xl shadow-sm border border-[#f0f4f4] dark:border-gray-800 overflow-hidden flex flex-col h-full min-h-[500px]">
+<div class="px-6 py-5 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
+<h3 class="text-lg font-bold text-text-main dark:text-white">Historial del Tratamiento</h3>
+<div class="flex gap-2">
+<button class="text-xs font-medium px-3 py-1.5 rounded-lg bg-background-light dark:bg-gray-800 text-text-secondary hover:text-primary transition-colors">Exportar PDF</button>
+<button class="text-xs font-medium px-3 py-1.5 rounded-lg bg-background-light dark:bg-gray-800 text-text-secondary hover:text-primary transition-colors flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">filter_list</span> Filtrar
+                                        </button>
+</div>
+</div>
+<div class="overflow-x-auto flex-1">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-background-light dark:bg-gray-800/50 text-xs uppercase tracking-wider text-text-secondary dark:text-gray-400">
+<th class="px-6 py-4 font-semibold">Fecha</th>
+<th class="px-6 py-4 font-semibold">Servicio</th>
+<th class="px-6 py-4 font-semibold">Pieza</th>
+<th class="px-6 py-4 font-semibold">Notas</th>
+<th class="px-6 py-4 font-semibold text-right">Odontólogo</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+<!-- Row 1 -->
+<tr class="group hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+<td class="px-6 py-4 whitespace-nowrap">
+<div class="flex flex-col">
+<span class="text-sm font-bold text-text-main dark:text-white">10 Oct 2023</span>
+<span class="text-xs text-text-secondary">09:30 AM</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="size-2 rounded-full bg-green-500"></span>
+<span class="text-sm font-medium text-text-main dark:text-gray-200">Ajuste de Brackets</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center justify-center px-2.5 py-1 rounded bg-gray-100 dark:bg-gray-700 text-xs font-bold text-text-main dark:text-gray-300">
+                                                        Arco Sup.
+                                                    </span>
+</td>
+<td class="px-6 py-4 max-w-xs">
+<p class="text-sm text-text-secondary dark:text-gray-400 truncate">Cambio de ligas, paciente reporta leve molestia en el 14.</p>
+</td>
+<td class="px-6 py-4 text-right">
+<div class="flex items-center justify-end gap-2">
+<span class="text-sm text-text-main dark:text-gray-200">Dr. Suarez</span>
+<div class="size-6 rounded-full bg-cover bg-center" data-alt="Small avatar of Dr. Suarez" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAD3j_8RkVsLVfgatRv-zLVN4BCtO_Ggki-zmZhAmDJ8m_ZQygHQLOwOq6eFKoC53YCqL3BqQ5iXyz_iOl4lnxydd0JoBM4oEkYfFbF3bdliFn-StvMvNw6eHg_01vG6hek1kalsBP_UX0jS9GWr8mEXnA_uIr90s7MMBPSy6tqGxyd4f4slmB8DRODBzUAf4AWrYMwQiKDMG23MAPtyrbTtWRhpfvH7b4csvAjSFmS1Oj1I_xgKCOR5Didzxox1FhILob6eS-b0P4");'></div>
+</div>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="group hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+<td class="px-6 py-4 whitespace-nowrap">
+<div class="flex flex-col">
+<span class="text-sm font-bold text-text-main dark:text-white">25 Sep 2023</span>
+<span class="text-xs text-text-secondary">11:00 AM</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="size-2 rounded-full bg-green-500"></span>
+<span class="text-sm font-medium text-text-main dark:text-gray-200">Profilaxis General</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center justify-center px-2.5 py-1 rounded bg-gray-100 dark:bg-gray-700 text-xs font-bold text-text-main dark:text-gray-300">
+                                                        General
+                                                    </span>
+</td>
+<td class="px-6 py-4 max-w-xs">
+<p class="text-sm text-text-secondary dark:text-gray-400 truncate">Limpieza rutinaria previa a instalación de ortodoncia.</p>
+</td>
+<td class="px-6 py-4 text-right">
+<div class="flex items-center justify-end gap-2">
+<span class="text-sm text-text-main dark:text-gray-200">Dra. Lopez</span>
+<div class="size-6 rounded-full bg-cover bg-center" data-alt="Small avatar of Dr. Lopez" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAJMXYdeeZezvA6kOBRQNs0PewAa6oEk-_OzcYhi-wNFIARTad5qZ5u2FkyyiHFKVKy6mMYkJbEiEvoyNjUlQdhmobOhUc_L8DtobUBeinHXIPshrzvoaHy_XmkfEV1iX9IpTdtHGvF5_PwvcEvLh086lXcGDOe53vierW9Ls_M3zYCifWZYDXDKrveIxU6yUVBAUQgZ0W7J1iA7teORajUeDLlRSTRNYhUqTAAXmI8i8j8t43buGySO5x4D65Hb5elq493zSqkcAA");'></div>
+</div>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="group hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+<td class="px-6 py-4 whitespace-nowrap">
+<div class="flex flex-col">
+<span class="text-sm font-bold text-text-main dark:text-white">10 Sep 2023</span>
+<span class="text-xs text-text-secondary">08:45 AM</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="size-2 rounded-full bg-green-500"></span>
+<span class="text-sm font-medium text-text-main dark:text-gray-200">Estudio Ortodóntico</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center justify-center px-2.5 py-1 rounded bg-gray-100 dark:bg-gray-700 text-xs font-bold text-text-main dark:text-gray-300">
+                                                        N/A
+                                                    </span>
+</td>
+<td class="px-6 py-4 max-w-xs">
+<p class="text-sm text-text-secondary dark:text-gray-400 truncate">Tomada de impresiones, fotos intraorales y radiografías.</p>
+</td>
+<td class="px-6 py-4 text-right">
+<div class="flex items-center justify-end gap-2">
+<span class="text-sm text-text-main dark:text-gray-200">Dr. Suarez</span>
+<div class="size-6 rounded-full bg-cover bg-center" data-alt="Small avatar of Dr. Suarez" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuB9qs-IXrT1ywOVbfMThgNgvilgPrpNMzXaynsQWBtPpy5KRX3JrGHe0ueEEifSFnhq6ulR_7i8dgZQoLwPiuM8rib5N5ZOvltdLBeR4X9zNhKk7y_2nlAs2rDYzRmEjiHLNO2Esyx4hfskA6ZFx4xuKtDbEiWoMDKZ9m5pEWfq_A0jPfpovwvZvICLFQRUzuFE24RGwoRv8jW0MvaatkV7Y2Gbf9N4CB6cqLFzsbupu4RukJU_1Kh4CzlN2dXmrOt5CnKszCIL29k");'></div>
+</div>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="group hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+<td class="px-6 py-4 whitespace-nowrap">
+<div class="flex flex-col">
+<span class="text-sm font-bold text-text-main dark:text-white">01 Sep 2023</span>
+<span class="text-xs text-text-secondary">04:15 PM</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="size-2 rounded-full bg-gray-300 dark:bg-gray-600"></span>
+<span class="text-sm font-medium text-text-main dark:text-gray-200">Consulta Inicial</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center justify-center px-2.5 py-1 rounded bg-gray-100 dark:bg-gray-700 text-xs font-bold text-text-main dark:text-gray-300">
+                                                        N/A
+                                                    </span>
+</td>
+<td class="px-6 py-4 max-w-xs">
+<p class="text-sm text-text-secondary dark:text-gray-400 truncate">Evaluación general. Se propone plan de ortodoncia.</p>
+</td>
+<td class="px-6 py-4 text-right">
+<div class="flex items-center justify-end gap-2">
+<span class="text-sm text-text-main dark:text-gray-200">Dr. Suarez</span>
+<div class="size-6 rounded-full bg-cover bg-center" data-alt="Small avatar of Dr. Suarez" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDxerY8gpyouok58T0mjyniQtNBHpDsCJg4VFiim9gFgNrCfMvWm_Ce-JTE5qZaGZYZTupooYMZyHya83GO1LwG0sEFyNIconIQswKu8YF_5xgN9R7K4j_YwoGT8L71mL2cQcM-omlNvdDm8aU2sMVmnQIYcNPo2nHm6Ss7Ok0P62LYYiJ542qVCbSHQeE8KgCbNeOquUGKXONptyw8jefWuH6raToq_QpF5gQ_DxwaqHHrYIJCJpVweeM5VMXy8PaYwjyr3-W1T7Y");'></div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="px-6 py-4 border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/30 flex justify-center">
+<button class="text-sm text-primary font-bold hover:underline">Ver historial completo</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

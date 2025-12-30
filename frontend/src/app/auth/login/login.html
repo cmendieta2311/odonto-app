@@ -1,0 +1,126 @@
+<div class="relative flex h-screen w-full overflow-hidden">
+  <!-- Left Section: Visual / Branding (Hidden on mobile, visible on desktop) -->
+  <div class="hidden lg:flex lg:w-1/2 relative flex-col justify-between bg-surface-dark overflow-hidden group/image">
+    <!-- Background Image -->
+    <div class="absolute inset-0 z-0">
+      <img alt="Modern clean dental office equipment with blue lighting"
+        class="h-full w-full object-cover opacity-60 transition-transform duration-700 group-hover/image:scale-105"
+        data-alt="Modern clean dental office equipment with blue lighting"
+        src="https://lh3.googleusercontent.com/aida-public/AB6AXuAJQg0hu-y5uKlkehkJWjI9f2asyVaPBMlA7_dcjP1Ut22raVLasZoMRRuFTiVnBshDUv9whBKmTRs6jMsuqe3PIqP-0Cg-R8juY0aanhdWLWioisAWwc46cUnM0czdpSQrVSuJ1X63YwqUUt0V8dP_zv6R4hRwmUFeYd-kIw1IOjH-kvSM_JAFzFO1qQwb0JJg7Z1RejaXdKZBOVYqJCxPK9AeBSkMj6eyKG0pzYpc3FPI31foknXrTHFYyqJU_Bx-iL4DOCk_4_g" />
+      <div
+        class="absolute inset-0 bg-gradient-to-t from-background-dark via-background-dark/50 to-transparent mix-blend-multiply">
+      </div>
+      <div class="absolute inset-0 bg-primary/10 mix-blend-overlay"></div>
+    </div>
+    <!-- Content Overlay -->
+    <div class="relative z-10 flex flex-col h-full justify-between p-16">
+      <div class="flex items-center gap-2 text-white/90">
+        <span class="material-symbols-outlined text-3xl">dentistry</span>
+        <span class="text-xl font-bold tracking-wide">DentaManager</span>
+      </div>
+      <div class="max-w-md">
+        <h1 class="text-4xl font-bold text-white mb-6 leading-tight">Gestión integral para profesionales de la
+          salud.</h1>
+        <p class="text-lg text-gray-300 font-medium">Administra pacientes, presupuestos y tratamientos con
+          eficiencia y seguridad.</p>
+      </div>
+      <div class="flex gap-2">
+        <div class="h-1.5 w-12 rounded-full bg-primary"></div>
+        <div class="h-1.5 w-2 rounded-full bg-gray-600"></div>
+        <div class="h-1.5 w-2 rounded-full bg-gray-600"></div>
+      </div>
+    </div>
+  </div>
+  <!-- Right Section: Login Form -->
+  <div class="w-full lg:w-1/2 flex flex-col h-full bg-white dark:bg-background-dark relative overflow-y-auto">
+    <!-- Mobile Logo (Visible only on small screens) -->
+    <div class="lg:hidden absolute top-6 left-6 flex items-center gap-2 text-primary">
+      <span class="material-symbols-outlined text-3xl">dentistry</span>
+      <span class="text-lg font-bold text-text-main dark:text-white">DentaManager</span>
+    </div>
+    <div class="flex flex-1 flex-col justify-center items-center px-6 py-12 sm:px-12 lg:px-24">
+      <div class="w-full max-w-[440px] flex flex-col gap-8">
+        <!-- Page Heading Component -->
+        <div class="flex flex-col gap-2">
+          <p class="text-text-main dark:text-white tracking-tight text-[32px] font-bold leading-tight">
+            Bienvenido de nuevo</p>
+          <p class="text-text-sub dark:text-slate-400 text-sm font-normal leading-normal">Inicia sesión para
+            gestionar tu consultorio</p>
+        </div>
+
+        <!-- Error Message -->
+        <div *ngIf="errorMessage"
+          class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 py-3 rounded-lg text-sm flex items-center gap-2">
+          <span class="material-symbols-outlined text-[20px]">error</span>
+          {{ errorMessage }}
+        </div>
+
+        <!-- Form Section -->
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-5">
+          <!-- TextField: Username -->
+          <div class="flex flex-col gap-2">
+            <label class="text-text-main dark:text-white text-base font-medium leading-normal">Usuario o
+              Correo</label>
+            <div class="relative group">
+              <span
+                class="absolute left-4 top-1/2 -translate-y-1/2 text-text-sub dark:text-slate-500 material-symbols-outlined">person</span>
+              <input formControlName="email"
+                class="form-input flex w-full min-w-0 resize-none overflow-hidden rounded-lg text-text-main dark:text-white border border-border-light dark:border-border-dark bg-white dark:bg-surface-dark h-14 placeholder:text-text-sub dark:placeholder:text-slate-600 pl-12 pr-4 text-base font-normal leading-normal focus:outline-0 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200"
+                placeholder="ejemplo@clinica.com" type="email" />
+            </div>
+          </div>
+          <!-- TextField: Password -->
+          <div class="flex flex-col gap-2">
+            <div class="flex justify-between items-center">
+              <label class="text-text-main dark:text-white text-base font-medium leading-normal">Contraseña</label>
+            </div>
+            <div class="relative flex w-full items-stretch rounded-lg group">
+              <span
+                class="absolute left-4 top-1/2 -translate-y-1/2 text-text-sub dark:text-slate-500 material-symbols-outlined">lock</span>
+              <input formControlName="password" [type]="showPassword ? 'text' : 'password'"
+                class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-main dark:text-white border border-border-light dark:border-border-dark bg-white dark:bg-surface-dark h-14 placeholder:text-text-sub dark:placeholder:text-slate-600 pl-12 pr-12 text-base font-normal leading-normal focus:outline-0 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200"
+                placeholder="Ingresa tu contraseña" />
+              <button type="button" (click)="togglePasswordVisibility()"
+                class="absolute right-0 top-0 h-full px-4 flex items-center justify-center text-text-sub dark:text-slate-500 hover:text-primary transition-colors cursor-pointer focus:outline-none">
+                <span class="material-symbols-outlined text-[24px]">{{ showPassword ? 'visibility_off' :
+                  'visibility' }}</span>
+              </button>
+            </div>
+          </div>
+          <!-- Forgot Password Link -->
+          <div class="flex justify-end -mt-1">
+            <a class="text-text-sub dark:text-primary/80 hover:text-primary text-sm font-medium hover:underline transition-colors"
+              href="#">
+              ¿Olvidaste tu contraseña?
+            </a>
+          </div>
+          <!-- SingleButton -->
+          <button type="submit" [disabled]="loginForm.invalid"
+            class="mt-2 flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-primary hover:bg-primary/90 active:scale-[0.99] transition-all text-text-main text-base font-bold leading-normal tracking-[0.015em] shadow-lg shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed">
+            <span class="truncate">INGRESAR</span>
+          </button>
+        </form>
+        <!-- Divider for Register (Optional based on context) -->
+        <div class="relative flex py-2 items-center">
+          <div class="flex-grow border-t border-border-light dark:border-border-dark"></div>
+          <span class="flex-shrink-0 mx-4 text-text-sub text-sm">o</span>
+          <div class="flex-grow border-t border-border-light dark:border-border-dark"></div>
+        </div>
+        <!-- Register Link -->
+        <div class="text-center">
+          <p class="text-text-main dark:text-gray-400 text-sm">
+            ¿Eres una nueva clínica?
+            <a class="font-bold text-primary hover:text-primary/80 hover:underline" routerLink="/register">Registrar
+              consultorio</a>
+          </p>
+        </div>
+      </div>
+    </div>
+    <!-- Footer -->
+    <div class="w-full p-6 text-center lg:text-left lg:pl-24">
+      <p class="text-text-sub dark:text-slate-600 text-xs font-medium">
+        © 2024 DentaManager Systems. v1.2.0
+      </p>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,79 @@
+:host {
+    display: block;
+    height: 100%;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(19, 200, 236, 0.1);
+    border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(19, 200, 236, 0.2);
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+main>div {
+    animation: fadeIn 0.4s ease-out;
+}
+
+/* Print Styles */
+@media print {
+
+    header,
+    .lg:sticky,
+    button,
+    footer {
+        display: none !important;
+    }
+
+    main {
+        padding: 0 !important;
+    }
+
+    .lg:col-span-2 {
+        width: 100% !important;
+    }
+}
+
+/* Transitions for dynamic elements */
+section {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+input,
+select,
+textarea {
+    transition: all 0.2s ease;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    box-shadow: 0 0 0 4px rgba(19, 200, 236, 0.1);
+}
+
+/* Shadow refinements */
+.shadow-lg {
+    box-shadow: 0 10px 25px -5px rgba(19, 200, 236, 0.1), 0 8px 10px -6px rgba(19, 200, 236, 0.05);
+}

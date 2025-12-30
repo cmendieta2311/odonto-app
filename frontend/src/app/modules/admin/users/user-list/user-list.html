@@ -1,0 +1,48 @@
+<div class="flex flex-col gap-6">
+    <div class="flex justify-between items-end">
+        <div>
+            <h2 class="text-2xl font-bold text-[#111418] dark:text-white">Gestión de Usuarios</h2>
+            <p class="text-[#617289] dark:text-gray-400 mt-1">Administra el personal y sus roles de acceso.</p>
+        </div>
+        <button (click)="openDialog()"
+            class="h-10 px-4 rounded-lg bg-primary text-white font-bold text-sm hover:bg-primary/90 transition-colors shadow-sm flex items-center gap-2">
+            <span class="material-symbols-outlined">person_add</span> Nuevo Usuario
+        </button>
+    </div>
+
+    <section
+        class="bg-white dark:bg-surface-dark rounded-xl shadow-sm border border-border-light dark:border-border-dark overflow-hidden mb-8">
+        <div class="px-6 py-4 border-b border-border-light dark:border-border-dark flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="p-2 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg text-indigo-600 dark:text-indigo-400">
+                    <span class="material-symbols-outlined">group</span>
+                </div>
+                <h3 class="text-lg font-bold text-[#111418] dark:text-white">Usuarios del Sistema</h3>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="relative w-64">
+                <span
+                    class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xl">search</span>
+                <input [(ngModel)]="searchTerm" type="text" placeholder="Buscar usuario..."
+                    class="w-full h-10 pl-10 pr-4 rounded-lg bg-background-light dark:bg-background-dark border-transparent focus:border-primary focus:ring-0 text-sm" />
+            </div>
+        </div>
+
+        <div class="p-6">
+            <app-custom-table [columns]="columns" [data]="filteredUsers" (onEdit)="openDialog($event)"
+                (onDelete)="deleteUser($event)" [columnTemplates]="{ role: roleTmpl }">
+            </app-custom-table>
+        </div>
+    </section>
+
+    <ng-template #roleTmpl let-user>
+        <span class="px-2.5 py-1 rounded-md text-xs font-bold border" [ngClass]="{
+            'bg-purple-50 text-purple-700 border-purple-100 dark:bg-purple-900/20 dark:text-purple-300 dark:border-purple-800': user.role === 'ADMIN',
+            'bg-blue-50 text-blue-700 border-blue-100 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-800': user.role === 'ODONTOLOGO',
+            'bg-green-50 text-green-700 border-green-100 dark:bg-green-900/20 dark:text-green-300 dark:border-green-800': user.role === 'RECEPCION'
+        }">
+            {{ getRoleLabel(user.role) }}
+        </span>
+    </ng-template>
+</div>

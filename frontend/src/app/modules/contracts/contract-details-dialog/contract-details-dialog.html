@@ -1,0 +1,121 @@
+<div class="contract-details-dialog">
+    <div class="dialog-header">
+        <h2 mat-dialog-title class="text-2xl font-bold text-text-primary-light dark:text-white flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary">description</span>
+            Detalles del Contrato
+        </h2>
+        <button mat-icon-button (click)="close()" class="close-button">
+            <span class="material-symbols-outlined">close</span>
+        </button>
+    </div>
+
+    <mat-dialog-content class="dialog-content">
+        <!-- Contract ID -->
+        <div class="detail-section">
+            <div class="detail-row">
+                <span class="detail-label">ID del Contrato</span>
+                <span class="detail-value font-mono">{{ contract.id.slice(0, 12) }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Presupuesto Relacionado</span>
+                <span class="detail-value font-mono">{{ contract.quoteId.slice(0, 12) }}</span>
+            </div>
+        </div>
+
+        <!-- Patient Information -->
+        <div class="detail-section">
+            <h3 class="section-title">Información del Paciente</h3>
+            <div class="detail-row">
+                <span class="detail-label">Nombre Completo</span>
+                <span class="detail-value">{{ contract.quote?.patient?.firstName }} {{ contract.quote?.patient?.lastName
+                    }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">DNI</span>
+                <span class="detail-value">{{ contract.quote?.patient?.dni }}</span>
+            </div>
+            <div class="detail-row" *ngIf="contract.quote?.patient?.email">
+                <span class="detail-label">Email</span>
+                <span class="detail-value">{{ contract.quote?.patient?.email }}</span>
+            </div>
+            <div class="detail-row" *ngIf="contract.quote?.patient?.phone">
+                <span class="detail-label">Teléfono</span>
+                <span class="detail-value">{{ contract.quote?.patient?.phone }}</span>
+            </div>
+        </div>
+
+        <!-- Financial Information -->
+        <div class="detail-section">
+            <h3 class="section-title">Información Financiera</h3>
+            <div class="detail-row">
+                <span class="detail-label">Total del Contrato</span>
+                <span class="detail-value font-bold text-lg">{{ contract.total | currency }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Saldo Pendiente</span>
+                <span class="detail-value font-bold" [ngClass]="{
+                    'text-green-600': contract.balance === 0,
+                    'text-orange-600': contract.balance > 0 && contract.balance < contract.total,
+                    'text-red-600': contract.balance === contract.total
+                }">{{ contract.balance | currency }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Método de Pago</span>
+                <span class="detail-value">{{ getPaymentMethodLabel(contract.paymentMethod) }}</span>
+            </div>
+            <div class="detail-row" *ngIf="contract.paymentMethod === 'CREDIT'">
+                <span class="detail-label">Número de Cuotas</span>
+                <span class="detail-value">{{ contract.installments }} cuotas</span>
+            </div>
+        </div>
+
+        <!-- Status Information -->
+        <div class="detail-section">
+            <h3 class="section-title">Estado del Contrato</h3>
+            <div class="detail-row">
+                <span class="detail-label">Estado Actual</span>
+                <span class="status-badge" [ngClass]="{
+                    'status-active': contract.status === 'ACTIVE',
+                    'status-completed': contract.status === 'COMPLETED',
+                    'status-cancelled': contract.status === 'CANCELLED'
+                }">
+                    {{ getStatusLabel(contract.status) }}
+                </span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Fecha de Creación</span>
+                <span class="detail-value">{{ contract.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+            </div>
+            <div class="detail-row" *ngIf="contract.updatedAt">
+                <span class="detail-label">Última Actualización</span>
+                <span class="detail-value">{{ contract.updatedAt | date:'dd/MM/yyyy HH:mm' }}</span>
+            </div>
+        </div>
+
+        <!-- Treatment Details -->
+        <div class="detail-section" *ngIf="contract.quote?.items && contract.quote.items.length > 0">
+            <h3 class="section-title">Detalles del Tratamiento</h3>
+            <div class="treatment-list">
+                <div class="treatment-item" *ngFor="let item of contract.quote.items">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <span class="treatment-name">{{ item.service?.name }}</span>
+                            <span class="treatment-quantity">x{{ item.quantity }}</span>
+                        </div>
+                        <span class="treatment-price">{{ item.price | currency }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </mat-dialog-content>
+
+    <mat-dialog-actions class="dialog-actions">
+        <button mat-button (click)="close()" class="cancel-button">
+            Cerrar
+        </button>
+        <button mat-raised-button color="primary" (click)="close()" class="primary-button">
+            <span class="material-symbols-outlined">print</span>
+            Imprimir
+        </button>
+    </mat-dialog-actions>
+</div>

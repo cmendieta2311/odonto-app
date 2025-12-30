@@ -1,0 +1,176 @@
+<div class="max-w-[1000px] mx-auto p-6 md:p-10 flex flex-col gap-6">
+    <div class="flex items-center justify-between">
+        <h1 class="text-2xl font-bold text-[#111718] dark:text-white">Nueva Factura</h1>
+        <button routerLink="/admin/invoices" class="text-[#618389] hover:text-primary">Cancelar</button>
+    </div>
+
+    <form [formGroup]="invoiceForm" (ngSubmit)="save()" class="flex flex-col gap-6">
+        <!-- Header: Patient & Date -->
+        <!-- Header: Patient & Date -->
+        <div
+            class="bg-white dark:bg-[#1a2c30] p-6 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div class="flex flex-col gap-2 md:col-span-2">
+                <label class="text-sm font-bold text-[#618389]">Paciente</label>
+                <div class="relative">
+                    <input type="text" [formControl]="searchControl" (blur)="onBlur()"
+                        placeholder="Buscar por nombre o DNI..."
+                        class="w-full p-3 bg-gray-50 dark:bg-[#101f22] border border-gray-200 dark:border-gray-700 rounded-lg outline-none focus:border-primary">
+
+                    <!-- Dropdown -->
+                    <div *ngIf="showSuggestions"
+                        class="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-[#1a2c30] border border-gray-100 dark:border-gray-700 rounded-xl shadow-xl z-50 max-h-60 overflow-y-auto">
+                        <div *ngIf="isSearching" class="p-3 text-center text-xs text-[#618389]">
+                            Buscando...
+                        </div>
+                        <div *ngIf="!isSearching && patients.length === 0"
+                            class="p-3 text-center text-xs text-[#618389]">
+                            No se encontraron pacientes
+                        </div>
+                        <button *ngFor="let p of patients" (click)="selectPatient(p)" type="button"
+                            class="w-full text-left p-3 hover:bg-gray-50 dark:hover:bg-[#101f22] border-b border-gray-50 dark:border-gray-800 last:border-0 transition flex flex-col gap-0.5">
+                            <span class="font-bold text-[#111718] dark:text-white text-sm">{{p.firstName}}
+                                {{p.lastName}}</span>
+                            <span class="text-xs text-[#618389]">DNI: {{p.dni}}</span>
+                        </button>
+                    </div>
+                </div>
+                <p *ngIf="invoiceForm.get('patientId')?.touched && invoiceForm.get('patientId')?.invalid"
+                    class="text-red-500 text-xs">Requerido</p>
+            </div>
+
+            <div class="flex flex-col gap-2">
+                <label class="text-sm font-bold text-[#618389]">Fecha de Emisión</label>
+                <input type="text" [value]="issueDate | date:'dd/MM/yyyy'" readonly
+                    class="w-full p-3 bg-gray-100 dark:bg-[#101f22]/50 border border-gray-200 dark:border-gray-700 rounded-lg outline-none text-[#618389] cursor-not-allowed">
+            </div>
+
+            <div class="flex flex-col gap-2">
+                <label class="text-sm font-bold text-[#618389]">Condición</label>
+                <select formControlName="type"
+                    class="w-full p-3 bg-gray-50 dark:bg-[#101f22] border border-gray-200 dark:border-gray-700 rounded-lg outline-none focus:border-primary appearance-none">
+                    <option value="CONTADO">Contado</option>
+                    <option value="CREDITO">Crédito</option>
+                </select>
+            </div>
+
+            <!-- Conditional Fields for Credit -->
+            <ng-container *ngIf="invoiceForm.get('type')?.value === 'CREDITO'">
+                <div class="flex flex-col gap-2 animate-in fade-in slide-in-from-top-2">
+                    <label class="text-sm font-bold text-[#618389]">Cuotas</label>
+                    <input type="number" formControlName="installments" min="1"
+                        class="w-full p-3 bg-gray-50 dark:bg-[#101f22] border border-gray-200 dark:border-gray-700 rounded-lg outline-none focus:border-primary">
+                    <p *ngIf="invoiceForm.get('installments')?.invalid && invoiceForm.get('installments')?.touched"
+                        class="text-xs text-red-500">Requerido</p>
+                </div>
+
+                <div class="flex flex-col gap-2 animate-in fade-in slide-in-from-top-2">
+                    <label class="text-sm font-bold text-[#618389]">Vencimiento</label>
+                    <input type="date" formControlName="dueDate"
+                        class="w-full p-3 bg-gray-50 dark:bg-[#101f22] border border-gray-200 dark:border-gray-700 rounded-lg outline-none focus:border-primary">
+                    <p *ngIf="invoiceForm.get('dueDate')?.invalid && invoiceForm.get('dueDate')?.touched"
+                        class="text-xs text-red-500">Requerido</p>
+                </div>
+            </ng-container>
+        </div>
+
+        <!-- Items -->
+        <div
+            class="bg-white dark:bg-[#1a2c30] p-6 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm flex flex-col gap-4">
+            <div class="flex items-center justify-between mb-2">
+                <h3 class="text-lg font-bold text-[#111718] dark:text-white">Detalle de Servicios</h3>
+                <div class="flex items-center gap-4">
+                    <!-- Service Search -->
+                    <div class="relative w-64">
+                        <input type="text" [formControl]="serviceSearchControl" (blur)="onServiceBlur()"
+                            placeholder="Buscar servicio para agregar..."
+                            class="w-full py-1.5 px-3 bg-gray-50 dark:bg-[#101f22] border border-gray-200 dark:border-gray-700 rounded-lg outline-none focus:border-primary text-sm">
+                        <!-- Suggestions -->
+                        <div *ngIf="showServiceSuggestions && filteredServices.length > 0"
+                            class="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-[#1a2c30] border border-gray-100 dark:border-gray-700 rounded-xl shadow-xl z-50 max-h-60 overflow-y-auto">
+                            <button *ngFor="let s of filteredServices" (click)="selectService(s)" type="button"
+                                class="w-full text-left p-2 hover:bg-gray-50 dark:hover:bg-[#101f22] border-b border-gray-50 dark:border-gray-800 last:border-0 transition flex justify-between items-center group">
+                                <span
+                                    class="font-medium text-[#111718] dark:text-white text-sm group-hover:text-primary transition-colors">{{s.name}}</span>
+                                <span class="text-xs font-bold text-primary">{{s.price | currency}}</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button type="button" (click)="addItem()"
+                        class="text-primary font-bold text-sm flex items-center gap-1 hover:underline">
+                        <span class="material-symbols-outlined text-[18px]">add</span> Item Manual
+                    </button>
+                </div>
+            </div>
+
+            <div formArrayName="items" class="flex flex-col gap-3">
+                <div *ngFor="let item of items.controls; let i=index" [formGroupName]="i"
+                    class="grid grid-cols-12 gap-3 items-center p-3 bg-gray-50 dark:bg-[#101f22] rounded-lg">
+                    <div class="col-span-12 md:col-span-4 flex flex-col gap-1">
+                        <label *ngIf="i===0" class="text-xs font-bold text-[#618389]">Descripción</label>
+                        <input type="text" formControlName="description" placeholder="Ej. Consulta General"
+                            class="w-full p-2 bg-white dark:bg-[#1a2c30] border border-gray-200 dark:border-gray-700 rounded-md outline-none text-sm">
+                    </div>
+                    <div class="col-span-4 md:col-span-1 flex flex-col gap-1">
+                        <label *ngIf="i===0" class="text-xs font-bold text-[#618389]">Cant.</label>
+                        <input type="number" formControlName="quantity" min="1"
+                            class="w-full p-2 bg-white dark:bg-[#1a2c30] border border-gray-200 dark:border-gray-700 rounded-md outline-none text-center text-sm">
+                    </div>
+                    <div class="col-span-8 md:col-span-2 flex flex-col gap-1">
+                        <label *ngIf="i===0" class="text-xs font-bold text-[#618389]">Precio</label>
+                        <input type="number" formControlName="unitPrice" min="0"
+                            class="w-full p-2 bg-white dark:bg-[#1a2c30] border border-gray-200 dark:border-gray-700 rounded-md outline-none text-right text-sm">
+                    </div>
+                    <div class="col-span-6 md:col-span-2 flex flex-col gap-1">
+                        <label *ngIf="i===0" class="text-xs font-bold text-[#618389]">Desc.</label>
+                        <div class="relative">
+                            <span class="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-gray-400">₲</span>
+                            <input type="number" formControlName="discount" min="0"
+                                class="w-full pl-5 p-2 bg-white dark:bg-[#1a2c30] border border-gray-200 dark:border-gray-700 rounded-md outline-none text-right text-sm">
+                        </div>
+                    </div>
+                    <div class="col-span-6 md:col-span-2 flex flex-col gap-1">
+                        <label *ngIf="i===0" class="text-xs font-bold text-[#618389]">IVA %</label>
+                        <select formControlName="taxRate"
+                            class="w-full p-2 bg-white dark:bg-[#1a2c30] border border-gray-200 dark:border-gray-700 rounded-md outline-none text-right text-sm">
+                            <option [value]="10">10%</option>
+                            <option [value]="5">5%</option>
+                            <option [value]="0">Exenta</option>
+                        </select>
+                    </div>
+                    <div class="col-span-2 md:col-span-1 flex justify-center pt-2 md:pt-4">
+                        <button type="button" (click)="removeItem(i)"
+                            class="text-red-500 hover:bg-red-50 p-1 rounded-full" title="Eliminar">
+                            <span class="material-symbols-outlined text-[20px]">delete</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-end mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+                <div class="text-right">
+                    <p class="text-sm text-[#618389]">Total a Pagar</p>
+                    <p class="text-3xl font-black text-primary">{{ calculateTotal() | currency }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex justify-end gap-3">
+            <button type="button" routerLink="/admin/invoices"
+                class="px-6 py-3 rounded-lg border border-gray-200 dark:border-gray-700 font-bold hover:bg-gray-50 dark:hover:bg-white/5 transition">
+                Cancelar
+            </button>
+            <button type="button" [disabled]="invoiceForm.invalid || isLoading" (click)="save(InvoiceStatusEnum.DRAFT)"
+                class="px-6 py-3 bg-white dark:bg-[#1a2c30] text-[#111718] dark:text-white border border-gray-200 dark:border-gray-700 rounded-lg font-bold hover:bg-gray-50 dark:hover:bg-[#101f22] transition disabled:opacity-50 disabled:cursor-not-allowed">
+                Guardar Borrador
+            </button>
+            <button type="button" [disabled]="invoiceForm.invalid || isLoading"
+                (click)="save(InvoiceStatusEnum.PENDING)"
+                class="px-8 py-3 rounded-lg bg-primary text-white font-bold shadow-lg shadow-primary/30 hover:bg-primary/90 transition transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
+                <span *ngIf="!isLoading">Guardar Factura</span>
+                <span *ngIf="isLoading">Guardando...</span>
+            </button>
+        </div>
+    </form>
+</div>

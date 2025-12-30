@@ -1,0 +1,163 @@
+<div class="flex-1 flex flex-col h-full overflow-hidden bg-background-light dark:bg-background-dark">
+    <!-- Top Actions / Header -->
+    <header
+        class="bg-surface-light dark:bg-surface-dark h-16 border-b border-border-light dark:border-border-dark flex items-center justify-between px-6 shrink-0 z-10 transition-colors">
+        <div class="flex items-center gap-4">
+            <button (click)="cancel()"
+                class="p-2 rounded-full hover:bg-background-light dark:hover:bg-background-dark text-text-secondary-light transition-colors">
+                <span class="material-symbols-outlined">arrow_back</span>
+            </button>
+            <div class="flex flex-col">
+                <h2 class="text-lg font-bold text-text-primary-light dark:text-text-primary-dark tracking-tight">
+                    {{ isEditMode ? 'Editar Paciente' : 'Nuevo Paciente' }}
+                </h2>
+            </div>
+        </div>
+        <div class="flex items-center gap-2">
+            <button (click)="cancel()"
+                class="px-4 py-2 rounded-lg border border-border-light dark:border-border-dark bg-white dark:bg-surface-dark text-text-primary-light dark:text-white font-bold text-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors shadow-sm">
+                Cancelar
+            </button>
+            <button (click)="save()" [disabled]="form.invalid || isSaving"
+                class="px-4 py-2 rounded-lg bg-primary text-white font-bold text-sm hover:bg-primary/90 transition-colors shadow-sm flex items-center gap-2 disabled:opacity-50">
+                <span class="material-symbols-outlined text-[18px]">save</span>
+                {{ isSaving ? 'Guardando...' : 'Guardar Paciente' }}
+            </button>
+        </div>
+    </header>
+
+    <main class="flex-1 overflow-y-auto p-4 md:p-8 scroll-smooth">
+        <div class="max-w-[800px] mx-auto flex flex-col gap-6">
+            <form [formGroup]="form" (ngSubmit)="save()">
+                <!-- General Info Section -->
+                <section
+                    class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm border border-border-light dark:border-border-dark p-6 transition-colors">
+                    <div class="flex items-center gap-2 mb-6 border-b border-border-light dark:border-border-dark pb-3">
+                        <span class="material-symbols-outlined text-primary">person</span>
+                        <h3 class="text-lg font-bold">Información Personal</h3>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Document Type -->
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-sm font-bold text-text-primary-light dark:text-white">Tipo de
+                                Documento <span class="text-red-500">*</span></label>
+                            <select formControlName="documentTypeId"
+                                [class.border-red-500]="form.get('documentTypeId')?.invalid && form.get('documentTypeId')?.touched"
+                                class="w-full h-11 px-4 rounded-lg bg-background-light dark:bg-background-dark border border-transparent focus:border-primary focus:ring-0 text-sm font-medium text-text-primary-light dark:text-white transition-all appearance-none cursor-pointer">
+                                <option value="" disabled>Seleccione...</option>
+                                <option *ngFor="let doc of documentTypes" [value]="doc.id">{{ doc.name }} ({{ doc.code
+                                    }})</option>
+                            </select>
+                            <span *ngIf="form.get('documentTypeId')?.invalid && form.get('documentTypeId')?.touched"
+                                class="text-xs text-red-500 font-medium">Este campo es requerido.</span>
+                        </div>
+
+                        <!-- Document Number -->
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-sm font-bold text-text-primary-light dark:text-white">Número de
+                                Documento <span class="text-red-500">*</span></label>
+                            <input formControlName="dni"
+                                [class.border-red-500]="form.get('dni')?.invalid && form.get('dni')?.touched"
+                                class="w-full h-11 px-4 rounded-lg bg-background-light dark:bg-background-dark border border-transparent focus:border-primary focus:ring-0 text-sm font-medium text-text-primary-light dark:text-white placeholder-gray-400 transition-all"
+                                type="text" placeholder="Ej: 1234567" />
+                            <span *ngIf="form.get('dni')?.invalid && form.get('dni')?.touched"
+                                class="text-xs text-red-500 font-medium">Este campo es requerido.</span>
+                        </div>
+
+                        <!-- Names -->
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-sm font-bold text-text-primary-light dark:text-white">Nombres <span
+                                    class="text-red-500">*</span></label>
+                            <input formControlName="firstName"
+                                [class.border-red-500]="form.get('firstName')?.invalid && form.get('firstName')?.touched"
+                                class="w-full h-11 px-4 rounded-lg bg-background-light dark:bg-background-dark border border-transparent focus:border-primary focus:ring-0 text-sm font-medium text-text-primary-light dark:text-white placeholder-gray-400 transition-all"
+                                type="text" />
+                            <span *ngIf="form.get('firstName')?.invalid && form.get('firstName')?.touched"
+                                class="text-xs text-red-500 font-medium">Este campo es requerido.</span>
+                        </div>
+
+                        <!-- Last Names -->
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-sm font-bold text-text-primary-light dark:text-white">Apellidos <span
+                                    class="text-red-500">*</span></label>
+                            <input formControlName="lastName"
+                                [class.border-red-500]="form.get('lastName')?.invalid && form.get('lastName')?.touched"
+                                class="w-full h-11 px-4 rounded-lg bg-background-light dark:bg-background-dark border border-transparent focus:border-primary focus:ring-0 text-sm font-medium text-text-primary-light dark:text-white placeholder-gray-400 transition-all"
+                                type="text" />
+                            <span *ngIf="form.get('lastName')?.invalid && form.get('lastName')?.touched"
+                                class="text-xs text-red-500 font-medium">Este campo es requerido.</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Contact Info Section -->
+                <section
+                    class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm border border-border-light dark:border-border-dark p-6 mt-6 transition-colors">
+                    <div class="flex items-center gap-2 mb-6 border-b border-border-light dark:border-border-dark pb-3">
+                        <span class="material-symbols-outlined text-primary">contact_phone</span>
+                        <h3 class="text-lg font-bold">Datos de Contacto</h3>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-sm font-bold text-text-primary-light dark:text-white">Teléfono /
+                                Celular</label>
+                            <div class="relative">
+                                <span
+                                    class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-[20px]">phone</span>
+                                <input formControlName="phone"
+                                    class="w-full h-11 pl-10 pr-4 rounded-lg bg-background-light dark:bg-background-dark border-transparent focus:border-primary focus:ring-0 text-sm font-medium text-text-primary-light dark:text-white placeholder-gray-400 transition-all"
+                                    type="tel" />
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-sm font-bold text-text-primary-light dark:text-white">Correo
+                                Electrónico</label>
+                            <div class="relative">
+                                <span
+                                    class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-[20px]">mail</span>
+                                <input formControlName="email"
+                                    [class.border-red-500]="form.get('email')?.invalid && form.get('email')?.touched"
+                                    class="w-full h-11 pl-10 pr-4 rounded-lg bg-background-light dark:bg-background-dark border border-transparent focus:border-primary focus:ring-0 text-sm font-medium text-text-primary-light dark:text-white placeholder-gray-400 transition-all"
+                                    type="email" />
+                            </div>
+                            <span *ngIf="form.get('email')?.invalid && form.get('email')?.touched"
+                                class="text-xs text-red-500 font-medium">Formato de correo inválido.</span>
+                        </div>
+
+                        <div class="md:col-span-2 flex flex-col gap-1.5">
+                            <label class="text-sm font-bold text-text-primary-light dark:text-white">Dirección</label>
+                            <div class="relative">
+                                <span
+                                    class="material-symbols-outlined absolute left-3 top-3.5 text-gray-400 text-[20px]">location_on</span>
+                                <textarea formControlName="address"
+                                    class="w-full p-3 pl-10 rounded-lg bg-background-light dark:bg-background-dark border-transparent focus:border-primary focus:ring-0 text-sm font-medium text-text-primary-light dark:text-white placeholder-gray-400 resize-none transition-all"
+                                    rows="2"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Medical / Additional Info -->
+                <section
+                    class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm border border-border-light dark:border-border-dark p-6 mt-6 transition-colors">
+                    <div class="flex items-center gap-2 mb-6 border-b border-border-light dark:border-border-dark pb-3">
+                        <span class="material-symbols-outlined text-primary">medical_services</span>
+                        <h3 class="text-lg font-bold">Información Adicional / Historia</h3>
+                    </div>
+
+                    <div class="flex flex-col gap-1.5">
+                        <label class="text-sm font-bold text-text-primary-light dark:text-white">Antecedentes / Obra
+                            Social</label>
+                        <textarea formControlName="history"
+                            class="w-full p-3 rounded-lg bg-background-light dark:bg-background-dark border-transparent focus:border-primary focus:ring-0 text-sm font-medium text-text-primary-light dark:text-white placeholder-gray-400 resize-none transition-all"
+                            rows="4" placeholder="Alguna alergia, seguro médico o nota importante..."></textarea>
+                    </div>
+                </section>
+
+            </form>
+        </div>
+    </main>
+</div>

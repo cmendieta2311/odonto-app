@@ -1,0 +1,144 @@
+<div class="flex flex-col gap-6">
+    <div class="flex justify-between items-end">
+        <div>
+            <h2 class="text-2xl font-bold text-[#111418] dark:text-white">Catálogo de Servicios</h2>
+            <p class="text-[#617289] dark:text-gray-400 mt-1">Gestiona las áreas y categorías de tus servicios.</p>
+        </div>
+    </div>
+
+    <section
+        class="bg-white dark:bg-surface-dark rounded-xl shadow-sm border border-border-light dark:border-border-dark overflow-hidden mb-8">
+        <div class="px-6 py-4 border-b border-border-light dark:border-border-dark flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="p-2 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg text-indigo-600 dark:text-indigo-400">
+                    <span class="material-symbols-outlined">category</span>
+                </div>
+                <h3 class="text-lg font-bold text-[#111418] dark:text-white">Áreas y Categorías</h3>
+            </div>
+        </div>
+
+        <div class="p-6 flex flex-col gap-6">
+            <!-- Add New Area -->
+            <div>
+                <label class="block text-sm font-bold text-[#111418] dark:text-white mb-1.5">Nueva Área de
+                    Servicio</label>
+                <div class="flex gap-4 items-start">
+                    <div class="flex-1">
+                        <input [(ngModel)]="newAreaName" [ngModelOptions]="{standalone: true}"
+                            (input)="areaCreationError = null" placeholder="Ej. Implantología"
+                            class="w-full h-11 px-4 rounded-lg bg-background-light dark:bg-background-dark border-transparent focus:border-primary focus:ring-0 text-sm font-medium text-[#111418] dark:text-white placeholder-gray-400 transition-all"
+                            type="text" />
+                        <div *ngIf="areaCreationError"
+                            class="text-red-500 text-xs mt-1 font-medium flex items-center gap-1">
+                            <span class="material-symbols-outlined text-sm">error</span>
+                            {{ areaCreationError }}
+                        </div>
+                    </div>
+                    <button (click)="addArea()" [disabled]="!newAreaName"
+                        class="h-11 px-4 rounded-lg bg-primary text-white font-bold text-sm hover:bg-primary/90 transition-colors shadow-sm flex items-center gap-2 disabled:opacity-50">
+                        <span class="material-symbols-outlined">add</span> Agregar Área
+                    </button>
+                </div>
+            </div>
+
+            <!-- Areas List -->
+            <div class="flex flex-col gap-4">
+                <div *ngFor="let area of areas"
+                    class="border border-border-light dark:border-border-dark rounded-lg overflow-hidden">
+                    <!-- Area Header -->
+                    <div
+                        class="bg-gray-50 dark:bg-gray-800/50 px-4 py-3 flex items-center justify-between border-b border-border-light dark:border-border-dark min-h-[64px]">
+
+                        <!-- View Mode -->
+                        <ng-container *ngIf="editingAreaId !== area.id && deletingAreaId !== area.id">
+                            <h4 class="font-bold text-[#111418] dark:text-white flex items-center gap-2">
+                                <span class="material-symbols-outlined text-gray-400">folder</span>
+                                {{ area.name }}
+                            </h4>
+                            <div class="flex items-center gap-2">
+                                <button (click)="startEdit(area)"
+                                    class="text-gray-500 hover:text-primary p-1 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                    title="Editar Nombre">
+                                    <span class="material-symbols-outlined text-xl">edit</span>
+                                </button>
+                                <button (click)="deleteArea(area.id)"
+                                    class="text-red-500 hover:text-red-700 p-1 rounded-md hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                                    title="Eliminar Área">
+                                    <span class="material-symbols-outlined text-xl">delete</span>
+                                </button>
+                            </div>
+                        </ng-container>
+
+                        <!-- Delete Confirmation Mode -->
+                        <div *ngIf="deletingAreaId === area.id"
+                            class="flex items-center justify-between w-full bg-red-50 dark:bg-red-900/20 px-3 py-1 -mx-3 rounded-lg">
+                            <span class="text-sm font-medium text-red-700 dark:text-red-300">¿Eliminar {{ area.name
+                                }}?</span>
+                            <div class="flex items-center gap-2">
+                                <button (click)="cancelDelete()"
+                                    class="text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white px-3 py-1.5 rounded-md hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
+                                    Cancelar
+                                </button>
+                                <button (click)="confirmDelete()"
+                                    class="text-sm font-bold text-white bg-red-600 hover:bg-red-700 px-3 py-1.5 rounded-md shadow-sm transition-colors flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-lg">delete</span>
+                                    Eliminar
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Edit Mode -->
+                        <div *ngIf="editingAreaId === area.id" class="flex items-center gap-3 w-full">
+                            <span class="material-symbols-outlined text-primary">folder_open</span>
+                            <input [(ngModel)]="renameAreaName" [ngModelOptions]="{standalone: true}"
+                                (keyup.enter)="saveArea()"
+                                class="flex-1 h-9 px-3 rounded text-sm bg-white dark:bg-black border border-primary focus:ring-2 focus:ring-primary/20 transition-all font-bold"
+                                type="text" autoFocus />
+                            <div class="flex items-center gap-1">
+                                <button (click)="saveArea()"
+                                    class="p-1 rounded text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20"
+                                    title="Guardar">
+                                    <span class="material-symbols-outlined">check</span>
+                                </button>
+                                <button (click)="cancelEdit()"
+                                    class="p-1 rounded text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20"
+                                    title="Cancelar">
+                                    <span class="material-symbols-outlined">close</span>
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Categories List -->
+                    <div class="p-4 bg-white dark:bg-surface-dark">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                            <!-- Existing Categories -->
+                            <div *ngFor="let cat of area.categories"
+                                class="flex items-center justify-between p-2 rounded border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark">
+                                <span class="text-sm font-medium text-[#111418] dark:text-white">{{ cat.name
+                                    }}</span>
+                                <button (click)="deleteCategory(cat.id)"
+                                    class="text-gray-400 hover:text-red-500 transition-colors">
+                                    <span class="material-symbols-outlined text-lg">close</span>
+                                </button>
+                            </div>
+
+                            <!-- Add Category -->
+                            <div class="flex items-center gap-2 p-1">
+                                <input [(ngModel)]="newCategoryNames[area.id]" [ngModelOptions]="{standalone: true}"
+                                    placeholder="Nueva categoría..." (keyup.enter)="addCategory(area.id)"
+                                    class="flex-1 h-9 px-3 rounded text-sm bg-transparent border border-border-light dark:border-border-dark focus:border-primary focus:ring-0"
+                                    type="text" />
+                                <button (click)="addCategory(area.id)" [disabled]="!newCategoryNames[area.id]"
+                                    class="size-9 rounded bg-primary text-white flex items-center justify-center hover:bg-primary/90 disabled:opacity-50">
+                                    <span class="material-symbols-outlined text-lg">add</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>

@@ -1,0 +1,52 @@
+<div class="max-w-2xl mx-auto flex flex-col gap-6">
+    <div class="flex items-center justify-between">
+        <h1 class="text-3xl font-black text-[#111718] dark:text-white tracking-tight">Mi Perfil</h1>
+    </div>
+
+    <!-- Personal Info Card -->
+    <div
+        class="bg-surface-light dark:bg-surface-dark p-6 rounded-xl border border-[#dbe4e6] dark:border-[#2a3e42] shadow-sm">
+        <h2 class="text-xl font-bold text-text-main-light dark:text-text-main-dark mb-4">Información Personal</h2>
+        <form [formGroup]="infoForm" (ngSubmit)="updateInfo()" class="flex flex-col gap-4">
+            <div class="flex flex-col gap-1">
+                <label class="text-xs font-bold uppercase tracking-wider text-text-secondary-light">Nombre</label>
+                <input type="text" formControlName="name"
+                    class="form-input rounded-lg border-[#dbe4e6] dark:border-[#2a3e42] bg-background-light dark:bg-background-dark text-sm focus:ring-primary focus:border-primary shadow-sm">
+            </div>
+            <div class="flex flex-col gap-1">
+                <label class="text-xs font-bold uppercase tracking-wider text-text-secondary-light">Email</label>
+                <input type="email" formControlName="email"
+                    class="form-input rounded-lg border-[#dbe4e6] dark:border-[#2a3e42] bg-background-light-disabled dark:bg-background-dark text-sm opacity-70 cursor-not-allowed"
+                    readonly>
+                <span class="text-xs text-text-secondary-light">El email no se puede cambiar.</span>
+            </div>
+            <div class="flex justify-end">
+                <button type="submit" [disabled]="infoForm.invalid || isUpdatingInfo || infoForm.pristine"
+                    class="px-5 py-2 rounded-lg bg-primary hover:bg-primary-hover text-white text-sm font-bold shadow-lg shadow-primary/20 transition-all active:scale-95 disabled:opacity-50">
+                    {{ isUpdatingInfo ? 'Guardando...' : 'Actualizar Información' }}
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Password Card -->
+    <div
+        class="bg-surface-light dark:bg-surface-dark p-6 rounded-xl border border-[#dbe4e6] dark:border-[#2a3e42] shadow-sm">
+        <h2 class="text-xl font-bold text-text-main-light dark:text-text-main-dark mb-4">Contraseña</h2>
+        <form [formGroup]="passwordForm" (ngSubmit)="updatePassword()" class="flex flex-col gap-4">
+            <div class="flex flex-col gap-1">
+                <label class="text-xs font-bold uppercase tracking-wider text-text-secondary-light">Nueva
+                    Contraseña</label>
+                <input type="password" formControlName="password"
+                    class="form-input rounded-lg border-[#dbe4e6] dark:border-[#2a3e42] bg-background-light dark:bg-background-dark text-sm focus:ring-primary focus:border-primary shadow-sm"
+                    placeholder="Mínimo 6 caracteres">
+            </div>
+            <div class="flex justify-end">
+                <button type="submit" [disabled]="passwordForm.invalid || isUpdatingPass"
+                    class="px-5 py-2 rounded-lg border border-[#dbe4e6] dark:border-[#2a3e42] text-text-main-light dark:text-text-main-dark hover:bg-background-light dark:hover:bg-background-dark text-sm font-bold transition-all disabled:opacity-50">
+                    {{ isUpdatingPass ? 'Actualizando...' : 'Cambiar Contraseña' }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

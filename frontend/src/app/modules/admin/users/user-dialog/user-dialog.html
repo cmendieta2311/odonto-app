@@ -1,0 +1,65 @@
+<div class="bg-surface-light dark:bg-surface-dark rounded-xl overflow-hidden">
+    <!-- Header -->
+    <div class="px-6 py-4 border-b border-[#dbe4e6] dark:border-[#2a3e42] flex items-center justify-between">
+        <h2 class="text-xl font-bold text-text-main-light dark:text-text-main-dark">
+            {{ data.user ? 'Editar Usuario' : 'Nuevo Usuario' }}
+        </h2>
+        <button class="text-text-secondary-light hover:text-primary transition-colors" (click)="close()">
+            <span class="material-symbols-outlined">close</span>
+        </button>
+    </div>
+
+    <!-- Form -->
+    <form [formGroup]="form" (ngSubmit)="save()" class="p-6 flex flex-col gap-5">
+        <div class="flex flex-col gap-1">
+            <label class="text-xs font-bold uppercase tracking-wider text-text-secondary-light">Nombre Completo</label>
+            <input type="text" formControlName="name"
+                class="form-input rounded-lg border-[#dbe4e6] dark:border-[#2a3e42] bg-background-light dark:bg-background-dark text-sm focus:ring-primary focus:border-primary shadow-sm"
+                placeholder="Ej: Juan Pérez">
+        </div>
+
+        <div class="flex flex-col gap-1">
+            <label class="text-xs font-bold uppercase tracking-wider text-text-secondary-light">Email</label>
+            <input type="email" formControlName="email"
+                class="form-input rounded-lg border-[#dbe4e6] dark:border-[#2a3e42] bg-background-light dark:bg-background-dark text-sm focus:ring-primary focus:border-primary shadow-sm"
+                placeholder="ejemplo@correo.com">
+        </div>
+
+        <div class="flex flex-col gap-1">
+            <label class="text-xs font-bold uppercase tracking-wider text-text-secondary-light">Rol</label>
+            <div class="relative">
+                <select formControlName="role"
+                    class="form-input w-full appearance-none rounded-lg border-[#dbe4e6] dark:border-[#2a3e42] bg-background-light dark:bg-background-dark text-sm focus:ring-primary focus:border-primary shadow-sm pr-8 cursor-pointer">
+                    <option value="ADMIN">Administrador</option>
+                    <option value="ODONTOLOGO">Odontólogo</option>
+                    <option value="RECEPCION">Recepcionista</option>
+                </select>
+                <div
+                    class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-text-secondary-light">
+                    <span class="material-symbols-outlined">expand_more</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex flex-col gap-1">
+            <label class="text-xs font-bold uppercase tracking-wider text-text-secondary-light">
+                Contraseña {{ data.user ? '(Opcional)' : '(Requerida)' }}
+            </label>
+            <input type="password" formControlName="password"
+                class="form-input rounded-lg border-[#dbe4e6] dark:border-[#2a3e42] bg-background-light dark:bg-background-dark text-sm focus:ring-primary focus:border-primary shadow-sm"
+                placeholder="••••••••">
+        </div>
+
+        <div class="flex justify-end gap-3 pt-4 border-t border-[#dbe4e6] dark:border-[#2a3e42]">
+            <button type="button"
+                class="px-4 py-2 rounded-lg text-sm font-bold text-text-secondary-light hover:bg-background-light dark:hover:bg-background-dark transition-colors"
+                (click)="close()">
+                Cancelar
+            </button>
+            <button type="submit" [disabled]="form.invalid || isSaving"
+                class="px-6 py-2 rounded-lg bg-primary hover:bg-primary-hover text-white text-sm font-bold shadow-lg shadow-primary/20 transition-all active:scale-95 disabled:opacity-50 disabled:scale-100">
+                {{ isSaving ? 'Guardando...' : 'Guardar' }}
+            </button>
+        </div>
+    </form>
+</div>

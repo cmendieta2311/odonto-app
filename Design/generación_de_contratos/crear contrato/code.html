@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Generación de Contratos - DentalManager</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Theme Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#13c8ec",
+                        "background-light": "#f6f8f8",
+                        "background-dark": "#101f22",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.filled {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="font-display bg-background-light dark:bg-background-dark text-[#111718] dark:text-gray-100 overflow-hidden">
+<div class="flex h-screen w-full">
+<!-- SideNavBar -->
+<aside class="hidden lg:flex flex-col w-[280px] h-full bg-white dark:bg-[#1a2c30] border-r border-[#f0f4f4] dark:border-[#2a3c40] flex-shrink-0">
+<div class="flex flex-col h-full p-4 justify-between">
+<div class="flex flex-col gap-4">
+<!-- User Profile in Sidebar -->
+<div class="flex gap-3 items-center p-2 rounded-lg hover:bg-[#f0f4f4] dark:hover:bg-[#2a3c40] transition-colors cursor-pointer">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-12 border-2 border-primary" data-alt="Portrait of Dr. Dent, a smiling dentist in a white coat" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAkXoYSElE-IyLNiu3UmoJwgY9lF5WxJrNmJlnichozxrKkHNmgeUoH4VPgf3zd5qRUDr44V2LOR--kj3DHpQUmjnNzSqX5dpG43nTmZZ7EXcx6QRFQeztzNOOHRxyFMzQoRczLKzqtUILDQYz_ZW5eMn0ie3nBP0OLLHCz4Y3DzpgP0onRwygtRD6op1CY8argusEvl0sQFWje6L2IH3vAqKXJyhCmP-x7tKU3j6i_nYJbhp_RmWHqTUE0AHWBzVm3j0rEIHJT2-c");'>
+</div>
+<div class="flex flex-col">
+<h1 class="text-[#111718] dark:text-white text-base font-bold leading-normal">Dr. Alberto Dent</h1>
+<p class="text-[#618389] dark:text-[#8baab0] text-sm font-normal leading-normal">Administrador</p>
+</div>
+</div>
+<div class="h-px bg-[#f0f4f4] dark:bg-[#2a3c40] w-full my-1"></div>
+<!-- Navigation Links -->
+<nav class="flex flex-col gap-2">
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-[#f0f4f4] dark:hover:bg-[#2a3c40] transition-colors group" href="#">
+<span class="material-symbols-outlined text-[#618389] dark:text-[#8baab0] group-hover:text-primary">dashboard</span>
+<p class="text-[#111718] dark:text-gray-200 text-sm font-medium leading-normal">Dashboard</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-[#f0f4f4] dark:hover:bg-[#2a3c40] transition-colors group" href="#">
+<span class="material-symbols-outlined text-[#618389] dark:text-[#8baab0] group-hover:text-primary">group</span>
+<p class="text-[#111718] dark:text-gray-200 text-sm font-medium leading-normal">Pacientes</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-[#f0f4f4] dark:hover:bg-[#2a3c40] transition-colors group" href="#">
+<span class="material-symbols-outlined text-[#618389] dark:text-[#8baab0] group-hover:text-primary">calendar_month</span>
+<p class="text-[#111718] dark:text-gray-200 text-sm font-medium leading-normal">Agenda</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg bg-[#f0f4f4] dark:bg-[#2a3c40]" href="#">
+<span class="material-symbols-outlined text-primary filled">description</span>
+<p class="text-[#111718] dark:text-white text-sm font-bold leading-normal">Presupuestos</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-[#f0f4f4] dark:hover:bg-[#2a3c40] transition-colors group" href="#">
+<span class="material-symbols-outlined text-[#618389] dark:text-[#8baab0] group-hover:text-primary">payments</span>
+<p class="text-[#111718] dark:text-gray-200 text-sm font-medium leading-normal">Cobranza</p>
+</a>
+</nav>
+</div>
+<div class="flex flex-col gap-2">
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-[#f0f4f4] dark:hover:bg-[#2a3c40] transition-colors group" href="#">
+<span class="material-symbols-outlined text-[#618389] dark:text-[#8baab0] group-hover:text-primary">settings</span>
+<p class="text-[#111718] dark:text-gray-200 text-sm font-medium leading-normal">Configuración</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors group" href="#">
+<span class="material-symbols-outlined text-[#618389] dark:text-[#8baab0] group-hover:text-red-500">logout</span>
+<p class="text-[#111718] dark:text-gray-200 text-sm font-medium leading-normal">Cerrar Sesión</p>
+</a>
+</div>
+</div>
+</aside>
+<!-- Main Content Wrapper -->
+<div class="flex flex-col flex-1 h-full overflow-hidden relative">
+<!-- TopNavBar -->
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-[#f0f4f4] dark:border-[#2a3c40] bg-white dark:bg-[#1a2c30] px-6 py-3 flex-shrink-0 z-10">
+<div class="flex items-center gap-4 lg:gap-8">
+<div class="lg:hidden flex items-center">
+<span class="material-symbols-outlined text-[#111718] dark:text-white">menu</span>
+</div>
+<div class="flex items-center gap-2 text-primary">
+<div class="size-8 rounded bg-primary/10 flex items-center justify-center">
+<svg class="size-5 text-primary" fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M4 4H17.3334V17.3334H30.6666V30.6666H44V44H4V4Z" fill="currentColor"></path>
+</svg>
+</div>
+<h2 class="text-[#111718] dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">DentalManager</h2>
+</div>
+<!-- Search Bar -->
+<label class="hidden md:flex flex-col min-w-40 !h-10 max-w-64">
+<div class="flex w-full flex-1 items-stretch rounded-lg h-full bg-[#f0f4f4] dark:bg-[#2a3c40]">
+<div class="text-[#618389] dark:text-[#8baab0] flex border-none items-center justify-center pl-4 pr-2">
+<span class="material-symbols-outlined text-[20px]">search</span>
+</div>
+<input class="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#111718] dark:text-white focus:outline-0 focus:ring-0 border-none bg-transparent h-full placeholder:text-[#618389] dark:placeholder:text-[#8baab0] text-sm font-normal leading-normal" placeholder="Buscar paciente..." value=""/>
+</div>
+</label>
+</div>
+<div class="flex flex-1 justify-end gap-4">
+<div class="flex gap-2">
+<button class="flex items-center justify-center rounded-lg size-10 bg-[#f0f4f4] dark:bg-[#2a3c40] text-[#111718] dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+</button>
+<button class="flex items-center justify-center rounded-lg size-10 bg-[#f0f4f4] dark:bg-[#2a3c40] text-[#111718] dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+<span class="material-symbols-outlined text-[20px]">help</span>
+</button>
+</div>
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border border-[#f0f4f4] dark:border-[#2a3c40]" data-alt="Dental assistant profile picture" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBEVF3x23lVIUU8Vpvcm9DCIxGfE7J60utM7lPRDVwQzJB42nOt9rfifcHxcHWuelbIOpmsmNIVpJsxuibuk3g-gKfzVgzN4ZDzukk1GLCfR88uBhlJEdUgSNETRxr_7wFjbh-kCW-kNeqaZiRxMoLO7UQcLsIy8bBqf2jV3KHqSLxLZwJGjE0rFJEvkTVmcVgbBYJoasSCYBHmdDaKn3TUd-XC3VpGlPUUB61q2U8LXxgx-WRjcUiMXk5E-aMA-k0MhewqWaBkWCI");'>
+</div>
+</div>
+</header>
+<!-- Scrollable Page Content -->
+<main class="flex-1 overflow-y-auto p-4 md:p-8 bg-background-light dark:bg-background-dark">
+<div class="max-w-[1200px] mx-auto flex flex-col gap-6">
+<!-- Breadcrumbs -->
+<div class="flex items-center gap-2 text-sm">
+<a class="text-[#618389] dark:text-[#8baab0] font-medium hover:text-primary transition-colors" href="#">Inicio</a>
+<span class="text-[#618389] dark:text-[#8baab0] material-symbols-outlined text-[16px]">chevron_right</span>
+<a class="text-[#618389] dark:text-[#8baab0] font-medium hover:text-primary transition-colors" href="#">Presupuestos</a>
+<span class="text-[#618389] dark:text-[#8baab0] material-symbols-outlined text-[16px]">chevron_right</span>
+<span class="text-[#111718] dark:text-white font-bold">Generar Contrato</span>
+</div>
+<!-- Page Heading -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+<div class="flex flex-col gap-2">
+<h1 class="text-[#111718] dark:text-white text-3xl md:text-4xl font-black leading-tight tracking-[-0.033em]">Generación de Contratos</h1>
+<p class="text-[#618389] dark:text-[#8baab0] text-base font-normal">Configure los términos financieros para el tratamiento de ortodoncia.</p>
+</div>
+<div class="flex gap-3">
+<button class="flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#1a2c30] border border-gray-200 dark:border-[#2a3c40] rounded-lg text-[#111718] dark:text-white font-bold text-sm hover:bg-gray-50 dark:hover:bg-[#2a3c40]/80 transition-colors">
+<span class="material-symbols-outlined text-[20px]">print</span>
+                                Vista Previa PDF
+                            </button>
+</div>
+</div>
+<!-- Content Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+<!-- Left Column: Configuration (8 cols) -->
+<div class="lg:col-span-7 xl:col-span-8 flex flex-col gap-6">
+<!-- Step 1: Budget Selection -->
+<div class="bg-white dark:bg-[#1a2c30] rounded-xl p-6 shadow-sm border border-[#f0f4f4] dark:border-[#2a3c40]">
+<div class="flex items-center gap-3 mb-6">
+<div class="size-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">1</div>
+<h3 class="text-lg font-bold text-[#111718] dark:text-white">Selección de Presupuesto</h3>
+</div>
+<div class="grid md:grid-cols-2 gap-4">
+<label class="flex flex-col gap-2">
+<span class="text-[#111718] dark:text-gray-200 text-sm font-bold">Presupuesto Aprobado</span>
+<div class="relative">
+<select class="w-full h-12 rounded-lg border border-[#dbe4e6] dark:border-[#2a3c40] bg-white dark:bg-[#101f22] text-[#111718] dark:text-white pl-4 pr-10 focus:ring-primary focus:border-primary appearance-none">
+<option value="PRE-2023-089">#PRE-2023-089 - Ortodoncia Completa</option>
+<option value="PRE-2023-090">#PRE-2023-090 - Implante Dental #14</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-3 text-[#618389] pointer-events-none">expand_more</span>
+</div>
+</label>
+<!-- Selected Patient Info (Read only) -->
+<div class="flex items-center gap-4 p-3 bg-[#f6f8f8] dark:bg-[#101f22] rounded-lg border border-transparent">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10" data-alt="Patient profile picture" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCE9gzgF-AwGry2QWyhBD--ojbGNtrDoPJDMTLiYT3H-0FC2BXxvC6JqcONGVoLb4kuclUE913PjRdTd9Q3YK1HKI5RhbD-Zi7vEXTByZYIAFH6rPYALSH4dd56CXeoDBVzAeHirOdIVKQe1KomC0FO7KFLllA4YsbTWJVwxN262_ijpuyhYv8k_zq9YcocuhoGXMxIOrYB1ZyWjbVqk1YvU-R_wVtkIdLB6IvsWx2ri4qOlHDBAM_qZ3PrBDYo_0isPJm17u7c7Qw");'>
+</div>
+<div class="flex flex-col">
+<p class="text-[#111718] dark:text-white font-bold text-sm">María González</p>
+<p class="text-[#618389] dark:text-[#8baab0] text-xs">ID: 40.192.333 • Plan Premium</p>
+</div>
+<div class="ml-auto">
+<span class="inline-flex items-center px-2 py-1 rounded bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-bold">
+                                                Aprobado
+                                            </span>
+</div>
+</div>
+</div>
+</div>
+<!-- Step 2: Payment Configuration -->
+<div class="bg-white dark:bg-[#1a2c30] rounded-xl p-6 shadow-sm border border-[#f0f4f4] dark:border-[#2a3c40] flex-1">
+<div class="flex items-center gap-3 mb-6">
+<div class="size-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">2</div>
+<h3 class="text-lg font-bold text-[#111718] dark:text-white">Condiciones de Pago</h3>
+</div>
+<!-- Payment Method Toggle -->
+<div class="bg-[#f0f4f4] dark:bg-[#101f22] p-1 rounded-lg inline-flex mb-6 w-full md:w-auto">
+<button class="flex-1 md:flex-none px-6 py-2 rounded-md text-sm font-bold transition-all shadow-sm bg-white dark:bg-[#2a3c40] text-primary">
+                                        Financiado (Crédito)
+                                    </button>
+<button class="flex-1 md:flex-none px-6 py-2 rounded-md text-sm font-bold text-[#618389] dark:text-[#8baab0] hover:text-[#111718] dark:hover:text-white transition-all">
+                                        Contado
+                                    </button>
+</div>
+<div class="grid md:grid-cols-2 gap-6">
+<!-- Inputs -->
+<div class="flex flex-col gap-5">
+<label class="flex flex-col gap-2">
+<span class="text-[#111718] dark:text-gray-200 text-sm font-bold">Entrega Inicial ($)</span>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-3 text-[#618389] dark:text-[#8baab0]">attach_money</span>
+<input class="w-full h-12 rounded-lg border border-[#dbe4e6] dark:border-[#2a3c40] bg-white dark:bg-[#101f22] text-[#111718] dark:text-white pl-10 focus:ring-primary focus:border-primary" placeholder="0.00" type="number" value="500"/>
+</div>
+<p class="text-xs text-[#618389] dark:text-[#8baab0]">Mínimo sugerido: 20% del total</p>
+</label>
+<label class="flex flex-col gap-2">
+<span class="text-[#111718] dark:text-gray-200 text-sm font-bold">Fecha Primer Pago</span>
+<div class="relative">
+<input class="w-full h-12 rounded-lg border border-[#dbe4e6] dark:border-[#2a3c40] bg-white dark:bg-[#101f22] text-[#111718] dark:text-white px-4 focus:ring-primary focus:border-primary" type="date" value="2023-11-01"/>
+</div>
+</label>
+</div>
+<!-- Slider for Installments -->
+<div class="flex flex-col gap-4 p-4 rounded-lg border border-[#f0f4f4] dark:border-[#2a3c40] bg-[#fafcfc] dark:bg-[#101f22]">
+<div class="flex justify-between items-center">
+<span class="text-[#111718] dark:text-gray-200 text-sm font-bold">Cantidad de Cuotas</span>
+<span class="text-2xl font-black text-primary">12</span>
+</div>
+<input class="w-full h-2 bg-[#dbe4e6] rounded-lg appearance-none cursor-pointer accent-primary" max="24" min="1" type="range" value="12"/>
+<div class="flex justify-between text-xs text-[#618389] dark:text-[#8baab0]">
+<span>1 mes</span>
+<span>24 meses</span>
+</div>
+<div class="mt-2 pt-3 border-t border-dashed border-[#dbe4e6] dark:border-[#2a3c40] flex justify-between items-center">
+<span class="text-sm font-medium text-[#618389] dark:text-[#8baab0]">Interés aplicado</span>
+<span class="text-sm font-bold text-[#111718] dark:text-white">5% Anual</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Preview (4 cols) -->
+<div class="lg:col-span-5 xl:col-span-4 flex flex-col gap-6">
+<!-- Financial Summary Card -->
+<div class="bg-primary text-white rounded-xl p-6 shadow-lg flex flex-col gap-4 relative overflow-hidden">
+<div class="absolute top-0 right-0 -mr-4 -mt-4 w-32 h-32 bg-white opacity-10 rounded-full blur-2xl pointer-events-none"></div>
+<div class="absolute bottom-0 left-0 -ml-4 -mb-4 w-24 h-24 bg-black opacity-10 rounded-full blur-xl pointer-events-none"></div>
+<h3 class="text-sm font-bold uppercase tracking-wider opacity-90 relative z-10">Resumen del Contrato</h3>
+<div class="flex flex-col gap-1 relative z-10">
+<p class="text-sm opacity-90">Cuota Mensual Estimada</p>
+<p class="text-4xl font-black tracking-tight">$ 229.16</p>
+</div>
+<div class="h-px bg-white/20 w-full my-1 relative z-10"></div>
+<div class="flex flex-col gap-2 text-sm relative z-10">
+<div class="flex justify-between">
+<span class="opacity-80">Costo Tratamiento</span>
+<span class="font-bold">$ 3,000.00</span>
+</div>
+<div class="flex justify-between">
+<span class="opacity-80">Entrega Inicial</span>
+<span class="font-bold">- $ 500.00</span>
+</div>
+<div class="flex justify-between">
+<span class="opacity-80">Intereses (5%)</span>
+<span class="font-bold">+ $ 250.00</span>
+</div>
+<div class="flex justify-between text-base mt-2 pt-2 border-t border-white/20">
+<span class="font-bold">Total a Financiar</span>
+<span class="font-black">$ 2,750.00</span>
+</div>
+</div>
+</div>
+<!-- Amortization Schedule -->
+<div class="bg-white dark:bg-[#1a2c30] rounded-xl shadow-sm border border-[#f0f4f4] dark:border-[#2a3c40] flex flex-col flex-1 max-h-[400px]">
+<div class="p-4 border-b border-[#f0f4f4] dark:border-[#2a3c40] flex justify-between items-center">
+<h3 class="text-base font-bold text-[#111718] dark:text-white">Cronograma de Pagos</h3>
+<span class="text-xs text-[#618389] dark:text-[#8baab0] font-medium">12 Cuotas</span>
+</div>
+<div class="overflow-y-auto flex-1 p-2">
+<table class="w-full text-sm text-left">
+<thead class="text-xs text-[#618389] dark:text-[#8baab0] uppercase bg-[#f6f8f8] dark:bg-[#101f22]">
+<tr>
+<th class="px-3 py-2 rounded-l-md">#</th>
+<th class="px-3 py-2">Fecha</th>
+<th class="px-3 py-2 text-right rounded-r-md">Monto</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-[#f0f4f4] dark:divide-[#2a3c40]">
+<!-- Row 1 -->
+<tr class="hover:bg-[#f9fafb] dark:hover:bg-[#203236]">
+<td class="px-3 py-3 font-medium text-[#111718] dark:text-white">1</td>
+<td class="px-3 py-3 text-[#618389] dark:text-[#8baab0]">01 Nov 2023</td>
+<td class="px-3 py-3 text-right font-bold text-[#111718] dark:text-white">$229.16</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-[#f9fafb] dark:hover:bg-[#203236]">
+<td class="px-3 py-3 font-medium text-[#111718] dark:text-white">2</td>
+<td class="px-3 py-3 text-[#618389] dark:text-[#8baab0]">01 Dic 2023</td>
+<td class="px-3 py-3 text-right font-bold text-[#111718] dark:text-white">$229.16</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-[#f9fafb] dark:hover:bg-[#203236]">
+<td class="px-3 py-3 font-medium text-[#111718] dark:text-white">3</td>
+<td class="px-3 py-3 text-[#618389] dark:text-[#8baab0]">01 Ene 2024</td>
+<td class="px-3 py-3 text-right font-bold text-[#111718] dark:text-white">$229.16</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-[#f9fafb] dark:hover:bg-[#203236]">
+<td class="px-3 py-3 font-medium text-[#111718] dark:text-white">4</td>
+<td class="px-3 py-3 text-[#618389] dark:text-[#8baab0]">01 Feb 2024</td>
+<td class="px-3 py-3 text-right font-bold text-[#111718] dark:text-white">$229.16</td>
+</tr>
+<!-- Row 5 -->
+<tr class="hover:bg-[#f9fafb] dark:hover:bg-[#203236]">
+<td class="px-3 py-3 font-medium text-[#111718] dark:text-white">5</td>
+<td class="px-3 py-3 text-[#618389] dark:text-[#8baab0]">01 Mar 2024</td>
+<td class="px-3 py-3 text-right font-bold text-[#111718] dark:text-white">$229.16</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Actions -->
+<div class="flex flex-col gap-3">
+<button class="w-full flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-white font-bold h-12 rounded-lg transition-colors shadow-sm">
+<span class="material-symbols-outlined">assignment_add</span>
+                                    Generar Contrato
+                                </button>
+<button class="w-full bg-transparent hover:bg-[#dbe4e6] dark:hover:bg-[#2a3c40] text-[#618389] dark:text-[#8baab0] font-bold h-12 rounded-lg transition-colors border border-[#dbe4e6] dark:border-[#2a3c40]">
+                                    Guardar Borrador
+                                </button>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</div>
+</body></html>

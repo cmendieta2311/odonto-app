@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Reportes Administrativos - DentalAdmin</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&amp;family=Noto+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#136dec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101822",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"],
+                        "body": ["Noto Sans", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings:
+            'FILL' 0,
+            'wght' 400,
+            'GRAD' 0,
+            'opsz' 24
+        }
+        /* Custom scrollbar for table area if needed */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 20px;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-[#111418] dark:text-white font-display overflow-hidden">
+<div class="relative flex h-screen w-full bg-background-light dark:bg-background-dark group/design-root overflow-hidden">
+<!-- Side Navigation -->
+<aside class="flex w-[280px] h-full flex-col bg-white dark:bg-[#1a202c] border-r border-[#e5e7eb] dark:border-[#2d3748] shrink-0 overflow-y-auto">
+<div class="flex h-full min-h-[700px] flex-col justify-between p-4">
+<div class="flex flex-col gap-4">
+<div class="flex gap-3 items-center px-2">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10" data-alt="Profile picture of the dentist" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuC04nvuTB8SlSfyZa4IMJaiAJZyHRp8oBx5DrwRN7b46JQebEkF-qqdQeRxEUL3F2QmRb0MHSTSrKUOOAe0-NIa6iT-OqEhoJC4KEgbsf4EVk6gpTBBWa0NSXKULirRfxvN2dzr_hiMlP42LKIdirF-LCkbGnd93Wj7pztDc-K_CxhJw8PQL9orMda4m3rV4L5KSZx-YDjfybtXtg9kz0ffWLUxLZ2tRWD8OjKUXRY4pc0elm1U3GEuBI3lhnn736TTplNQCkyPjQc");'></div>
+<div class="flex flex-col">
+<h1 class="text-[#111418] dark:text-white text-base font-bold leading-normal">DentalAdmin</h1>
+<p class="text-[#617289] dark:text-[#a0aec0] text-sm font-normal leading-normal">Dr. Martinez</p>
+</div>
+</div>
+<div class="flex flex-col gap-2 mt-4">
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#f0f2f4] dark:hover:bg-[#2d3748] transition-colors group" href="#">
+<span class="material-symbols-outlined text-[#617289] group-hover:text-primary dark:text-[#a0aec0] dark:group-hover:text-primary">dashboard</span>
+<p class="text-[#111418] dark:text-gray-100 text-sm font-medium leading-normal">Panel General</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#f0f2f4] dark:hover:bg-[#2d3748] transition-colors group" href="#">
+<span class="material-symbols-outlined text-[#617289] group-hover:text-primary dark:text-[#a0aec0] dark:group-hover:text-primary">calendar_month</span>
+<p class="text-[#111418] dark:text-gray-100 text-sm font-medium leading-normal">Agenda</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#f0f2f4] dark:hover:bg-[#2d3748] transition-colors group" href="#">
+<span class="material-symbols-outlined text-[#617289] group-hover:text-primary dark:text-[#a0aec0] dark:group-hover:text-primary">group</span>
+<p class="text-[#111418] dark:text-gray-100 text-sm font-medium leading-normal">Pacientes</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#f0f2f4] dark:hover:bg-[#2d3748] transition-colors group" href="#">
+<span class="material-symbols-outlined text-[#617289] group-hover:text-primary dark:text-[#a0aec0] dark:group-hover:text-primary">description</span>
+<p class="text-[#111418] dark:text-gray-100 text-sm font-medium leading-normal">Presupuestos</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#f0f2f4] dark:hover:bg-[#2d3748] transition-colors group" href="#">
+<span class="material-symbols-outlined text-[#617289] group-hover:text-primary dark:text-[#a0aec0] dark:group-hover:text-primary">payments</span>
+<p class="text-[#111418] dark:text-gray-100 text-sm font-medium leading-normal">Cobranza</p>
+</a>
+<div class="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary/10 dark:bg-primary/20">
+<span class="material-symbols-outlined text-primary">bar_chart</span>
+<p class="text-[#111418] dark:text-white text-sm font-bold leading-normal">Reportes</p>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-2 border-t border-[#e5e7eb] dark:border-[#2d3748] pt-4">
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#f0f2f4] dark:hover:bg-[#2d3748] transition-colors group" href="#">
+<span class="material-symbols-outlined text-[#617289] group-hover:text-primary dark:text-[#a0aec0] dark:group-hover:text-primary">settings</span>
+<p class="text-[#111418] dark:text-gray-100 text-sm font-medium leading-normal">Configuración</p>
+</a>
+</div>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 flex flex-col h-full overflow-hidden">
+<div class="flex-1 overflow-y-auto custom-scrollbar p-6 md:p-10 lg:px-20">
+<div class="layout-content-container flex flex-col max-w-[1200px] mx-auto flex-1 gap-8">
+<!-- Page Heading -->
+<header class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+<div class="flex min-w-72 flex-col gap-3">
+<h1 class="text-[#111418] dark:text-white text-4xl font-black leading-tight tracking-[-0.033em]">Reportes Administrativos</h1>
+<p class="text-[#617289] dark:text-[#a0aec0] text-base font-normal leading-normal">Visión general de ingresos, cobranza y rentabilidad de tratamientos financiados.</p>
+</div>
+<div class="flex items-center gap-3">
+<button class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-white border border-[#dbe0e6] hover:bg-[#f0f2f4] dark:bg-[#1a202c] dark:border-[#2d3748] dark:hover:bg-[#2d3748] text-[#111418] dark:text-white text-sm font-bold leading-normal tracking-[0.015em] transition-colors">
+<span class="material-symbols-outlined text-lg mr-2">filter_alt</span>
+<span class="truncate">Filtros</span>
+</button>
+<button class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary hover:bg-blue-600 text-white text-sm font-bold leading-normal tracking-[0.015em] transition-colors shadow-sm">
+<span class="material-symbols-outlined text-lg mr-2">download</span>
+<span class="truncate">Exportar PDF</span>
+</button>
+</div>
+</header>
+<!-- Chips Filter -->
+<div class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+<button class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-primary text-white pl-4 pr-4 transition-colors cursor-pointer">
+<p class="text-sm font-medium leading-normal">Este Mes</p>
+</button>
+<button class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-[#e5e7eb] hover:bg-[#d1d5db] dark:bg-[#2d3748] dark:hover:bg-[#4a5568] pl-4 pr-4 transition-colors cursor-pointer">
+<p class="text-[#111418] dark:text-gray-200 text-sm font-medium leading-normal">Mes Anterior</p>
+</button>
+<button class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-[#e5e7eb] hover:bg-[#d1d5db] dark:bg-[#2d3748] dark:hover:bg-[#4a5568] pl-4 pr-4 transition-colors cursor-pointer">
+<p class="text-[#111418] dark:text-gray-200 text-sm font-medium leading-normal">Último Trimestre</p>
+</button>
+<button class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-[#e5e7eb] hover:bg-[#d1d5db] dark:bg-[#2d3748] dark:hover:bg-[#4a5568] pl-4 pr-4 transition-colors cursor-pointer">
+<p class="text-[#111418] dark:text-gray-200 text-sm font-medium leading-normal">Año Actual</p>
+</button>
+</div>
+<!-- Stats Cards -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+<div class="flex flex-col gap-2 rounded-xl p-6 bg-white dark:bg-[#1a202c] border border-[#dbe0e6] dark:border-[#2d3748] shadow-sm">
+<div class="flex items-center justify-between">
+<p class="text-[#617289] dark:text-[#a0aec0] text-sm font-bold uppercase tracking-wider">Ingresos Totales</p>
+<span class="material-symbols-outlined text-primary bg-primary/10 rounded-full p-1">attach_money</span>
+</div>
+<p class="text-[#111418] dark:text-white tracking-tight text-3xl font-bold leading-tight">$125,400</p>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[#07883b] text-sm">trending_up</span>
+<p class="text-[#07883b] text-sm font-medium leading-normal">+12% vs mes anterior</p>
+</div>
+</div>
+<div class="flex flex-col gap-2 rounded-xl p-6 bg-white dark:bg-[#1a202c] border border-[#dbe0e6] dark:border-[#2d3748] shadow-sm">
+<div class="flex items-center justify-between">
+<p class="text-[#617289] dark:text-[#a0aec0] text-sm font-bold uppercase tracking-wider">Por Cobrar</p>
+<span class="material-symbols-outlined text-orange-500 bg-orange-500/10 rounded-full p-1">pending_actions</span>
+</div>
+<p class="text-[#111418] dark:text-white tracking-tight text-3xl font-bold leading-tight">$15,200</p>
+<p class="text-[#617289] dark:text-[#a0aec0] text-sm font-medium leading-normal">8 contratos pendientes</p>
+</div>
+<div class="flex flex-col gap-2 rounded-xl p-6 bg-white dark:bg-[#1a202c] border border-[#dbe0e6] dark:border-[#2d3748] shadow-sm">
+<div class="flex items-center justify-between">
+<p class="text-[#617289] dark:text-[#a0aec0] text-sm font-bold uppercase tracking-wider">Presupuestos</p>
+<span class="material-symbols-outlined text-blue-500 bg-blue-500/10 rounded-full p-1">assignment</span>
+</div>
+<p class="text-[#111418] dark:text-white tracking-tight text-3xl font-bold leading-tight">24</p>
+<p class="text-[#617289] dark:text-[#a0aec0] text-sm font-medium leading-normal">3 nuevos esta semana</p>
+</div>
+<div class="flex flex-col gap-2 rounded-xl p-6 bg-white dark:bg-[#1a202c] border border-[#dbe0e6] dark:border-[#2d3748] shadow-sm">
+<div class="flex items-center justify-between">
+<p class="text-[#617289] dark:text-[#a0aec0] text-sm font-bold uppercase tracking-wider">Pacientes Activos</p>
+<span class="material-symbols-outlined text-purple-500 bg-purple-500/10 rounded-full p-1">face</span>
+</div>
+<p class="text-[#111418] dark:text-white tracking-tight text-3xl font-bold leading-tight">45</p>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[#07883b] text-sm">trending_up</span>
+<p class="text-[#07883b] text-sm font-medium leading-normal">+5% retención</p>
+</div>
+</div>
+</div>
+<!-- Charts Section -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+<!-- Revenue Chart -->
+<div class="flex flex-col gap-4 rounded-xl p-6 bg-white dark:bg-[#1a202c] border border-[#dbe0e6] dark:border-[#2d3748] shadow-sm">
+<div class="flex justify-between items-start">
+<div>
+<p class="text-[#111418] dark:text-white text-lg font-bold leading-normal">Tendencia de Ingresos</p>
+<p class="text-[#617289] dark:text-[#a0aec0] text-sm font-normal">Comparativa real vs proyectado (Ene - Jun 2024)</p>
+</div>
+<button class="text-primary hover:text-blue-700 font-bold text-sm">Ver Detalle</button>
+</div>
+<div class="grid h-[240px] grid-cols-6 gap-3 items-end px-2 pt-4">
+<!-- Bar Group 1 -->
+<div class="flex flex-col items-center gap-2 h-full justify-end group cursor-pointer">
+<div class="w-full bg-[#f0f2f4] dark:bg-[#2d3748] rounded-t-sm relative h-full flex items-end">
+<div class="w-full bg-primary/40 h-[60%] rounded-t-sm absolute bottom-0"></div>
+<div class="w-full bg-primary h-[55%] rounded-t-sm absolute bottom-0 group-hover:bg-blue-600 transition-colors"></div>
+</div>
+<span class="text-xs font-bold text-[#617289] dark:text-[#a0aec0]">Ene</span>
+</div>
+<!-- Bar Group 2 -->
+<div class="flex flex-col items-center gap-2 h-full justify-end group cursor-pointer">
+<div class="w-full bg-[#f0f2f4] dark:bg-[#2d3748] rounded-t-sm relative h-full flex items-end">
+<div class="w-full bg-primary/40 h-[65%] rounded-t-sm absolute bottom-0"></div>
+<div class="w-full bg-primary h-[60%] rounded-t-sm absolute bottom-0 group-hover:bg-blue-600 transition-colors"></div>
+</div>
+<span class="text-xs font-bold text-[#617289] dark:text-[#a0aec0]">Feb</span>
+</div>
+<!-- Bar Group 3 -->
+<div class="flex flex-col items-center gap-2 h-full justify-end group cursor-pointer">
+<div class="w-full bg-[#f0f2f4] dark:bg-[#2d3748] rounded-t-sm relative h-full flex items-end">
+<div class="w-full bg-primary/40 h-[75%] rounded-t-sm absolute bottom-0"></div>
+<div class="w-full bg-primary h-[40%] rounded-t-sm absolute bottom-0 group-hover:bg-blue-600 transition-colors"></div>
+</div>
+<span class="text-xs font-bold text-[#617289] dark:text-[#a0aec0]">Mar</span>
+</div>
+<!-- Bar Group 4 -->
+<div class="flex flex-col items-center gap-2 h-full justify-end group cursor-pointer">
+<div class="w-full bg-[#f0f2f4] dark:bg-[#2d3748] rounded-t-sm relative h-full flex items-end">
+<div class="w-full bg-primary/40 h-[50%] rounded-t-sm absolute bottom-0"></div>
+<div class="w-full bg-primary h-[48%] rounded-t-sm absolute bottom-0 group-hover:bg-blue-600 transition-colors"></div>
+</div>
+<span class="text-xs font-bold text-[#617289] dark:text-[#a0aec0]">Abr</span>
+</div>
+<!-- Bar Group 5 -->
+<div class="flex flex-col items-center gap-2 h-full justify-end group cursor-pointer">
+<div class="w-full bg-[#f0f2f4] dark:bg-[#2d3748] rounded-t-sm relative h-full flex items-end">
+<div class="w-full bg-primary/40 h-[80%] rounded-t-sm absolute bottom-0"></div>
+<div class="w-full bg-primary h-[85%] rounded-t-sm absolute bottom-0 group-hover:bg-blue-600 transition-colors"></div>
+</div>
+<span class="text-xs font-bold text-[#617289] dark:text-[#a0aec0]">May</span>
+</div>
+<!-- Bar Group 6 -->
+<div class="flex flex-col items-center gap-2 h-full justify-end group cursor-pointer">
+<div class="w-full bg-[#f0f2f4] dark:bg-[#2d3748] rounded-t-sm relative h-full flex items-end">
+<div class="w-full bg-primary/40 h-[90%] rounded-t-sm absolute bottom-0"></div>
+<div class="w-full bg-primary h-[92%] rounded-t-sm absolute bottom-0 group-hover:bg-blue-600 transition-colors"></div>
+</div>
+<span class="text-xs font-bold text-[#617289] dark:text-[#a0aec0]">Jun</span>
+</div>
+</div>
+</div>
+<!-- Patients/Treatments Chart -->
+<div class="flex flex-col gap-4 rounded-xl p-6 bg-white dark:bg-[#1a202c] border border-[#dbe0e6] dark:border-[#2d3748] shadow-sm">
+<div class="flex justify-between items-start">
+<div>
+<p class="text-[#111418] dark:text-white text-lg font-bold leading-normal">Crecimiento de Tratamientos Financiados</p>
+<p class="text-[#617289] dark:text-[#a0aec0] text-sm font-normal">32 Nuevos contratos este semestre</p>
+</div>
+<div class="flex gap-1 items-center bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded">
+<span class="material-symbols-outlined text-[#07883b] text-sm">trending_up</span>
+<p class="text-[#07883b] text-sm font-bold">+12%</p>
+</div>
+</div>
+<div class="flex-1 flex flex-col justify-end min-h-[200px] relative pt-6">
+<!-- SVG Chart -->
+<svg class="w-full h-[180px] overflow-visible" preserveaspectratio="none" viewbox="0 0 300 100">
+<defs>
+<lineargradient id="gradient-fill" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#136dec" stop-opacity="0.2"></stop>
+<stop offset="100%" stop-color="#136dec" stop-opacity="0"></stop>
+</lineargradient>
+</defs>
+<path d="M0,80 C50,80 50,40 100,40 C150,40 150,60 200,60 C250,60 250,10 300,10 V100 H0 Z" fill="url(#gradient-fill)"></path>
+<path d="M0,80 C50,80 50,40 100,40 C150,40 150,60 200,60 C250,60 250,10 300,10" fill="none" stroke="#136dec" stroke-linecap="round" stroke-width="3"></path>
+<!-- Points -->
+<circle cx="0" cy="80" fill="#fff" r="3" stroke="#136dec" stroke-width="2"></circle>
+<circle cx="100" cy="40" fill="#fff" r="3" stroke="#136dec" stroke-width="2"></circle>
+<circle cx="200" cy="60" fill="#fff" r="3" stroke="#136dec" stroke-width="2"></circle>
+<circle cx="300" cy="10" fill="#fff" r="3" stroke="#136dec" stroke-width="2"></circle>
+</svg>
+<!-- Labels -->
+<div class="flex justify-between w-full mt-2 px-2">
+<span class="text-xs font-bold text-[#617289] dark:text-[#a0aec0]">Ene</span>
+<span class="text-xs font-bold text-[#617289] dark:text-[#a0aec0]">Feb</span>
+<span class="text-xs font-bold text-[#617289] dark:text-[#a0aec0]">Mar</span>
+<span class="text-xs font-bold text-[#617289] dark:text-[#a0aec0]">Abr</span>
+<span class="text-xs font-bold text-[#617289] dark:text-[#a0aec0]">May</span>
+<span class="text-xs font-bold text-[#617289] dark:text-[#a0aec0]">Jun</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Tables Section -->
+<div class="grid grid-cols-1 xl:grid-cols-2 gap-8 mb-8">
+<!-- Table 1: Pending Payments -->
+<div class="flex flex-col gap-4">
+<div class="flex justify-between items-center">
+<h3 class="text-[#111418] dark:text-white text-lg font-bold leading-normal">Pagos Pendientes por Contrato</h3>
+<button class="text-primary text-sm font-bold hover:underline">Ver Todo</button>
+</div>
+<div class="overflow-hidden rounded-xl border border-[#dbe0e6] dark:border-[#2d3748] shadow-sm bg-white dark:bg-[#1a202c]">
+<table class="w-full text-left text-sm">
+<thead class="bg-[#f6f7f8] dark:bg-[#2d3748] text-[#617289] dark:text-[#a0aec0] font-bold">
+<tr>
+<th class="px-4 py-3">Paciente</th>
+<th class="px-4 py-3">Contrato</th>
+<th class="px-4 py-3 text-right">Monto</th>
+<th class="px-4 py-3 text-center">Acción</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-[#e5e7eb] dark:divide-[#2d3748]">
+<tr class="group hover:bg-gray-50 dark:hover:bg-[#252f3f]">
+<td class="px-4 py-3">
+<div class="flex items-center gap-2">
+<div class="size-8 rounded-full bg-cover bg-center" data-alt="Portrait of Ana Lopez" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDZCwxurJoxY3N1HBSuLI3KlnGXlNgQACwVxmWtOwrDmDmJ-Gzl639Asd7_xjdfC95sN4fFVhmhWR1z8CjFI822hb5gTVWuQzE06_M8I60_ndMyHh063gyZ8kzGb0WAu8An5eedraC2WDPr0a5NjAICrv4OKfR9qA_mm2lymu3RCwjKsXNIprNQErPB_yyIToP9W5kLCyyu-zgVxhBGH_pHQApSTuTg0OP5lKOFUS6xJ7cFWyJOq0ImpMSAYJPk7bgwsf7E5jVD7j0');"></div>
+<div class="flex flex-col">
+<span class="font-bold text-[#111418] dark:text-white">Ana López</span>
+<span class="text-xs text-[#617289] dark:text-[#a0aec0]">Ortodoncia</span>
+</div>
+</div>
+</td>
+<td class="px-4 py-3 text-[#617289] dark:text-[#a0aec0]">#CN-2024-08</td>
+<td class="px-4 py-3 text-right font-bold text-red-600 dark:text-red-400">$2,400</td>
+<td class="px-4 py-3 text-center">
+<button class="p-1.5 rounded-md hover:bg-primary/10 text-primary transition-colors" title="Enviar recordatorio">
+<span class="material-symbols-outlined text-[20px]">notifications_active</span>
+</button>
+</td>
+</tr>
+<tr class="group hover:bg-gray-50 dark:hover:bg-[#252f3f]">
+<td class="px-4 py-3">
+<div class="flex items-center gap-2">
+<div class="size-8 rounded-full bg-cover bg-center" data-alt="Portrait of Carlos Ruiz" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAnIzzrxWYCVd9l3DoBMXbbhX5IxDfyBysfyYZQysQBSIS35CrSn9q31XY5kzNpGplWxUBwsgdsYSzwBe_TlYb0C7Kro0ybXbOtGy9_2ZpNDbK5_cWD3qiwpT4_56Mce5oyCxjoQ8XJiXN6uPwE7_GzgWbvIVTcGrOMyCEfmz6IMeoTSgLTIkhf7qiST0eJhPeK0NgQ-qvloWU1a3Ko9vPyNDbJ7MciZom3owOy0vLLsA35bfi3Ku_FIUdj7goADh2v3s5oJEIJEWc');"></div>
+<div class="flex flex-col">
+<span class="font-bold text-[#111418] dark:text-white">Carlos Ruiz</span>
+<span class="text-xs text-[#617289] dark:text-[#a0aec0]">Implante</span>
+</div>
+</div>
+</td>
+<td class="px-4 py-3 text-[#617289] dark:text-[#a0aec0]">#CN-2024-12</td>
+<td class="px-4 py-3 text-right font-bold text-orange-500 dark:text-orange-400">$1,150</td>
+<td class="px-4 py-3 text-center">
+<button class="p-1.5 rounded-md hover:bg-primary/10 text-primary transition-colors" title="Enviar recordatorio">
+<span class="material-symbols-outlined text-[20px]">notifications_active</span>
+</button>
+</td>
+</tr>
+<tr class="group hover:bg-gray-50 dark:hover:bg-[#252f3f]">
+<td class="px-4 py-3">
+<div class="flex items-center gap-2">
+<div class="size-8 rounded-full bg-purple-100 dark:bg-purple-900 flex items-center justify-center text-purple-600 dark:text-purple-300 font-bold text-xs">LM</div>
+<div class="flex flex-col">
+<span class="font-bold text-[#111418] dark:text-white">Luis Mendez</span>
+<span class="text-xs text-[#617289] dark:text-[#a0aec0]">Diseño Sonrisa</span>
+</div>
+</div>
+</td>
+<td class="px-4 py-3 text-[#617289] dark:text-[#a0aec0]">#CN-2024-15</td>
+<td class="px-4 py-3 text-right font-bold text-[#111418] dark:text-white">$850</td>
+<td class="px-4 py-3 text-center">
+<button class="p-1.5 rounded-md hover:bg-primary/10 text-primary transition-colors" title="Enviar recordatorio">
+<span class="material-symbols-outlined text-[20px]">notifications_active</span>
+</button>
+</td>
+</tr>
+<tr class="group hover:bg-gray-50 dark:hover:bg-[#252f3f]">
+<td class="px-4 py-3">
+<div class="flex items-center gap-2">
+<div class="size-8 rounded-full bg-cover bg-center" data-alt="Portrait of Sofia P." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDf-DnHTkfTonCk3PTnhj0epPIgodqm3Do2-EqXyPSeQzDtXtqfRxBdlzLcsazZDXYoktO4zZnPCoQ5HyWKKjxwpVzEmpZAUNTrQgHhzIzT9cy9XySXbQmhAlVQFLPejQS0kbBSJL9an3UUc9WPRyUK1EuBsPiwZ-si5zj1e1AYX6Q9WFrFzpuNqwqSXzbI0rCHWJjpZOgax934JqvvR2urAE0TbKx1qclrFIpbh6bgkd2ZAhJwBo2bc-WpDrvT_Y53APohkTMAy5o');"></div>
+<div class="flex flex-col">
+<span class="font-bold text-[#111418] dark:text-white">Sofia P.</span>
+<span class="text-xs text-[#617289] dark:text-[#a0aec0]">Blanqueamiento</span>
+</div>
+</div>
+</td>
+<td class="px-4 py-3 text-[#617289] dark:text-[#a0aec0]">#CN-2024-18</td>
+<td class="px-4 py-3 text-right font-bold text-[#111418] dark:text-white">$300</td>
+<td class="px-4 py-3 text-center">
+<button class="p-1.5 rounded-md hover:bg-primary/10 text-primary transition-colors" title="Enviar recordatorio">
+<span class="material-symbols-outlined text-[20px]">notifications_active</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Table 2: Active Treatments Summary -->
+<div class="flex flex-col gap-4">
+<div class="flex justify-between items-center">
+<h3 class="text-[#111418] dark:text-white text-lg font-bold leading-normal">Resumen de Pacientes Activos</h3>
+<button class="text-primary text-sm font-bold hover:underline">Ir a Agenda</button>
+</div>
+<div class="overflow-hidden rounded-xl border border-[#dbe0e6] dark:border-[#2d3748] shadow-sm bg-white dark:bg-[#1a202c]">
+<table class="w-full text-left text-sm">
+<thead class="bg-[#f6f7f8] dark:bg-[#2d3748] text-[#617289] dark:text-[#a0aec0] font-bold">
+<tr>
+<th class="px-4 py-3">Paciente</th>
+<th class="px-4 py-3">Etapa</th>
+<th class="px-4 py-3">Estado</th>
+<th class="px-4 py-3 text-right">Cita</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-[#e5e7eb] dark:divide-[#2d3748]">
+<tr class="group hover:bg-gray-50 dark:hover:bg-[#252f3f]">
+<td class="px-4 py-3 font-bold text-[#111418] dark:text-white">Maria Gonzalez</td>
+<td class="px-4 py-3 text-[#617289] dark:text-[#a0aec0]">Diagnóstico</td>
+<td class="px-4 py-3">
+<span class="inline-flex items-center rounded-full bg-blue-50 dark:bg-blue-900/30 px-2 py-1 text-xs font-medium text-blue-700 dark:text-blue-200 ring-1 ring-inset ring-blue-700/10">Nuevo</span>
+</td>
+<td class="px-4 py-3 text-right text-[#111418] dark:text-white">Hoy, 14:00</td>
+</tr>
+<tr class="group hover:bg-gray-50 dark:hover:bg-[#252f3f]">
+<td class="px-4 py-3 font-bold text-[#111418] dark:text-white">Jorge Herrera</td>
+<td class="px-4 py-3 text-[#617289] dark:text-[#a0aec0]">Cirugía</td>
+<td class="px-4 py-3">
+<span class="inline-flex items-center rounded-full bg-yellow-50 dark:bg-yellow-900/30 px-2 py-1 text-xs font-medium text-yellow-800 dark:text-yellow-200 ring-1 ring-inset ring-yellow-600/20">En Proceso</span>
+</td>
+<td class="px-4 py-3 text-right text-[#111418] dark:text-white">Mañana, 09:30</td>
+</tr>
+<tr class="group hover:bg-gray-50 dark:hover:bg-[#252f3f]">
+<td class="px-4 py-3 font-bold text-[#111418] dark:text-white">Elena Torres</td>
+<td class="px-4 py-3 text-[#617289] dark:text-[#a0aec0]">Alineación</td>
+<td class="px-4 py-3">
+<span class="inline-flex items-center rounded-full bg-yellow-50 dark:bg-yellow-900/30 px-2 py-1 text-xs font-medium text-yellow-800 dark:text-yellow-200 ring-1 ring-inset ring-yellow-600/20">En Proceso</span>
+</td>
+<td class="px-4 py-3 text-right text-[#111418] dark:text-white">Viernes, 11:00</td>
+</tr>
+<tr class="group hover:bg-gray-50 dark:hover:bg-[#252f3f]">
+<td class="px-4 py-3 font-bold text-[#111418] dark:text-white">Roberto V.</td>
+<td class="px-4 py-3 text-[#617289] dark:text-[#a0aec0]">Retenedores</td>
+<td class="px-4 py-3">
+<span class="inline-flex items-center rounded-full bg-green-50 dark:bg-green-900/30 px-2 py-1 text-xs font-medium text-green-700 dark:text-green-200 ring-1 ring-inset ring-green-600/20">Finalizado</span>
+</td>
+<td class="px-4 py-3 text-right text-[#111418] dark:text-white">--</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

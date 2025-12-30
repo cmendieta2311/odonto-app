@@ -1,0 +1,90 @@
+<div class="max-w-[1000px] mx-auto p-6 md:p-10 flex flex-col gap-6">
+    <div class="flex items-center justify-between">
+        <h1 class="text-2xl font-bold text-[#111718] dark:text-white">
+            {{ isEditing ? 'Editar Servicio' : 'Nuevo Servicio' }}
+        </h1>
+        <button routerLink="/admin/catalog" class="text-[#618389] hover:text-primary">Cancelar</button>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="save()"
+        class="bg-white dark:bg-[#1a2c30] p-6 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm flex flex-col gap-6">
+
+        <!-- Category Searchable Dropdown -->
+        <div class="flex flex-col gap-2 relative">
+            <label class="text-sm font-bold text-[#618389]">Categoría *</label>
+            <div class="relative group">
+                <input type="text" [(ngModel)]="searchTerm" [ngModelOptions]="{standalone: true}"
+                    (input)="filterCategories()" (focus)="showDropdown = true" (blur)="onBlur()"
+                    placeholder="Buscar categoría..."
+                    class="w-full p-3 bg-gray-50 dark:bg-[#101f22] border border-gray-200 dark:border-gray-700 rounded-lg outline-none focus:border-primary">
+
+                <span
+                    class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none">
+                    {{ showDropdown ? 'search' : 'expand_more' }}
+                </span>
+
+                <!-- Dropdown List -->
+                <div *ngIf="showDropdown && filteredCategories.length > 0"
+                    class="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-[#1a2c30] border border-gray-100 dark:border-gray-700 rounded-xl shadow-xl z-50 max-h-60 overflow-y-auto">
+                    <button *ngFor="let cat of filteredCategories" type="button" (click)="selectCategory(cat)"
+                        class="w-full text-left p-3 hover:bg-gray-50 dark:hover:bg-[#101f22] flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[18px]">category</span>
+                        <span class="font-medium text-[#111718] dark:text-white">{{ cat.name }}</span>
+                    </button>
+                </div>
+            </div>
+            <p *ngIf="form.get('categoryId')?.touched && form.get('categoryId')?.invalid" class="text-red-500 text-xs">
+                Requerido</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Code -->
+            <div class="flex flex-col gap-2">
+                <label class="text-sm font-bold text-[#618389]">Código *</label>
+                <input type="text" formControlName="code"
+                    class="w-full p-3 bg-gray-50 dark:bg-[#101f22] border border-gray-200 dark:border-gray-700 rounded-lg outline-none focus:border-primary">
+            </div>
+
+            <!-- Type -->
+            <div class="flex flex-col gap-2">
+                <label class="text-sm font-bold text-[#618389]">Tipo *</label>
+                <div class="relative">
+                    <select formControlName="type"
+                        class="w-full p-3 bg-gray-50 dark:bg-[#101f22] border border-gray-200 dark:border-gray-700 rounded-lg outline-none focus:border-primary appearance-none">
+                        <option *ngFor="let type of serviceTypes" [value]="type">{{ type }}</option>
+                    </select>
+                    <span
+                        class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none">expand_more</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Name -->
+        <div class="flex flex-col gap-2">
+            <label class="text-sm font-bold text-[#618389]">Nombre *</label>
+            <input type="text" formControlName="name"
+                class="w-full p-3 bg-gray-50 dark:bg-[#101f22] border border-gray-200 dark:border-gray-700 rounded-lg outline-none focus:border-primary">
+        </div>
+
+        <!-- Price -->
+        <div class="flex flex-col gap-2">
+            <label class="text-sm font-bold text-[#618389]">Precio *</label>
+            <div class="relative">
+                <input type="number" formControlName="price"
+                    class="w-full p-3 bg-gray-50 dark:bg-[#101f22] border border-gray-200 dark:border-gray-700 rounded-lg outline-none focus:border-primary font-bold">
+                <span class="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-[#64748b]">₲</span>
+            </div>
+        </div>
+
+        <div class="flex justify-end gap-3 pt-4 border-t border-gray-100 dark:border-gray-700">
+            <button type="button" routerLink="/admin/catalog"
+                class="px-6 py-3 rounded-lg border border-gray-200 dark:border-gray-700 font-bold hover:bg-gray-50 dark:hover:bg-white/5 transition">
+                Cancelar
+            </button>
+            <button type="submit" [disabled]="form.invalid || isSaving"
+                class="px-8 py-3 rounded-lg bg-primary text-white font-bold shadow-lg shadow-primary/30 hover:bg-primary/90 transition transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
+                {{ isSaving ? 'Guardando...' : 'Guardar Servicio' }}
+            </button>
+        </div>
+    </form>
+</div>

@@ -1,0 +1,22 @@
+<h2 mat-dialog-title>Generar Contrato</h2>
+<mat-dialog-content>
+    <form [formGroup]="form">
+        <mat-form-field appearance="fill" class="full-width">
+            <mat-label>Método de Pago</mat-label>
+            <mat-select formControlName="paymentMethod">
+                <mat-option *ngFor="let method of paymentMethods" [value]="method">
+                    {{ method }}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="full-width" *ngIf="showInstallments">
+            <mat-label>Cuotas</mat-label>
+            <input matInput type="number" formControlName="installments">
+        </mat-form-field>
+    </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+    <button mat-button (click)="close()">Cancelar</button>
+    <button mat-raised-button color="primary" [disabled]="form.invalid" (click)="save()">Generar</button>
+</mat-dialog-actions>

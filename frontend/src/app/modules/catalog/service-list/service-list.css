@@ -1,0 +1,9 @@
+.bg-primary-10 {
+    background-color: rgba(19, 200, 236, 0.1);
+}
+
+/* Ensure full height for the layout */
+:host {
+    display: block;
+    height: 100%;
+}

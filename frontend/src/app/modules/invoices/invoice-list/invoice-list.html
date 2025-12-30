@@ -1,0 +1,298 @@
+<div class="flex-1 p-4 lg:p-10 max-w-[1400px] mx-auto w-full flex flex-col gap-8">
+    <!-- Page Heading & Stats -->
+    <div class="flex flex-col gap-6">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div class="flex flex-col gap-1">
+                <h1 class="text-[#111718] dark:text-white text-3xl md:text-4xl font-extrabold tracking-tight">Listado de
+                    Facturas</h1>
+                <p class="text-[#618389] text-sm md:text-base font-medium">Gestión de recibos fiscales y control de
+                    ingresos</p>
+            </div>
+            <div class="flex gap-3">
+                <button
+                    class="flex items-center justify-center gap-2 h-10 px-4 rounded-lg border border-gray-200 bg-white dark:bg-[#1a2c30] dark:border-gray-700 text-[#111718] dark:text-white text-sm font-bold hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                    <span class="material-symbols-outlined text-[20px]">download</span>
+                    <span>Exportar</span>
+                </button>
+                <button (click)="navigateToCreateInvoice()"
+                    class="flex items-center justify-center gap-2 h-10 px-4 rounded-lg bg-primary text-white text-sm font-bold shadow-md hover:bg-primary/90 transition-colors">
+                    <span class="material-symbols-outlined text-[20px]">add</span>
+                    <span>Nueva Factura</span>
+                </button>
+            </div>
+        </div>
+        <!-- Stats Cards -->
+        <!-- <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div
+                class="flex flex-col gap-2 rounded-xl p-5 bg-white dark:bg-[#1a2c30] border border-gray-100 dark:border-gray-800 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <p class="text-[#618389] text-sm font-semibold">Facturado este mes</p>
+                    <span
+                        class="material-symbols-outlined text-primary bg-primary/10 p-1 rounded-md text-[20px]">bar_chart</span>
+                </div>
+                <div class="flex items-end gap-2">
+                    <p class="text-[#111718] dark:text-white text-2xl font-bold leading-none">₲12,450.00</p>
+                    <span class="text-[#078834] text-xs font-bold bg-green-50 px-1.5 py-0.5 rounded flex items-center">
+                        <span class="material-symbols-outlined text-[12px] mr-0.5">trending_up</span>12%
+                    </span>
+                </div>
+            </div>
+            <div
+                class="flex flex-col gap-2 rounded-xl p-5 bg-white dark:bg-[#1a2c30] border border-gray-100 dark:border-gray-800 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <p class="text-[#618389] text-sm font-semibold">Pendiente de cobro</p>
+                    <span
+                        class="material-symbols-outlined text-orange-500 bg-orange-50 dark:bg-orange-900/20 p-1 rounded-md text-[20px]">pending</span>
+                </div>
+                <div class="flex items-end gap-2">
+                    <p class="text-[#111718] dark:text-white text-2xl font-bold leading-none">₲3,200.00</p>
+                    <span class="text-[#078834] text-xs font-bold bg-green-50 px-1.5 py-0.5 rounded flex items-center">
+                        <span class="material-symbols-outlined text-[12px] mr-0.5">trending_up</span>5%
+                    </span>
+                </div>
+            </div>
+            <div
+                class="flex flex-col gap-2 rounded-xl p-5 bg-white dark:bg-[#1a2c30] border border-gray-100 dark:border-gray-800 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <p class="text-[#618389] text-sm font-semibold">Recibos emitidos</p>
+                    <span
+                        class="material-symbols-outlined text-purple-500 bg-purple-50 dark:bg-purple-900/20 p-1 rounded-md text-[20px]">receipt</span>
+                </div>
+                <div class="flex items-end gap-2">
+                    <p class="text-[#111718] dark:text-white text-2xl font-bold leading-none">145</p>
+                    <span class="text-[#078834] text-xs font-bold bg-green-50 px-1.5 py-0.5 rounded flex items-center">
+                        <span class="material-symbols-outlined text-[12px] mr-0.5">trending_up</span>8%
+                    </span>
+                </div>
+            </div>
+        </div> -->
+    </div>
+    <!-- Filters & Search -->
+    <div class="bg-white dark:bg-[#1a2c30] p-4 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm"
+        [formGroup]="filterForm">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+            <div class="md:col-span-2"> <!-- Search takes more space -->
+                <label class="block text-sm font-medium text-[#111718] dark:text-gray-200 mb-1.5">Buscar</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#618389]">
+                        <span class="material-symbols-outlined text-[20px]">search</span>
+                    </div>
+                    <input formControlName="search"
+                        class="block w-full pl-10 pr-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg leading-5 bg-white dark:bg-[#101f22] dark:text-white placeholder-[#618389] focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary sm:text-sm"
+                        placeholder="Buscar por paciente, N° factura..." type="text" />
+                </div>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-[#111718] dark:text-gray-200 mb-1.5">Rango de
+                    Fechas</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#618389]">
+                        <span class="material-symbols-outlined text-[20px]">calendar_today</span>
+                    </div>
+                    <input formControlName="dateRange"
+                        class="block w-full pl-10 pr-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg leading-5 bg-white dark:bg-[#101f22] dark:text-white placeholder-[#618389] focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary sm:text-sm"
+                        placeholder="DD/MM/AAAA - DD/MM/AAAA" type="text" />
+                </div>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-[#111718] dark:text-gray-200 mb-1.5">Estado</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#618389]">
+                        <span class="material-symbols-outlined text-[20px]">filter_list</span>
+                    </div>
+                    <select formControlName="status"
+                        class="block w-full pl-10 pr-8 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg leading-5 bg-white dark:bg-[#101f22] dark:text-white text-[#618389] focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary sm:text-sm appearance-none">
+                        <option>Todos</option>
+                        <option>Pagado</option>
+                        <option>Pendiente</option>
+                        <option>Cancelado</option>
+                    </select>
+                    <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none text-[#618389]">
+                        <span class="material-symbols-outlined text-[20px]">expand_more</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Table -->
+    <div
+        class="bg-white dark:bg-[#1a2c30] rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden flex flex-col flex-1">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-100 dark:divide-gray-800">
+                <thead class="bg-gray-50 dark:bg-[#101f22]">
+                    <tr>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-[#618389] uppercase tracking-wider"
+                            scope="col">N° Factura</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-[#618389] uppercase tracking-wider"
+                            scope="col">Fecha</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-[#618389] uppercase tracking-wider"
+                            scope="col">Paciente</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-[#618389] uppercase tracking-wider"
+                            scope="col">Concepto / Contrato</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-[#618389] uppercase tracking-wider"
+                            scope="col">Estado</th>
+                        <th class="px-6 py-4 text-right text-xs font-semibold text-[#618389] uppercase tracking-wider"
+                            scope="col">Monto</th>
+                        <th class="px-6 py-4 text-right text-xs font-semibold text-[#618389] uppercase tracking-wider"
+                            scope="col">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                    <tr *ngFor="let invoice of invoices"
+                        class="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <a [routerLink]="['/admin/invoices', invoice.id]"
+                                class="text-primary font-bold text-sm hover:underline">{{invoice.number}}</a>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-[#111718] dark:text-gray-300">
+                            {{invoice.date}}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div *ngIf="invoice.patientImage"
+                                    class="h-8 w-8 rounded-full bg-cover bg-center mr-3 border border-gray-200"
+                                    [style.background-image]="'url(' + invoice.patientImage + ')'"></div>
+                                <div *ngIf="!invoice.patientImage"
+                                    class="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-xs mr-3">
+                                    {{invoice.patientInitials}}
+                                </div>
+                                <div class="text-sm font-medium text-[#111718] dark:text-white">{{invoice.patientName}}
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-[#618389]">
+                            <a [routerLink]="['/admin/invoices', invoice.id]"
+                                class="hover:text-primary flex items-center gap-1">
+                                {{invoice.concept}}
+                                <span class="material-symbols-outlined text-[14px]">open_in_new</span>
+                            </a>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                                [ngClass]="invoice.statusClass">
+                                {{invoice.status}}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-right"
+                            [ngClass]="{'text-[#111718] dark:text-white': !invoice.isCancelled, 'text-gray-400 line-through': invoice.isCancelled}">
+                            {{invoice.amount | currency}}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <button [title]="'Registrar cobro'" (click)="openPaymentModal(invoice)"
+                                *ngIf="invoice.statusCode !== 'PAID' && invoice.statusCode !== 'CANCELLED'"
+                                class="text-green-600 hover:text-green-800 p-1 mr-2 rounded-full hover:bg-green-50 transition">
+                                <span class="material-symbols-outlined text-[20px]">payments</span>
+                            </button>
+                            <button
+                                class="text-gray-400 hover:text-[#111718] dark:hover:text-white p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+                                <span class="material-symbols-outlined text-[20px]">more_vert</span>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <!-- Pagination -->
+        <div class="border-t border-gray-100 dark:border-gray-800 px-6 py-4 flex items-center justify-between">
+            <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                <div>
+                    <p class="text-sm text-gray-700 dark:text-gray-400">
+                        Mostrando <span class="font-medium text-[#111718] dark:text-white">1</span> a <span
+                            class="font-medium text-[#111718] dark:text-white">5</span> de <span
+                            class="font-medium text-[#111718] dark:text-white">97</span> resultados
+                    </p>
+                </div>
+                <div>
+                    <nav aria-label="Pagination" class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+                        <a class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#101f22] text-sm font-medium text-gray-500 hover:bg-gray-50 dark:hover:bg-white/5"
+                            href="#">
+                            <span class="sr-only">Anterior</span>
+                            <span class="material-symbols-outlined text-[20px]">chevron_left</span>
+                        </a>
+                        <a aria-current="page"
+                            class="z-10 bg-primary/10 border-primary text-primary relative inline-flex items-center px-4 py-2 border text-sm font-bold"
+                            href="#"> 1 </a>
+                        <a class="bg-white dark:bg-[#101f22] border-gray-300 dark:border-gray-700 text-gray-500 hover:bg-gray-50 dark:hover:bg-white/5 relative inline-flex items-center px-4 py-2 border text-sm font-medium"
+                            href="#"> 2 </a>
+                        <span
+                            class="relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#101f22] text-sm font-medium text-gray-700 dark:text-gray-400">
+                            ... </span>
+                        <a class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#101f22] text-sm font-medium text-gray-500 hover:bg-gray-50 dark:hover:bg-white/5"
+                            href="#">
+                            <span class="sr-only">Siguiente</span>
+                            <span class="material-symbols-outlined text-[20px]">chevron_right</span>
+                        </a>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div *ngIf="selectedInvoice"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+        <div
+            class="bg-white dark:bg-[#1a2c30] rounded-xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div
+                class="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50 dark:bg-[#101f22]">
+                <h3 class="font-bold text-lg text-[#111718] dark:text-white">Registrar Cobro</h3>
+                <button (click)="closePaymentModal()" class="text-gray-400 hover:text-red-500 transition">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+
+            <form [formGroup]="paymentForm" (ngSubmit)="registerPayment()" class="p-6 flex flex-col gap-4">
+                <div
+                    class="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-700 flex flex-col gap-2">
+                    <div class="flex justify-between items-center pb-2 border-b border-gray-200 dark:border-gray-700">
+                        <span class="text-sm font-medium text-[#618389]">Factura No.</span>
+                        <span class="font-bold text-[#111718] dark:text-white">{{selectedInvoice.number}}</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm font-medium text-[#618389]">Total Facturado:</span>
+                        <span class="font-bold text-[#111718] dark:text-white">{{selectedInvoice.amount |
+                            currency}}</span>
+                    </div>
+                    <div
+                        class="flex justify-between items-center mt-1 pt-2 border-t border-dashed border-gray-200 dark:border-gray-700">
+                        <span class="text-sm font-bold text-blue-600 dark:text-blue-400">Saldo Pendiente:</span>
+                        <span class="text-xl font-black text-blue-600 dark:text-blue-400">{{selectedInvoice.balance |
+                            currency}}</span>
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-2">
+                    <label class="text-sm font-bold text-[#618389]">Monto a Cobrar</label>
+                    <div class="relative">
+                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">₲</span>
+                        <input type="number" formControlName="amount" [max]="selectedInvoice.balance"
+                            class="w-full pl-7 p-3 bg-gray-50 dark:bg-[#101f22] border border-gray-200 dark:border-gray-700 rounded-lg outline-none focus:border-primary font-bold text-lg text-right">
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-2">
+                    <label class="text-sm font-bold text-[#618389]">Método de Pago</label>
+                    <select formControlName="method"
+                        class="w-full p-3 bg-gray-50 dark:bg-[#101f22] border border-gray-200 dark:border-gray-700 rounded-lg outline-none focus:border-primary">
+                        <option value="CASH">Efectivo</option>
+                        <option value="CARD">Tarjeta</option>
+                        <option value="TRANSFER">Transferencia</option>
+                    </select>
+                </div>
+
+                <div class="mt-4 flex gap-3">
+                    <button type="button" (click)="closePaymentModal()"
+                        class="flex-1 py-3 rounded-lg border border-gray-200 dark:border-gray-700 font-bold hover:bg-gray-50 dark:hover:bg-white/5 transition">
+                        Cancelar
+                    </button>
+                    <button type="submit" [disabled]="paymentForm.invalid || isProcessingPayment"
+                        class="flex-1 py-3 rounded-lg bg-green-600 text-white font-bold shadow-lg shadow-green-600/30 hover:bg-green-700 transition transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <span *ngIf="!isProcessingPayment">Registrar Cobro</span>
+                        <span *ngIf="isProcessingPayment">Procesando...</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+```

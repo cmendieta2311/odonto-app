@@ -1,0 +1,293 @@
+<div class="flex flex-col h-full bg-background-light dark:bg-background-dark">
+    <!-- Main Content Wrapper -->
+    <div class="flex flex-col flex-1 h-full overflow-hidden relative">
+        <!-- Top Actions / Header -->
+        <header
+            class="flex items-center justify-between whitespace-nowrap border-b border-solid border-border-light dark:border-border-dark bg-white dark:bg-[#1a2c30] px-6 py-3 flex-shrink-0 z-10">
+            <div class="flex items-center gap-4 lg:gap-8">
+                <button (click)="cancel()"
+                    class="p-2 rounded-full hover:bg-background-light dark:hover:bg-background-dark text-text-secondary-light transition-colors">
+                    <span class="material-symbols-outlined">arrow_back</span>
+                </button>
+                <div class="flex items-center gap-2 text-primary">
+                    <div class="size-8 rounded bg-primary/10 flex items-center justify-center">
+                        <svg class="size-5 text-primary" fill="none" viewbox="0 0 48 48"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path d="M4 4H17.3334V17.3334H30.6666V30.6666H44V44H4V4Z" fill="currentColor"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button
+                    class="flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#1a2c30] border border-gray-200 dark:border-[#2a3c40] rounded-lg text-text-primary-light dark:text-white font-bold text-sm hover:bg-gray-50 dark:hover:bg-[#2a3c40]/80 transition-colors">
+                    <span class="material-symbols-outlined text-[20px]">print</span>
+                    Vista Previa PDF
+                </button>
+            </div>
+        </header>
+
+        <!-- Scrollable Page Content -->
+        <main class="flex-1 overflow-y-auto p-4 md:p-8 bg-background-light dark:bg-background-dark custom-scrollbar">
+            <div class="max-w-[1200px] mx-auto flex flex-col gap-6">
+                <!-- Breadcrumbs -->
+                <div class="flex items-center gap-2 text-sm">
+                    <a class="text-text-secondary-light dark:text-[#8baab0] font-medium hover:text-primary transition-colors cursor-pointer"
+                        routerLink="/">Inicio</a>
+                    <span
+                        class="text-text-secondary-light dark:text-[#8baab0] material-symbols-outlined text-[16px]">chevron_right</span>
+                    <a class="text-text-secondary-light dark:text-[#8baab0] font-medium hover:text-primary transition-colors cursor-pointer"
+                        [routerLink]="viewMode ? '/commercial/contracts' : '/commercial/quotes'">{{ viewMode ?
+                        'Contratos' : 'Presupuestos' }}</a>
+                    <span
+                        class="text-text-secondary-light dark:text-[#8baab0] material-symbols-outlined text-[16px]">chevron_right</span>
+                    <span class="text-text-primary-light dark:text-white font-bold">{{ viewMode ? 'Ver Contrato' :
+                        'Generar Contrato' }}</span>
+                </div>
+
+                <!-- Page Heading -->
+                <div class="flex flex-col gap-2">
+                    <h1
+                        class="text-text-primary-light dark:text-white text-3xl md:text-4xl font-black leading-tight tracking-[-0.033em]">
+                        {{ viewMode ? 'Detalles del Contrato' : 'Generación de Contratos' }}</h1>
+                    <p class="text-text-secondary-light dark:text-[#8baab0] text-base font-normal">
+                        {{ viewMode ? 'Visualización completa del contrato y cronograma de pagos.' : 'Configure los
+                        términos financieros para el tratamiento.' }}
+                    </p>
+                </div>
+
+                <!-- Content Grid -->
+                <form [formGroup]="form" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <!-- Left Column: Configuration -->
+                    <div class="lg:col-span-7 xl:col-span-8 flex flex-col gap-6">
+                        <!-- Step 1: Budget Selection (Partial Read-only) -->
+                        <div
+                            class="bg-white dark:bg-[#1a2c30] rounded-xl p-6 shadow-sm border border-border-light dark:border-[#2a3c40]">
+                            <div class="flex items-center gap-3 mb-6">
+                                <div
+                                    class="size-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
+                                    1</div>
+                                <h3 class="text-lg font-bold text-text-primary-light dark:text-white">Selección de
+                                    Presupuesto</h3>
+                            </div>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div class="flex flex-col gap-2">
+                                    <span
+                                        class="text-text-primary-light dark:text-gray-200 text-sm font-bold">Presupuesto
+                                        Aprobado</span>
+                                    <div
+                                        class="px-4 py-3 bg-background-light dark:bg-[#101f22] rounded-lg border border-border-light dark:border-[#2a3c40] text-sm font-medium">
+                                        #{{ quote?.id?.slice(0,12) || '...' }} - Presupuesto
+                                    </div>
+                                </div>
+                                <!-- Selected Patient Info -->
+                                <div
+                                    class="flex items-center gap-4 p-3 bg-background-light dark:bg-[#101f22] rounded-lg border border-transparent">
+                                    <div
+                                        class="bg-primary/10 rounded-full size-10 flex items-center justify-center text-primary font-bold">
+                                        {{ quote?.patient?.firstName?.charAt(0) }}{{ quote?.patient?.lastName?.charAt(0)
+                                        }}
+                                    </div>
+                                    <div class="flex flex-col">
+                                        <p class="text-text-primary-light dark:text-white font-bold text-sm">{{
+                                            quote?.patient?.firstName }} {{ quote?.patient?.lastName }}</p>
+                                        <p class="text-text-secondary-light dark:text-[#8baab0] text-xs">DNI: {{
+                                            quote?.patient?.dni }}</p>
+                                    </div>
+                                    <div class="ml-auto">
+                                        <span
+                                            class="inline-flex items-center px-2 py-1 rounded bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-bold">
+                                            Aprobado
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 2: Payment Configuration -->
+                        <div
+                            class="bg-white dark:bg-[#1a2c30] rounded-xl p-6 shadow-sm border border-border-light dark:border-[#2a3c40] flex-1">
+                            <div class="flex items-center gap-3 mb-6">
+                                <div
+                                    class="size-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
+                                    2</div>
+                                <h3 class="text-lg font-bold text-text-primary-light dark:text-white">Condiciones de
+                                    Pago</h3>
+                            </div>
+                            <!-- Payment Method Toggle -->
+                            <div
+                                class="bg-background-light dark:bg-[#101f22] p-1 rounded-lg inline-flex mb-6 w-full md:w-auto">
+                                <button type="button" (click)="setPaymentMethod(paymentMethods.CREDIT)"
+                                    [ngClass]="form.get('paymentMethod')?.value === paymentMethods.CREDIT ? 'bg-white dark:bg-[#2a3c40] text-primary shadow-sm' : 'text-text-secondary-light dark:text-[#8baab0]'"
+                                    class="flex-1 md:flex-none px-6 py-2 rounded-md text-sm font-bold transition-all">
+                                    Financiado (Crédito)
+                                </button>
+                                <button type="button" (click)="setPaymentMethod(paymentMethods.CASH)"
+                                    [ngClass]="form.get('paymentMethod')?.value === paymentMethods.CASH ? 'bg-white dark:bg-[#2a3c40] text-primary shadow-sm' : 'text-text-secondary-light dark:text-[#8baab0]'"
+                                    class="flex-1 md:flex-none px-6 py-2 rounded-md text-sm font-bold transition-all">
+                                    Contado
+                                </button>
+                            </div>
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <!-- Inputs -->
+                                <div class="flex flex-col gap-5">
+                                    <label class="flex flex-col gap-2">
+                                        <span
+                                            class="text-text-primary-light dark:text-gray-200 text-sm font-bold">Entrega
+                                            Inicial (₲)</span>
+                                        <div class="relative">
+                                            <span
+                                                class="material-symbols-outlined absolute left-3 top-3 text-text-secondary-light dark:text-[#8baab0]">attach_money</span>
+                                            <input formControlName="initialPayment"
+                                                class="w-full h-12 rounded-lg border border-[#dbe4e6] dark:border-[#2a3c40] bg-white dark:bg-[#101f22] text-text-primary-light dark:text-white pl-10 focus:ring-primary focus:border-primary outline-none"
+                                                placeholder="0.00" type="number" />
+                                        </div>
+                                        <p class="text-xs text-text-secondary-light dark:text-[#8baab0]">Mínimo
+                                            sugerido: {{ minInitialPayment | currency }} (20%)</p>
+                                    </label>
+                                    <label class="flex flex-col gap-2">
+                                        <span class="text-text-primary-light dark:text-gray-200 text-sm font-bold">Fecha
+                                            Primer Pago</span>
+                                        <div class="relative">
+                                            <input formControlName="startDate"
+                                                class="w-full h-12 rounded-lg border border-[#dbe4e6] dark:border-[#2a3c40] bg-white dark:bg-[#101f22] text-text-primary-light dark:text-white px-4 focus:ring-primary focus:border-primary outline-none"
+                                                type="date" />
+                                        </div>
+                                    </label>
+                                </div>
+                                <!-- Slider for Installments -->
+                                <div class="flex flex-col gap-4 p-4 rounded-lg border border-border-light dark:border-[#2a3c40] bg-[#fafcfc] dark:bg-[#101f22]"
+                                    *ngIf="form.get('paymentMethod')?.value === paymentMethods.CREDIT">
+                                    <div class="flex justify-between items-center">
+                                        <span
+                                            class="text-text-primary-light dark:text-gray-200 text-sm font-bold">Cantidad
+                                            de Cuotas</span>
+                                        <span class="text-2xl font-black text-primary">{{
+                                            form.get('installments')?.value }}</span>
+                                    </div>
+                                    <input formControlName="installments"
+                                        class="w-full h-2 bg-[#dbe4e6] rounded-lg appearance-none cursor-pointer accent-primary"
+                                        max="24" min="2" type="range" />
+                                    <div
+                                        class="flex justify-between text-xs text-text-secondary-light dark:text-[#8baab0]">
+                                        <span>2 cuotas</span>
+                                        <span>24 meses</span>
+                                    </div>
+                                    <div class="mt-2 pt-3 border-t border-dashed border-[#dbe4e6] dark:border-[#2a3c40] flex justify-between items-center"
+                                        *ngIf="calculateInterest">
+                                        <span
+                                            class="text-sm font-medium text-text-secondary-light dark:text-[#8baab0]">Interés
+                                            aplicado</span>
+                                        <span class="text-sm font-bold text-text-primary-light dark:text-white">{{
+                                            interestRate }}%
+                                            Total</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Preview -->
+                    <div class="lg:col-span-5 xl:col-span-4 flex flex-col gap-6">
+                        <!-- Financial Summary Card -->
+                        <div
+                            class="bg-primary text-white rounded-xl p-6 shadow-lg flex flex-col gap-4 relative overflow-hidden transition-all transform hover:scale-[1.02]">
+                            <div
+                                class="absolute top-0 right-0 -mr-4 -mt-4 w-32 h-32 bg-white opacity-10 rounded-full blur-2xl pointer-events-none">
+                            </div>
+                            <div
+                                class="absolute bottom-0 left-0 -ml-4 -mb-4 w-24 h-24 bg-black opacity-10 rounded-full blur-xl pointer-events-none">
+                            </div>
+                            <h3 class="text-sm font-bold uppercase tracking-wider opacity-90 relative z-10">Resumen del
+                                Contrato</h3>
+                            <div class="flex flex-col gap-1 relative z-10">
+                                <p class="text-sm opacity-90">
+                                    {{ form.get('paymentMethod')?.value === paymentMethods.CREDIT ? 'Cuota Mensual
+                                    Estimada' : 'Monto a Pagar' }}
+                                </p>
+                                <p class="text-4xl font-black tracking-tight">{{ monthlyPayment | currency }}</p>
+                            </div>
+                            <div class="h-px bg-white/20 w-full my-1 relative z-10"></div>
+                            <div class="flex flex-col gap-2 text-sm relative z-10">
+                                <div class="flex justify-between">
+                                    <span class="opacity-80">Costo Tratamiento</span>
+                                    <span class="font-bold">{{ quote?.total | currency }}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="opacity-80">Entrega Inicial</span>
+                                    <span class="font-bold">- {{ form.get('initialPayment')?.value | currency }}</span>
+                                </div>
+                                <div class="flex justify-between" *ngIf="interestAmount > 0">
+                                    <span class="opacity-80">Intereses (5%)</span>
+                                    <span class="font-bold">+ {{ interestAmount | currency }}</span>
+                                </div>
+                                <div class="flex justify-between text-base mt-2 pt-2 border-t border-white/20">
+                                    <span class="font-bold">Total a Financiar</span>
+                                    <span class="font-black">{{ totalFinanced | currency }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Amortization Schedule -->
+                        <div
+                            class="bg-white dark:bg-[#1a2c30] rounded-xl shadow-sm border border-border-light dark:border-[#2a3c40] flex flex-col max-h-[400px]">
+                            <div
+                                class="p-4 border-b border-border-light dark:border-[#2a3c40] flex justify-between items-center">
+                                <h3 class="text-base font-bold text-text-primary-light dark:text-white">Cronograma de
+                                    Pagos</h3>
+                                <span class="text-xs text-text-secondary-light dark:text-[#8baab0] font-medium"
+                                    *ngIf="form.get('paymentMethod')?.value === paymentMethods.CREDIT">
+                                    {{ form.get('installments')?.value }} Cuotas
+                                </span>
+                            </div>
+                            <div class="overflow-y-auto flex-1 p-2 custom-scrollbar">
+                                <table class="w-full text-sm text-left">
+                                    <thead
+                                        class="text-xs text-text-secondary-light dark:text-[#8baab0] uppercase bg-background-light dark:bg-[#101f22]">
+                                        <tr>
+                                            <th class="px-3 py-2 rounded-l-md">#</th>
+                                            <th class="px-3 py-2">Fecha</th>
+                                            <th class="px-3 py-2 text-right rounded-r-md">Monto</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-border-light dark:divide-[#2a3c40]">
+                                        <tr *ngFor="let row of schedule"
+                                            class="hover:bg-background-light dark:hover:bg-[#203236] transition-colors">
+                                            <td class="px-3 py-3 font-medium text-text-primary-light dark:text-white">{{
+                                                row.index }}</td>
+                                            <td class="px-3 py-3 text-text-secondary-light dark:text-[#8baab0]">{{
+                                                row.date | date:'dd MMM yyyy' }}</td>
+                                            <td
+                                                class="px-3 py-3 text-right font-bold text-text-primary-light dark:text-white">
+                                                {{ row.amount | currency }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="flex flex-col gap-3" *ngIf="!viewMode">
+                            <button type="button" (click)="save()" [disabled]="form.invalid"
+                                class="w-full flex items-center justify-center gap-2 bg-primary hover:bg-cyan-400 text-white font-bold h-12 rounded-lg transition-all shadow-lg shadow-primary/20 transform active:scale-95 disabled:opacity-50 disabled:scale-100">
+                                <span class="material-symbols-outlined">assignment_add</span>
+                                Generar Contrato
+                            </button>
+                            <button type="button" (click)="cancel()"
+                                class="w-full bg-transparent hover:bg-background-light dark:hover:bg-[#2a3c40] text-text-secondary-light dark:text-[#8baab0] font-bold h-12 rounded-lg transition-colors border border-border-light dark:border-[#2a3c40]">
+                                Cancelar
+                            </button>
+                        </div>
+                        <div class="flex flex-col gap-3" *ngIf="viewMode">
+                            <button type="button" (click)="cancel()"
+                                class="w-full flex items-center justify-center gap-2 bg-primary hover:bg-cyan-400 text-white font-bold h-12 rounded-lg transition-all shadow-lg shadow-primary/20 transform active:scale-95">
+                                <span class="material-symbols-outlined">arrow_back</span>
+                                Volver al Listado
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+</div>

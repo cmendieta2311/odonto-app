@@ -1,0 +1,84 @@
+<div class="flex flex-col gap-6">
+    <div class="flex justify-between items-end">
+        <div>
+            <h2 class="text-2xl font-bold text-[#111418] dark:text-white">Datos del Consultorio</h2>
+            <p class="text-[#617289] dark:text-gray-400 mt-1">Información general de tu centro odontológico.</p>
+        </div>
+        <button (click)="save()" [disabled]="isSaving"
+            class="px-4 py-2 rounded-lg bg-primary text-white font-bold text-sm hover:bg-primary/90 transition-colors shadow-sm flex items-center gap-2 disabled:opacity-50">
+            <span class="material-symbols-outlined text-[18px]">save</span>
+            {{ isSaving ? 'Guardando...' : 'Guardar Cambios' }}
+        </button>
+    </div>
+
+    <section
+        class="bg-white dark:bg-surface-dark rounded-xl shadow-sm border border-border-light dark:border-border-dark overflow-hidden">
+        <div class="p-6 grid grid-cols-1 md:grid-cols-12 gap-8" [formGroup]="clinicForm">
+            <!-- Logo Upload -->
+            <div class="md:col-span-4 flex flex-col gap-3">
+                <label class="block text-sm font-bold text-[#111418] dark:text-white">Logotipo del
+                    Consultorio</label>
+                <div
+                    class="aspect-square w-full relative rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-600 bg-background-light dark:bg-background-dark flex flex-col items-center justify-center cursor-pointer hover:border-primary transition-colors group">
+                    <div
+                        class="size-16 rounded-full bg-white dark:bg-surface-dark shadow-sm flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                        <span class="material-symbols-outlined text-primary text-3xl">cloud_upload</span>
+                    </div>
+                    <p class="text-sm font-medium text-[#617289] dark:text-gray-400 text-center px-4">Arrastra tu
+                        logo aquí o <span class="text-primary">haz clic</span> para subir</p>
+                    <p class="text-xs text-gray-400 mt-1">PNG, JPG (Max 2MB)</p>
+                </div>
+            </div>
+            <!-- Form Fields -->
+            <div class="md:col-span-8 flex flex-col gap-5">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div class="flex flex-col gap-1.5">
+                        <label class="text-sm font-bold text-[#111418] dark:text-white">Nombre Comercial</label>
+                        <input formControlName="businessName"
+                            class="w-full h-11 px-4 rounded-lg bg-background-light dark:bg-background-dark border-transparent focus:border-primary focus:ring-0 text-sm font-medium text-[#111418] dark:text-white placeholder-gray-400 transition-all"
+                            type="text" />
+                    </div>
+                    <div class="flex flex-col gap-1.5">
+                        <label class="text-sm font-bold text-[#111418] dark:text-white">RUC / Identificación
+                            Fiscal</label>
+                        <input formControlName="ruc"
+                            class="w-full h-11 px-4 rounded-lg bg-background-light dark:bg-background-dark border-transparent focus:border-primary focus:ring-0 text-sm font-medium text-[#111418] dark:text-white placeholder-gray-400 transition-all"
+                            type="text" />
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div class="flex flex-col gap-1.5">
+                        <label class="text-sm font-bold text-[#111418] dark:text-white">Teléfono Principal</label>
+                        <div class="relative">
+                            <span
+                                class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-[20px]">phone</span>
+                            <input formControlName="phone"
+                                class="w-full h-11 pl-10 pr-4 rounded-lg bg-background-light dark:bg-background-dark border-transparent focus:border-primary focus:ring-0 text-sm font-medium text-[#111418] dark:text-white placeholder-gray-400 transition-all"
+                                type="tel" />
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-1.5">
+                        <label class="text-sm font-bold text-[#111418] dark:text-white">Correo Electrónico</label>
+                        <div class="relative">
+                            <span
+                                class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-[20px]">mail</span>
+                            <input formControlName="email"
+                                class="w-full h-11 pl-10 pr-4 rounded-lg bg-background-light dark:bg-background-dark border-transparent focus:border-primary focus:ring-0 text-sm font-medium text-[#111418] dark:text-white placeholder-gray-400 transition-all"
+                                type="email" />
+                        </div>
+                    </div>
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-sm font-bold text-[#111418] dark:text-white">Dirección Fiscal</label>
+                    <div class="relative">
+                        <span
+                            class="material-symbols-outlined absolute left-3 top-3.5 text-gray-400 text-[20px]">location_on</span>
+                        <textarea formControlName="address"
+                            class="w-full p-3 pl-10 rounded-lg bg-background-light dark:bg-background-dark border-transparent focus:border-primary focus:ring-0 text-sm font-medium text-[#111418] dark:text-white placeholder-gray-400 resize-none transition-all"
+                            rows="2"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>

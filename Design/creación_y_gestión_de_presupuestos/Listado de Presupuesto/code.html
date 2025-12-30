@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>DentalManager - Listado de Presupuestos</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#13c8ec",
+                        "background-light": "#f6f8f8",
+                        "background-dark": "#101f22",
+                        "surface-light": "#ffffff",
+                        "surface-dark": "#16282b",
+                        "border-light": "#e5e7eb",
+                        "border-dark": "#2a3e42",
+                        "text-primary-light": "#111718",
+                        "text-primary-dark": "#e0e6e7",
+                        "text-secondary-light": "#618389",
+                        "text-secondary-dark": "#94aab0",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-text-primary-light dark:text-text-primary-dark overflow-hidden h-screen flex">
+<aside class="w-64 bg-surface-light dark:bg-surface-dark border-r border-border-light dark:border-border-dark flex-col hidden lg:flex h-full transition-colors duration-200">
+<div class="p-6 border-b border-border-light dark:border-border-dark flex items-center gap-3">
+<div class="size-8 text-primary">
+<svg fill="currentColor" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M4 4H17.3334V17.3334H30.6666V30.6666H44V44H4V4Z"></path>
+</svg>
+</div>
+<h2 class="text-xl font-bold tracking-tight">DentalManager</h2>
+</div>
+<div class="flex-1 overflow-y-auto py-6 px-4 flex flex-col gap-6">
+<div class="flex items-center gap-3 px-2">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border-2 border-primary/20" data-alt="Profile picture of Dr. Dental" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuC0n7yDZwvmrDk_VeSP2unfbJX733PjVOisY-bJLCSyFRA6Ti2Oq0Rj8Fjx172eg6-taaxi-owbAgxlMa_CJ94JD16aF2Tne1tgLpicjVN4lg68pnYQR40eN_786efm56x81rpVrZw9mItPobghnkWTyCudElmMjnVpbygnifTO3QPAS2ZkHiy01AjSZ1GbIYtx4dTjRMYdpDzTaDzmywePFi6jyuUZpSpokMq3KO9te0ETGsNt6sbMJK2Ye8ZIZRBbrQe2xyXOfN0");'></div>
+<div class="flex flex-col">
+<h1 class="text-sm font-bold">Dr. Roberto Dental</h1>
+<p class="text-text-secondary-light dark:text-text-secondary-dark text-xs">Administrador</p>
+</div>
+</div>
+<nav class="flex flex-col gap-2">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-secondary-light dark:text-text-secondary-dark hover:bg-background-light dark:hover:bg-background-dark transition-colors group" href="#">
+<span class="material-symbols-outlined text-[24px]">calendar_today</span>
+<span class="text-sm font-medium group-hover:text-primary transition-colors">Agenda</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-secondary-light dark:text-text-secondary-dark hover:bg-background-light dark:hover:bg-background-dark transition-colors group" href="#">
+<span class="material-symbols-outlined text-[24px]">group</span>
+<span class="text-sm font-medium group-hover:text-primary transition-colors">Pacientes</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/10 text-primary dark:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined text-[24px] fill-current">request_quote</span>
+<span class="text-sm font-bold">Presupuestos</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-secondary-light dark:text-text-secondary-dark hover:bg-background-light dark:hover:bg-background-dark transition-colors group" href="#">
+<span class="material-symbols-outlined text-[24px]">medical_services</span>
+<span class="text-sm font-medium group-hover:text-primary transition-colors">Tratamientos</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-secondary-light dark:text-text-secondary-dark hover:bg-background-light dark:hover:bg-background-dark transition-colors group" href="#">
+<span class="material-symbols-outlined text-[24px]">credit_card</span>
+<span class="text-sm font-medium group-hover:text-primary transition-colors">Facturación</span>
+</a>
+</nav>
+</div>
+<div class="p-4 border-t border-border-light dark:border-border-dark">
+<button class="flex items-center gap-3 px-3 py-2 text-text-secondary-light dark:text-text-secondary-dark hover:text-red-500 w-full transition-colors">
+<span class="material-symbols-outlined">logout</span>
+<span class="text-sm font-medium">Cerrar Sesión</span>
+</button>
+</div>
+</aside>
+<main class="flex-1 flex flex-col h-full overflow-hidden relative">
+<header class="bg-surface-light dark:bg-surface-dark h-16 border-b border-border-light dark:border-border-dark flex items-center justify-between px-6 shrink-0 z-10">
+<div class="flex items-center lg:hidden gap-4">
+<button class="text-text-primary-light dark:text-text-primary-dark">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<div class="text-primary size-6">
+<svg fill="currentColor" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><path d="M4 4H17.3334V17.3334H30.6666V30.6666H44V44H4V4Z"></path></svg>
+</div>
+</div>
+<div class="flex-1 max-w-xl mx-auto hidden md:block">
+<div class="relative group">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-text-secondary-light">search</span>
+</div>
+<input class="block w-full pl-10 pr-3 py-2 border-none rounded-lg leading-5 bg-background-light dark:bg-background-dark text-text-primary-light dark:text-text-primary-dark placeholder-text-secondary-light focus:outline-none focus:bg-white dark:focus:bg-[#1f2e32] focus:ring-1 focus:ring-primary sm:text-sm transition-all" placeholder="Buscar general..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 rounded-full hover:bg-background-light dark:hover:bg-background-dark text-text-secondary-light dark:text-text-secondary-dark transition-colors relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 size-2 bg-red-500 rounded-full border border-surface-light dark:border-surface-dark"></span>
+</button>
+<button class="p-2 rounded-full hover:bg-background-light dark:hover:bg-background-dark text-text-secondary-light dark:text-text-secondary-dark transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+</header>
+<div class="flex-1 overflow-y-auto p-4 md:p-8 scroll-smooth">
+<div class="max-w-[1200px] mx-auto flex flex-col gap-6">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+<div>
+<h1 class="text-3xl md:text-4xl font-extrabold text-text-primary-light dark:text-text-primary-dark tracking-tight">Gestión de Presupuestos</h1>
+<p class="text-text-secondary-light dark:text-text-secondary-dark mt-1">Consulte, filtre y gestione todos los presupuestos emitidos en la clínica.</p>
+</div>
+<button class="flex items-center gap-2 bg-primary hover:bg-cyan-400 text-white px-5 py-3 rounded-lg font-bold shadow-lg shadow-primary/20 transition-all transform active:scale-95">
+<span class="material-symbols-outlined text-[22px]">add</span>
+                    Nuevo Presupuesto
+                </button>
+</div>
+<section class="bg-surface-light dark:bg-surface-dark p-5 rounded-xl border border-border-light dark:border-border-dark shadow-sm">
+<div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+<div class="md:col-span-4 flex flex-col gap-1.5">
+<label class="text-xs font-bold uppercase tracking-wide text-text-secondary-light">Buscar Paciente / N°</label>
+<div class="relative">
+<span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-text-secondary-light">
+<span class="material-symbols-outlined text-[20px]">person_search</span>
+</span>
+<input class="w-full pl-10 pr-4 py-2.5 bg-background-light dark:bg-background-dark border border-transparent focus:bg-white dark:focus:bg-[#1f2e32] focus:border-primary rounded-lg text-sm transition-all text-text-primary-light dark:text-text-primary-dark" placeholder="Ej. Ana García, PRE-2024..." type="text"/>
+</div>
+</div>
+<div class="md:col-span-3 flex flex-col gap-1.5">
+<label class="text-xs font-bold uppercase tracking-wide text-text-secondary-light">Estado</label>
+<div class="relative">
+<select class="w-full pl-4 pr-10 py-2.5 bg-background-light dark:bg-background-dark border border-transparent focus:bg-white dark:focus:bg-[#1f2e32] focus:border-primary rounded-lg text-sm appearance-none cursor-pointer text-text-primary-light dark:text-text-primary-dark">
+<option value="">Todos los estados</option>
+<option value="draft">Borrador</option>
+<option value="sent">Enviado</option>
+<option value="accepted">Aceptado</option>
+<option value="rejected">Rechazado</option>
+</select>
+<div class="absolute right-3 top-2.5 pointer-events-none text-text-secondary-light">
+<span class="material-symbols-outlined text-[20px]">expand_more</span>
+</div>
+</div>
+</div>
+<div class="md:col-span-3 flex flex-col gap-1.5">
+<label class="text-xs font-bold uppercase tracking-wide text-text-secondary-light">Fecha de Creación</label>
+<input class="w-full px-4 py-2.5 bg-background-light dark:bg-background-dark border border-transparent focus:bg-white dark:focus:bg-[#1f2e32] focus:border-primary rounded-lg text-sm transition-all text-text-secondary-light" type="date"/>
+</div>
+<div class="md:col-span-2 flex gap-2">
+<button class="flex-1 h-[42px] bg-primary/10 hover:bg-primary/20 text-primary border border-transparent font-bold rounded-lg transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[20px]">filter_list</span>
+                            Filtrar
+                        </button>
+<button class="size-[42px] flex items-center justify-center bg-background-light dark:bg-background-dark hover:bg-gray-200 dark:hover:bg-border-dark rounded-lg text-text-secondary-light transition-colors" title="Limpiar filtros">
+<span class="material-symbols-outlined text-[20px]">restart_alt</span>
+</button>
+</div>
+</div>
+</section>
+<div class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm border border-border-light dark:border-border-dark overflow-hidden flex flex-col">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-background-light dark:bg-background-dark border-b border-border-light dark:border-border-dark">
+<th class="px-6 py-4 text-xs font-bold text-text-secondary-light uppercase tracking-wider">N° Presupuesto</th>
+<th class="px-6 py-4 text-xs font-bold text-text-secondary-light uppercase tracking-wider">Paciente</th>
+<th class="px-6 py-4 text-xs font-bold text-text-secondary-light uppercase tracking-wider">Fecha</th>
+<th class="px-6 py-4 text-xs font-bold text-text-secondary-light uppercase tracking-wider text-right">Total ($)</th>
+<th class="px-6 py-4 text-xs font-bold text-text-secondary-light uppercase tracking-wider text-center">Estado</th>
+<th class="px-6 py-4 text-xs font-bold text-text-secondary-light uppercase tracking-wider text-center">Acciones</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-border-light dark:divide-border-dark text-sm">
+<tr class="group hover:bg-background-light/50 dark:hover:bg-white/5 transition-colors">
+<td class="px-6 py-4 font-medium text-text-secondary-light">PRE-2024-084</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-xs">AG</div>
+<div>
+<p class="font-bold text-text-primary-light dark:text-text-primary-dark">Ana García López</p>
+<p class="text-xs text-text-secondary-light">OSDE 210</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 text-text-secondary-light dark:text-text-secondary-dark">12 Oct 2024</td>
+<td class="px-6 py-4 text-right font-bold text-text-primary-light dark:text-text-primary-dark">$47,590</td>
+<td class="px-6 py-4 text-center">
+<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border border-green-200 dark:border-green-900">
+                                        Aceptado
+                                    </span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center justify-center gap-2">
+<button class="p-1.5 text-text-secondary-light hover:text-primary hover:bg-primary/10 rounded-lg transition-colors" title="Ver Detalle">
+<span class="material-symbols-outlined text-[20px]">visibility</span>
+</button>
+<button class="p-1.5 text-text-secondary-light hover:text-primary hover:bg-primary/10 rounded-lg transition-colors" title="Generar Contrato">
+<span class="material-symbols-outlined text-[20px]">description</span>
+</button>
+<button class="p-1.5 text-text-secondary-light hover:text-primary hover:bg-primary/10 rounded-lg transition-colors" title="Más opciones">
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<tr class="group hover:bg-background-light/50 dark:hover:bg-white/5 transition-colors">
+<td class="px-6 py-4 font-medium text-text-secondary-light">PRE-2024-085</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-full bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 flex items-center justify-center font-bold text-xs">CM</div>
+<div>
+<p class="font-bold text-text-primary-light dark:text-text-primary-dark">Carlos Mendez</p>
+<p class="text-xs text-text-secondary-light">Particular</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 text-text-secondary-light dark:text-text-secondary-dark">14 Oct 2024</td>
+<td class="px-6 py-4 text-right font-bold text-text-primary-light dark:text-text-primary-dark">$120,000</td>
+<td class="px-6 py-4 text-center">
+<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 border border-gray-200 dark:border-gray-700">
+                                        Borrador
+                                    </span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center justify-center gap-2">
+<button class="p-1.5 text-text-secondary-light hover:text-primary hover:bg-primary/10 rounded-lg transition-colors" title="Editar">
+<span class="material-symbols-outlined text-[20px]">edit</span>
+</button>
+<button class="p-1.5 text-text-secondary-light hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors" title="Eliminar">
+<span class="material-symbols-outlined text-[20px]">delete</span>
+</button>
+</div>
+</td>
+</tr>
+<tr class="group hover:bg-background-light/50 dark:hover:bg-white/5 transition-colors">
+<td class="px-6 py-4 font-medium text-text-secondary-light">PRE-2024-082</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 flex items-center justify-center font-bold text-xs">LF</div>
+<div>
+<p class="font-bold text-text-primary-light dark:text-text-primary-dark">Lucia Fernandez</p>
+<p class="text-xs text-text-secondary-light">Swiss Medical</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 text-text-secondary-light dark:text-text-secondary-dark">10 Oct 2024</td>
+<td class="px-6 py-4 text-right font-bold text-text-primary-light dark:text-text-primary-dark">$85,400</td>
+<td class="px-6 py-4 text-center">
+<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 border border-blue-200 dark:border-blue-900">
+                                        Enviado
+                                    </span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center justify-center gap-2">
+<button class="p-1.5 text-text-secondary-light hover:text-primary hover:bg-primary/10 rounded-lg transition-colors" title="Ver Detalle">
+<span class="material-symbols-outlined text-[20px]">visibility</span>
+</button>
+<button class="p-1.5 text-text-secondary-light hover:text-primary hover:bg-primary/10 rounded-lg transition-colors" title="Reenviar Email">
+<span class="material-symbols-outlined text-[20px]">send</span>
+</button>
+<button class="p-1.5 text-text-secondary-light hover:text-primary hover:bg-primary/10 rounded-lg transition-colors" title="Más opciones">
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<tr class="group hover:bg-background-light/50 dark:hover:bg-white/5 transition-colors">
+<td class="px-6 py-4 font-medium text-text-secondary-light">PRE-2024-079</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-full bg-teal-100 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400 flex items-center justify-center font-bold text-xs">MR</div>
+<div>
+<p class="font-bold text-text-primary-light dark:text-text-primary-dark">Mario Rossi</p>
+<p class="text-xs text-text-secondary-light">Particular</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 text-text-secondary-light dark:text-text-secondary-dark">05 Oct 2024</td>
+<td class="px-6 py-4 text-right font-bold text-text-primary-light dark:text-text-primary-dark">$210,000</td>
+<td class="px-6 py-4 text-center">
+<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 border border-red-200 dark:border-red-900">
+                                        Rechazado
+                                    </span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center justify-center gap-2">
+<button class="p-1.5 text-text-secondary-light hover:text-primary hover:bg-primary/10 rounded-lg transition-colors" title="Ver Motivo">
+<span class="material-symbols-outlined text-[20px]">info</span>
+</button>
+<button class="p-1.5 text-text-secondary-light hover:text-primary hover:bg-primary/10 rounded-lg transition-colors" title="Duplicar">
+<span class="material-symbols-outlined text-[20px]">content_copy</span>
+</button>
+</div>
+</td>
+</tr>
+<tr class="group hover:bg-background-light/50 dark:hover:bg-white/5 transition-colors">
+<td class="px-6 py-4 font-medium text-text-secondary-light">PRE-2024-078</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-full bg-pink-100 dark:bg-pink-900/30 text-pink-600 dark:text-pink-400 flex items-center justify-center font-bold text-xs">SW</div>
+<div>
+<p class="font-bold text-text-primary-light dark:text-text-primary-dark">Sofia Williams</p>
+<p class="text-xs text-text-secondary-light">OSDE 410</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 text-text-secondary-light dark:text-text-secondary-dark">01 Oct 2024</td>
+<td class="px-6 py-4 text-right font-bold text-text-primary-light dark:text-text-primary-dark">$32,100</td>
+<td class="px-6 py-4 text-center">
+<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border border-green-200 dark:border-green-900">
+                                        Aceptado
+                                    </span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center justify-center gap-2">
+<button class="p-1.5 text-text-secondary-light hover:text-primary hover:bg-primary/10 rounded-lg transition-colors" title="Ver Detalle">
+<span class="material-symbols-outlined text-[20px]">visibility</span>
+</button>
+<button class="p-1.5 text-text-secondary-light hover:text-primary hover:bg-primary/10 rounded-lg transition-colors" title="Generar Contrato">
+<span class="material-symbols-outlined text-[20px]">description</span>
+</button>
+<button class="p-1.5 text-text-secondary-light hover:text-primary hover:bg-primary/10 rounded-lg transition-colors" title="Más opciones">
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="px-6 py-4 border-t border-border-light dark:border-border-dark flex items-center justify-between bg-surface-light dark:bg-surface-dark">
+<p class="text-sm text-text-secondary-light">Mostrando <span class="font-bold text-text-primary-light dark:text-text-primary-dark">1-5</span> de <span class="font-bold text-text-primary-light dark:text-text-primary-dark">28</span> resultados</p>
+<div class="flex gap-2">
+<button class="px-3 py-1 rounded border border-border-light dark:border-border-dark text-text-secondary-light hover:bg-background-light dark:hover:bg-border-dark disabled:opacity-50 text-sm" disabled="">Anterior</button>
+<button class="px-3 py-1 rounded bg-primary text-white text-sm font-bold">1</button>
+<button class="px-3 py-1 rounded border border-border-light dark:border-border-dark text-text-secondary-light hover:bg-background-light dark:hover:bg-border-dark text-sm">2</button>
+<button class="px-3 py-1 rounded border border-border-light dark:border-border-dark text-text-secondary-light hover:bg-background-light dark:hover:bg-border-dark text-sm">3</button>
+<button class="px-3 py-1 rounded border border-border-light dark:border-border-dark text-text-secondary-light hover:bg-background-light dark:hover:bg-border-dark text-sm">Siguiente</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+
+</body></html>

@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>DentalAdmin - Listado de Proformas</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#13c8ec",
+              "background-light": "#f6f8f8",
+              "background-dark": "#101f22",
+              "surface-light": "#ffffff",
+              "surface-dark": "#18282b",
+            },
+            fontFamily: {
+              "display": ["Manrope", "sans-serif"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .icon-fill {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        /* Custom Scrollbar for cleaner look */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-[#111718] dark:text-gray-100 font-display transition-colors duration-200">
+<div class="flex h-screen w-full overflow-hidden">
+<!-- SideNavBar -->
+<aside class="w-64 flex-shrink-0 bg-surface-light dark:bg-surface-dark border-r border-[#f0f4f4] dark:border-[#2a3b3e] flex flex-col h-full hidden md:flex">
+<div class="p-6 pb-2">
+<div class="flex flex-col">
+<h1 class="text-[#111718] dark:text-white text-xl font-bold leading-normal tracking-tight">DentalAdmin</h1>
+<p class="text-[#618389] dark:text-gray-400 text-sm font-normal leading-normal">Gestión Clínica</p>
+</div>
+</div>
+<div class="flex flex-col gap-2 p-4 overflow-y-auto flex-1">
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#f0f4f4] dark:hover:bg-[#2a3b3e] transition-colors group" href="#">
+<span class="material-symbols-outlined text-[#618389] group-hover:text-[#111718] dark:text-gray-400 dark:group-hover:text-white">calendar_today</span>
+<p class="text-[#111718] dark:text-gray-200 text-sm font-medium leading-normal">Agenda</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#f0f4f4] dark:hover:bg-[#2a3b3e] transition-colors group" href="#">
+<span class="material-symbols-outlined text-[#618389] group-hover:text-[#111718] dark:text-gray-400 dark:group-hover:text-white">group</span>
+<p class="text-[#111718] dark:text-gray-200 text-sm font-medium leading-normal">Pacientes</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#f0f4f4] dark:hover:bg-[#2a3b3e] transition-colors group" href="#">
+<span class="material-symbols-outlined text-[#618389] group-hover:text-[#111718] dark:text-gray-400 dark:group-hover:text-white">dentistry</span>
+<p class="text-[#111718] dark:text-gray-200 text-sm font-medium leading-normal">Tratamientos</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg bg-[#f0f4f4] dark:bg-[#2a3b3e]" href="#">
+<span class="material-symbols-outlined icon-fill text-[#111718] dark:text-primary">description</span>
+<p class="text-[#111718] dark:text-white text-sm font-bold leading-normal">Proformas</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#f0f4f4] dark:hover:bg-[#2a3b3e] transition-colors group" href="#">
+<span class="material-symbols-outlined text-[#618389] group-hover:text-[#111718] dark:text-gray-400 dark:group-hover:text-white">credit_card</span>
+<p class="text-[#111718] dark:text-gray-200 text-sm font-medium leading-normal">Cobranza</p>
+</a>
+</div>
+<div class="p-4 border-t border-[#f0f4f4] dark:border-[#2a3b3e]">
+<div class="flex items-center gap-3 px-3 py-2">
+<div class="size-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold">DA</div>
+<div>
+<p class="text-sm font-bold text-[#111718] dark:text-white">Dr. Admin</p>
+<p class="text-xs text-[#618389] dark:text-gray-400">admin@dental.com</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 flex flex-col h-full overflow-hidden bg-background-light dark:bg-background-dark relative">
+<!-- TopNavBar -->
+<header class="flex-shrink-0 flex items-center justify-between whitespace-nowrap border-b border-solid border-[#f0f4f4] dark:border-[#2a3b3e] bg-surface-light dark:bg-surface-dark px-6 py-3 z-10">
+<div class="flex items-center gap-4 text-[#111718] dark:text-white">
+<div class="md:hidden">
+<span class="material-symbols-outlined cursor-pointer">menu</span>
+</div>
+<div class="size-6 text-primary hidden md:block">
+<svg fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path clip-rule="evenodd" d="M24 4H6V17.3333V30.6667H24V44H42V30.6667V17.3333H24V4Z" fill="currentColor" fill-rule="evenodd"></path>
+</svg>
+</div>
+<h2 class="text-[#111718] dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] hidden md:block">Portal Administrativo</h2>
+</div>
+<div class="flex gap-3">
+<button class="flex size-10 cursor-pointer items-center justify-center rounded-lg bg-[#f0f4f4] dark:bg-[#2a3b3e] text-[#111718] dark:text-white hover:bg-[#e0e4e4] dark:hover:bg-[#3a4b4e] transition-colors">
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+</button>
+<button class="flex size-10 cursor-pointer items-center justify-center rounded-lg bg-[#f0f4f4] dark:bg-[#2a3b3e] text-[#111718] dark:text-white hover:bg-[#e0e4e4] dark:hover:bg-[#3a4b4e] transition-colors">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+</button>
+<button class="flex size-10 cursor-pointer items-center justify-center rounded-lg bg-[#f0f4f4] dark:bg-[#2a3b3e] text-[#111718] dark:text-white hover:bg-[#e0e4e4] dark:hover:bg-[#3a4b4e] transition-colors">
+<span class="material-symbols-outlined text-[20px]">account_circle</span>
+</button>
+</div>
+</header>
+<!-- Scrollable Content -->
+<div class="flex-1 overflow-y-auto p-4 md:p-8">
+<div class="max-w-[1200px] mx-auto flex flex-col gap-6">
+<!-- Breadcrumbs -->
+<div class="flex flex-wrap gap-2 text-sm">
+<a class="text-[#618389] dark:text-gray-400 font-medium hover:text-primary transition-colors" href="#">Inicio</a>
+<span class="text-[#618389] dark:text-gray-500 font-medium">/</span>
+<a class="text-[#618389] dark:text-gray-400 font-medium hover:text-primary transition-colors" href="#">Administración</a>
+<span class="text-[#618389] dark:text-gray-500 font-medium">/</span>
+<span class="text-[#111718] dark:text-white font-medium">Proformas</span>
+</div>
+<!-- Page Heading -->
+<div class="flex flex-col md:flex-row justify-between gap-6 items-start md:items-center">
+<div class="flex flex-col gap-2">
+<h1 class="text-[#111718] dark:text-white text-3xl md:text-4xl font-black leading-tight tracking-[-0.033em]">Listado de Proformas</h1>
+<p class="text-[#618389] dark:text-gray-400 text-base font-normal max-w-2xl">
+                                Gestione los presupuestos, planes de financiamiento y estados de cuenta de sus pacientes.
+                            </p>
+</div>
+<button class="flex items-center gap-2 bg-primary hover:bg-[#0fb3d4] text-white px-5 py-3 rounded-lg font-bold shadow-sm transition-all active:scale-95 whitespace-nowrap">
+<span class="material-symbols-outlined text-[20px]">add</span>
+<span>Nueva Proforma</span>
+</button>
+</div>
+<!-- Filters Section -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-4 bg-surface-light dark:bg-surface-dark p-4 rounded-xl shadow-sm border border-[#e5e7eb] dark:border-[#2a3b3e]">
+<!-- Search -->
+<div class="md:col-span-5 flex flex-col">
+<label class="text-xs font-semibold text-[#618389] dark:text-gray-400 mb-1.5 ml-1">Buscar Paciente</label>
+<div class="flex w-full items-stretch rounded-lg bg-background-light dark:bg-background-dark border border-[#dbe4e6] dark:border-[#2a3b3e] focus-within:border-primary transition-colors">
+<input class="flex-1 bg-transparent px-4 py-2.5 text-[#111718] dark:text-white placeholder-[#618389] focus:outline-none text-sm" placeholder="Nombre, DNI o # Proforma"/>
+<div class="px-3 flex items-center justify-center text-[#618389]">
+<span class="material-symbols-outlined text-[20px]">search</span>
+</div>
+</div>
+</div>
+<!-- Status Filter -->
+<div class="md:col-span-3 flex flex-col">
+<label class="text-xs font-semibold text-[#618389] dark:text-gray-400 mb-1.5 ml-1">Estado de Pago</label>
+<div class="relative">
+<select class="w-full appearance-none rounded-lg bg-background-light dark:bg-background-dark border border-[#dbe4e6] dark:border-[#2a3b3e] px-4 py-2.5 text-[#111718] dark:text-white focus:outline-none focus:border-primary text-sm cursor-pointer">
+<option value="">Todos los estados</option>
+<option value="pagado">Pagado</option>
+<option value="pendiente">Pendiente</option>
+<option value="atrasado">Atrasado</option>
+</select>
+<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-[#618389]">
+<span class="material-symbols-outlined text-[20px]">expand_more</span>
+</div>
+</div>
+</div>
+<!-- Date Filter -->
+<div class="md:col-span-3 flex flex-col">
+<label class="text-xs font-semibold text-[#618389] dark:text-gray-400 mb-1.5 ml-1">Período</label>
+<div class="relative">
+<select class="w-full appearance-none rounded-lg bg-background-light dark:bg-background-dark border border-[#dbe4e6] dark:border-[#2a3b3e] px-4 py-2.5 text-[#111718] dark:text-white focus:outline-none focus:border-primary text-sm cursor-pointer">
+<option>Este Mes</option>
+<option>Mes Pasado</option>
+<option>Últimos 3 Meses</option>
+<option>Este Año</option>
+</select>
+<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-[#618389]">
+<span class="material-symbols-outlined text-[20px]">calendar_month</span>
+</div>
+</div>
+</div>
+<!-- Filter Actions -->
+<div class="md:col-span-1 flex items-end">
+<button class="w-full flex items-center justify-center bg-background-light dark:bg-[#2a3b3e] hover:bg-[#e0e4e4] dark:hover:bg-[#3a4b4e] border border-[#dbe4e6] dark:border-[#2a3b3e] rounded-lg h-[42px] transition-colors text-[#111718] dark:text-white">
+<span class="material-symbols-outlined text-[20px]">filter_list</span>
+</button>
+</div>
+</div>
+<!-- Data List Cards -->
+<div class="flex flex-col gap-4">
+<!-- Card 1: Pending -->
+<div class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm border border-[#e5e7eb] dark:border-[#2a3b3e] overflow-hidden group">
+<!-- Card Header -->
+<div class="p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#f0f4f4] dark:border-[#2a3b3e]">
+<div class="flex items-center gap-4">
+<div class="size-12 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="Portrait of a young woman with dark hair smiling slightly against a neutral background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDvGMABZkiRaL8JFP9p3biNIrV2alnzW9oQWHdjiKUfxuFa7AnHOLi7dgHMc_89mhf47xBFPKlqpcEXYoygaBkfAaZjZZ9CKZi6sH_p-U7AOg38u6SSXIFsnEazE1-LMCeWZa6G1_i6Y_K_1Wjb2Kbdj7xtvW36WlQCN8HPb1uV2ycriPxEcUYqpGqIzXUn2yVZ1B8YlFohDO9w_PJmQ562bUHvnChMng6l76VpZZ_twCefPSHyHvB63rcyVZow-ozCh1Rx_bMAJ44"/>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<h3 class="text-[#111718] dark:text-white font-bold text-lg">Maria Gonzalez</h3>
+<span class="text-xs font-medium bg-[#f0f4f4] dark:bg-[#2a3b3e] text-[#618389] dark:text-gray-400 px-2 py-0.5 rounded">ID: 4892</span>
+</div>
+<p class="text-[#618389] dark:text-gray-400 text-sm">Proforma #PF-2023-001 • 15 Oct, 2023</p>
+</div>
+</div>
+<div class="flex items-center gap-6 justify-between md:justify-end w-full md:w-auto">
+<div class="text-right">
+<p class="text-xs text-[#618389] dark:text-gray-400 font-medium uppercase tracking-wider">Total</p>
+<p class="text-xl font-black text-[#111718] dark:text-white">$1,200.00</p>
+</div>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-bold bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300">
+<span class="size-2 rounded-full bg-orange-500"></span>
+                                        Pendiente
+                                    </span>
+<button class="text-[#618389] hover:text-primary dark:text-gray-400 dark:hover:text-white">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+</div>
+<!-- Card Body (Details) -->
+<div class="p-5 bg-[#fafcfc] dark:bg-[#152225] grid grid-cols-1 lg:grid-cols-2 gap-8 text-sm">
+<!-- Services List -->
+<div>
+<h4 class="font-bold text-[#111718] dark:text-white mb-3 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[18px]">medical_services</span>
+                                        Detalle de Servicios
+                                    </h4>
+<ul class="space-y-2">
+<li class="flex justify-between items-center py-2 border-b border-dashed border-[#dbe4e6] dark:border-[#2a3b3e]">
+<span class="text-[#111718] dark:text-gray-200">Ortodoncia Correctiva (Brackets)</span>
+<span class="font-bold text-[#111718] dark:text-white">$900.00</span>
+</li>
+<li class="flex justify-between items-center py-2 border-b border-dashed border-[#dbe4e6] dark:border-[#2a3b3e]">
+<span class="text-[#111718] dark:text-gray-200">Limpieza Profunda</span>
+<span class="font-bold text-[#111718] dark:text-white">$150.00</span>
+</li>
+<li class="flex justify-between items-center py-2">
+<span class="text-[#111718] dark:text-gray-200">Radiografía Panorámica</span>
+<span class="font-bold text-[#111718] dark:text-white">$150.00</span>
+</li>
+</ul>
+</div>
+<!-- Installments -->
+<div>
+<h4 class="font-bold text-[#111718] dark:text-white mb-3 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[18px]">payments</span>
+                                        Plan de Cuotas
+                                    </h4>
+<div class="rounded-lg border border-[#e5e7eb] dark:border-[#2a3b3e] overflow-hidden bg-white dark:bg-surface-dark">
+<table class="w-full text-left">
+<thead class="bg-[#f0f4f4] dark:bg-[#2a3b3e] text-xs uppercase text-[#618389] dark:text-gray-400 font-semibold">
+<tr>
+<th class="px-4 py-2">#</th>
+<th class="px-4 py-2">Fecha</th>
+<th class="px-4 py-2 text-right">Monto</th>
+<th class="px-4 py-2 text-center">Estado</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-[#f0f4f4] dark:divide-[#2a3b3e]">
+<tr>
+<td class="px-4 py-2 text-[#111718] dark:text-gray-300">1</td>
+<td class="px-4 py-2 text-[#111718] dark:text-gray-300">15 Oct</td>
+<td class="px-4 py-2 text-right font-medium text-[#111718] dark:text-white">$400.00</td>
+<td class="px-4 py-2 text-center text-xs text-green-600 font-bold dark:text-green-400">PAGADO</td>
+</tr>
+<tr>
+<td class="px-4 py-2 text-[#111718] dark:text-gray-300">2</td>
+<td class="px-4 py-2 text-[#111718] dark:text-gray-300">15 Nov</td>
+<td class="px-4 py-2 text-right font-medium text-[#111718] dark:text-white">$400.00</td>
+<td class="px-4 py-2 text-center text-xs text-[#618389] dark:text-gray-500">PENDIENTE</td>
+</tr>
+<tr>
+<td class="px-4 py-2 text-[#111718] dark:text-gray-300">3</td>
+<td class="px-4 py-2 text-[#111718] dark:text-gray-300">15 Dic</td>
+<td class="px-4 py-2 text-right font-medium text-[#111718] dark:text-white">$400.00</td>
+<td class="px-4 py-2 text-center text-xs text-[#618389] dark:text-gray-500">PENDIENTE</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+<!-- Card 2: Paid -->
+<div class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm border border-[#e5e7eb] dark:border-[#2a3b3e] overflow-hidden group">
+<!-- Card Header -->
+<div class="p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#f0f4f4] dark:border-[#2a3b3e]">
+<div class="flex items-center gap-4">
+<div class="size-12 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="Portrait of a smiling man with a beard in a casual white shirt" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCFriuWK_TP7EevpHfSMgk9FJKJ-Ojiqgm3MtjtQveUxdqHq2DYy98JjQfp28jDt9pz_OellvOswJlUuzSriDGiGxkFOOcsI4y2H0DiTzLmIgBKcpE_D6ZHzuyUQE9BcDxrR85oRKIUoFSgRsQUSaE1tG-G7bdZo-UmvnEbhXZiI4FocWfT3UpUhQ7N7-S7n5hwR41N-l0YscwGQ5OH9fGsWuJpNeY4Fn8YslALwzQ_pnJTBI3Ns_LbxQHRGahPE3o-doLcjZkS7W0"/>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<h3 class="text-[#111718] dark:text-white font-bold text-lg">Carlos Ramirez</h3>
+<span class="text-xs font-medium bg-[#f0f4f4] dark:bg-[#2a3b3e] text-[#618389] dark:text-gray-400 px-2 py-0.5 rounded">ID: 5210</span>
+</div>
+<p class="text-[#618389] dark:text-gray-400 text-sm">Proforma #PF-2023-015 • 28 Sep, 2023</p>
+</div>
+</div>
+<div class="flex items-center gap-6 justify-between md:justify-end w-full md:w-auto">
+<div class="text-right">
+<p class="text-xs text-[#618389] dark:text-gray-400 font-medium uppercase tracking-wider">Total</p>
+<p class="text-xl font-black text-[#111718] dark:text-white">$350.00</p>
+</div>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-bold bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300">
+<span class="size-2 rounded-full bg-green-500"></span>
+                                        Pagado
+                                    </span>
+<button class="text-[#618389] hover:text-primary dark:text-gray-400 dark:hover:text-white">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+</div>
+<!-- Card Body (Compact view example) -->
+<div class="p-5 bg-[#fafcfc] dark:bg-[#152225] flex flex-wrap gap-x-8 gap-y-4 text-sm">
+<div class="flex-1 min-w-[250px]">
+<span class="text-[#618389] dark:text-gray-400 block mb-1 text-xs uppercase font-bold">Servicios</span>
+<p class="text-[#111718] dark:text-gray-200">Blanqueamiento Dental Zoom, Profilaxis Completa</p>
+</div>
+<div class="flex-1 min-w-[250px]">
+<span class="text-[#618389] dark:text-gray-400 block mb-1 text-xs uppercase font-bold">Pago</span>
+<p class="text-[#111718] dark:text-gray-200">Pago único realizado el 28 de Septiembre por Tarjeta de Crédito.</p>
+</div>
+</div>
+</div>
+<!-- Card 3: Overdue -->
+<div class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm border border-[#e5e7eb] dark:border-[#2a3b3e] overflow-hidden group">
+<!-- Card Header -->
+<div class="p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#f0f4f4] dark:border-[#2a3b3e]">
+<div class="flex items-center gap-4">
+<div class="size-12 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
+<div class="w-full h-full bg-primary/20 flex items-center justify-center text-primary font-bold text-lg">LC</div>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<h3 class="text-[#111718] dark:text-white font-bold text-lg">Laura Castro</h3>
+<span class="text-xs font-medium bg-[#f0f4f4] dark:bg-[#2a3b3e] text-[#618389] dark:text-gray-400 px-2 py-0.5 rounded">ID: 3301</span>
+</div>
+<p class="text-[#618389] dark:text-gray-400 text-sm">Proforma #PF-2023-008 • 10 Ago, 2023</p>
+</div>
+</div>
+<div class="flex items-center gap-6 justify-between md:justify-end w-full md:w-auto">
+<div class="text-right">
+<p class="text-xs text-[#618389] dark:text-gray-400 font-medium uppercase tracking-wider">Total</p>
+<p class="text-xl font-black text-[#111718] dark:text-white">$2,500.00</p>
+</div>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-bold bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300">
+<span class="size-2 rounded-full bg-red-500"></span>
+                                        Atrasado
+                                    </span>
+<button class="text-[#618389] hover:text-primary dark:text-gray-400 dark:hover:text-white">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+</div>
+<!-- Card Body (Details) -->
+<div class="p-5 bg-[#fafcfc] dark:bg-[#152225] grid grid-cols-1 lg:grid-cols-2 gap-8 text-sm">
+<!-- Services List -->
+<div>
+<h4 class="font-bold text-[#111718] dark:text-white mb-3 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[18px]">medical_services</span>
+                                        Detalle de Servicios
+                                    </h4>
+<ul class="space-y-2">
+<li class="flex justify-between items-center py-2 border-b border-dashed border-[#dbe4e6] dark:border-[#2a3b3e]">
+<span class="text-[#111718] dark:text-gray-200">Implante Dental (Titanio) x2</span>
+<span class="font-bold text-[#111718] dark:text-white">$2,000.00</span>
+</li>
+<li class="flex justify-between items-center py-2">
+<span class="text-[#111718] dark:text-gray-200">Corona de Porcelana x2</span>
+<span class="font-bold text-[#111718] dark:text-white">$500.00</span>
+</li>
+</ul>
+</div>
+<!-- Installments -->
+<div>
+<h4 class="font-bold text-[#111718] dark:text-white mb-3 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[18px]">warning</span>
+                                        Pagos Vencidos
+                                    </h4>
+<div class="rounded-lg border border-red-200 dark:border-red-900/50 overflow-hidden bg-white dark:bg-surface-dark">
+<table class="w-full text-left">
+<thead class="bg-red-50 dark:bg-red-900/20 text-xs uppercase text-red-700 dark:text-red-300 font-semibold">
+<tr>
+<th class="px-4 py-2">Fecha Vencimiento</th>
+<th class="px-4 py-2 text-right">Monto</th>
+<th class="px-4 py-2 text-center">Acción</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-red-100 dark:divide-red-900/20">
+<tr>
+<td class="px-4 py-2 text-red-600 dark:text-red-400 font-bold">10 Sept (Hace 45 días)</td>
+<td class="px-4 py-2 text-right font-bold text-[#111718] dark:text-white">$500.00</td>
+<td class="px-4 py-2 text-center">
+<button class="text-xs bg-red-100 text-red-700 hover:bg-red-200 px-2 py-1 rounded dark:bg-red-900/50 dark:text-red-200">Notificar</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p class="mt-2 text-xs text-[#618389] dark:text-gray-400 italic">El paciente tiene 2 cuotas pendientes adicionales.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Pagination -->
+<div class="flex items-center justify-between py-4 border-t border-[#dbe4e6] dark:border-[#2a3b3e]">
+<p class="text-sm text-[#618389] dark:text-gray-400">Mostrando 1-3 de 156 resultados</p>
+<div class="flex gap-2">
+<button class="size-8 flex items-center justify-center rounded bg-transparent hover:bg-[#f0f4f4] dark:hover:bg-[#2a3b3e] text-[#111718] dark:text-white transition-colors">
+<span class="material-symbols-outlined text-[18px]">chevron_left</span>
+</button>
+<button class="size-8 flex items-center justify-center rounded bg-primary text-white font-bold text-sm">1</button>
+<button class="size-8 flex items-center justify-center rounded bg-transparent hover:bg-[#f0f4f4] dark:hover:bg-[#2a3b3e] text-[#111718] dark:text-white transition-colors font-medium text-sm">2</button>
+<button class="size-8 flex items-center justify-center rounded bg-transparent hover:bg-[#f0f4f4] dark:hover:bg-[#2a3b3e] text-[#111718] dark:text-white transition-colors font-medium text-sm">3</button>
+<span class="flex items-center justify-center w-8 text-[#618389]">...</span>
+<button class="size-8 flex items-center justify-center rounded bg-transparent hover:bg-[#f0f4f4] dark:hover:bg-[#2a3b3e] text-[#111718] dark:text-white transition-colors">
+<span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

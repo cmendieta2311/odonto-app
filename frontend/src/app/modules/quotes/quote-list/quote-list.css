@@ -1,0 +1,31 @@
+.container {
+    padding: 20px;
+}
+
+.actions {
+    margin-bottom: 20px;
+}
+
+table {
+    width: 100%;
+}
+
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8em;
+}
+
+.status-badge.DRAFT {
+    background-color: #e0e0e0;
+}
+
+.status-badge.CONVERTED {
+    background-color: #c8e6c9;
+    color: #2e7d32;
+}
+
+.status-badge.REJECTED {
+    background-color: #ffcdd2;
+    color: #c62828;
+}

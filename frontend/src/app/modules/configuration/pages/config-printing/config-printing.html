@@ -1,0 +1,56 @@
+<div class="flex flex-col gap-6">
+    <div class="flex justify-between items-end">
+        <div>
+            <h2 class="text-2xl font-bold text-[#111418] dark:text-white">Documentos e Impresión</h2>
+            <p class="text-[#617289] dark:text-gray-400 mt-1">Personaliza el formato de tus documentos.</p>
+        </div>
+        <button
+            class="px-4 py-2 rounded-lg bg-primary text-white font-bold text-sm hover:bg-primary/90 transition-colors shadow-sm flex items-center gap-2">
+            <span class="material-symbols-outlined text-[18px]">save</span>
+            Guardar Cambios
+        </button>
+    </div>
+
+    <section
+        class="bg-white dark:bg-surface-dark rounded-xl shadow-sm border border-border-light dark:border-border-dark overflow-hidden flex flex-col h-full">
+        <div class="px-6 py-4 border-b border-border-light dark:border-border-dark flex items-center gap-3">
+            <div class="p-2 bg-orange-50 dark:bg-orange-900/20 rounded-lg text-orange-600 dark:text-orange-400">
+                <span class="material-symbols-outlined">print</span>
+            </div>
+            <h3 class="text-lg font-bold text-[#111418] dark:text-white">Opciones de Impresión</h3>
+        </div>
+        <div class="p-6 flex flex-col gap-6 flex-1">
+            <div class="flex items-center justify-between">
+                <div class="flex flex-col">
+                    <span class="text-sm font-bold text-[#111418] dark:text-white">Incluir Logo en
+                        Documentos</span>
+                    <span class="text-xs text-[#617289] dark:text-gray-400">Afecta facturas, recetas y
+                        proformas</span>
+                </div>
+                <button class="w-11 h-6 bg-primary rounded-full relative cursor-pointer transition-colors">
+                    <span
+                        class="absolute right-1 top-1 size-4 bg-white rounded-full shadow-sm transition-transform"></span>
+                </button>
+            </div>
+            <div class="flex items-center justify-between">
+                <div class="flex flex-col">
+                    <span class="text-sm font-bold text-[#111418] dark:text-white">Imprimir Duplicado</span>
+                    <span class="text-xs text-[#617289] dark:text-gray-400">Generar copia de archivo para
+                        facturas</span>
+                </div>
+                <button
+                    class="w-11 h-6 bg-gray-200 dark:bg-gray-700 rounded-full relative cursor-pointer transition-colors">
+                    <span
+                        class="absolute left-1 top-1 size-4 bg-white rounded-full shadow-sm transition-transform"></span>
+                </button>
+            </div>
+            <div class="flex flex-col gap-2 mt-2">
+                <label class="text-sm font-bold text-[#111418] dark:text-white">Texto Legal (Pie de
+                    Página)</label>
+                <textarea
+                    class="w-full p-3 rounded-lg bg-background-light dark:bg-background-dark border-transparent focus:border-primary focus:ring-0 text-xs font-medium text-[#111418] dark:text-white placeholder-gray-400 resize-none transition-all"
+                    rows="3">Los precios están sujetos a cambios sin previo aviso. La validez de este presupuesto es de 15 días.</textarea>
+            </div>
+        </div>
+    </section>
+</div>

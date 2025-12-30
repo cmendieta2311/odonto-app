@@ -1,0 +1,381 @@
+<div class="flex-1 flex flex-col h-full overflow-hidden bg-background-light dark:bg-background-dark">
+    <!-- Top Actions / Header -->
+    <header
+        class="bg-surface-light dark:bg-surface-dark h-16 border-b border-border-light dark:border-border-dark flex items-center justify-between px-6 shrink-0 z-10 transition-colors">
+        <div class="flex items-center gap-4">
+            <button (click)="cancel()"
+                class="p-2 rounded-full hover:bg-background-light dark:hover:bg-background-dark text-text-secondary-light transition-colors">
+                <span class="material-symbols-outlined">arrow_back</span>
+            </button>
+            <div class="flex flex-col">
+                <div class="flex items-center gap-2">
+                    <span
+                        class="bg-primary/10 text-primary text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider">
+                        {{ isEditMode ? quote?.status : 'Borrador' }}
+                    </span>
+                    <span class="text-text-secondary-light dark:text-text-secondary-dark text-xs font-medium">
+                        {{ isEditMode ? '#' + quote?.id?.slice(0, 8) : 'Nuevo Presupuesto' }}
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="flex items-center gap-3">
+            <button type="button" (click)="print()"
+                class="flex items-center gap-2 px-4 py-2 text-sm font-bold text-[#111418] dark:text-white bg-white dark:bg-black/20 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-white/5 transition-all">
+                <span class="material-symbols-outlined text-[20px]">print</span>
+                <span class="hidden sm:inline">Imprimir</span>
+            </button>
+            <button type="button" (click)="save(QuoteStatus.REJECTED)" *ngIf="isEditMode" [disabled]="isSaving"
+                class="flex items-center gap-2 px-4 py-2 text-sm font-bold text-red-600 bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-900/30 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                <span class="material-symbols-outlined text-[20px]" *ngIf="!isSaving">cancel</span>
+                <span class="material-symbols-outlined text-[20px] animate-spin" *ngIf="isSaving">sync</span>
+                <span class="hidden sm:inline">Rechazar</span>
+            </button>
+            <button type="button" (click)="save(QuoteStatus.DRAFT)" [disabled]="isSaving"
+                class="flex items-center gap-2 px-4 py-2 text-sm font-bold text-[#111418] dark:text-white bg-white dark:bg-black/20 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-white/5 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                <span class="material-symbols-outlined text-[20px]" *ngIf="!isSaving">save</span>
+                <span class="material-symbols-outlined text-[20px] animate-spin" *ngIf="isSaving">sync</span>
+                <span class="hidden sm:inline">Guardar Borrador</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="flex-1 overflow-y-auto p-4 md:p-8 scroll-smooth">
+        <div class="max-w-[1200px] mx-auto flex flex-col gap-6">
+            <!-- Page Heading -->
+            <div>
+                <h1
+                    class="text-3xl md:text-4xl font-extrabold text-text-primary-light dark:text-text-primary-dark tracking-tight">
+                    {{ isEditMode ? 'Editar' : 'Nuevo' }} Presupuesto
+                </h1>
+                <p class="text-text-secondary-light dark:text-text-secondary-dark mt-1">Cree y gestione el plan de
+                    tratamiento detallado para el paciente.</p>
+            </div>
+
+            <form [formGroup]="form" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Left Column: Form Details (Span 2) -->
+                <div class="lg:col-span-2 flex flex-col gap-6">
+
+                    <!-- Patient & General Info -->
+                    <section
+                        class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm border border-border-light dark:border-border-dark p-6 transition-colors">
+                        <div
+                            class="flex items-center gap-2 mb-4 border-b border-border-light dark:border-border-dark pb-3">
+                            <span class="material-symbols-outlined text-primary">person</span>
+                            <h3 class="text-lg font-bold">Información del Paciente</h3>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="flex flex-col gap-2 relative">
+                                <span
+                                    class="text-sm font-medium text-text-secondary-light dark:text-text-secondary-dark">Buscar
+                                    Paciente</span>
+                                <div class="relative group">
+                                    <input [formControl]="searchControl" type="text"
+                                        placeholder="Escribe nombre o N° documento..."
+                                        class="w-full bg-background-light dark:bg-background-dark border-none rounded-lg px-4 py-3 text-sm focus:ring-1 focus:ring-primary outline-none transition-all"
+                                        (focus)="searchControl.value && (showPatientDropdown = true)"
+                                        (blur)="showPatientDropdown = false" />
+
+                                    <div class="absolute right-3 top-[13px] text-text-secondary-light">
+                                        <span class="material-symbols-outlined text-[20px]"
+                                            *ngIf="!isSearching">search</span>
+                                        <span class="material-symbols-outlined text-[20px] animate-spin"
+                                            *ngIf="isSearching">sync</span>
+                                    </div>
+
+                                    <!-- Results Dropdown -->
+                                    <div *ngIf="showPatientDropdown && patients.length > 0"
+                                        class="absolute top-full left-0 w-full mt-1 bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-lg shadow-xl z-50 max-h-60 overflow-y-auto">
+                                        <ul class="py-1">
+                                            <li *ngFor="let p of patients" (mousedown)="selectPatient(p)"
+                                                class="px-4 py-2 hover:bg-gray-100 dark:hover:bg-white/5 cursor-pointer flex flex-col gap-0.5">
+                                                <span
+                                                    class="text-sm font-bold text-text-primary-light dark:text-text-primary-dark">
+                                                    {{ p.firstName }} {{ p.lastName }}
+                                                </span>
+                                                <span class="text-xs text-text-secondary-light">
+                                                    N° documento: {{ p.dni }}
+                                                </span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <div *ngIf="showPatientDropdown && patients.length === 0 && searchControl.value"
+                                        class="absolute top-full left-0 w-full mt-1 bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-lg shadow-xl z-50 p-4 text-center">
+                                        <span class="text-sm text-text-secondary-light">No se encontraron
+                                            pacientes.</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex flex-col gap-2">
+                                <span
+                                    class="text-sm font-medium text-text-secondary-light dark:text-text-secondary-dark">Obra
+                                    Social / Seguro (Ref)</span>
+                                <div
+                                    class="px-4 py-3 bg-background-light dark:bg-background-dark rounded-lg text-sm text-text-secondary-light">
+                                    {{ selectedPatient?.history || 'Particular / No especificado' }}
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Treatment Detail -->
+                    <section
+                        class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm border border-border-light dark:border-border-dark flex flex-col transition-colors overflow-hidden">
+                        <div
+                            class="px-6 py-4 border-b border-border-light dark:border-border-dark flex items-center justify-between bg-gray-50/50 dark:bg-white/5">
+                            <div class="flex items-center gap-3">
+                                <div class="p-2 bg-primary/10 rounded-lg text-primary">
+                                    <span class="material-symbols-outlined">dentistry</span>
+                                </div>
+                                <h3 class="text-base font-bold text-[#111418] dark:text-white uppercase tracking-wide">
+                                    Detalle del Tratamiento</h3>
+                            </div>
+                            <button type="button"
+                                class="text-primary text-xs font-bold hover:underline flex items-center gap-1">
+                                Ver Catálogo Completo <span
+                                    class="material-symbols-outlined text-[16px]">arrow_forward</span>
+                            </button>
+                        </div>
+
+                        <div class="p-6 pb-0">
+                            <!-- Search & Quick Add -->
+                            <div class="flex flex-col gap-3 mb-6 relative z-10">
+                                <div class="relative w-full group">
+                                    <span
+                                        class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-primary/50 group-focus-within:text-primary transition-colors">
+                                        <span class="material-symbols-outlined text-[22px]">add_circle</span>
+                                    </span>
+                                    <input [formControl]="serviceSearchControl" type="text"
+                                        placeholder="Buscar servicio por nombre o código..."
+                                        class="w-full pl-12 pr-4 py-4 bg-background-light dark:bg-background-dark border-2 border-transparent focus:bg-white dark:focus:bg-[#1f2e32] focus:border-primary/30 outline-none rounded-xl text-sm font-medium transition-all shadow-sm hover:bg-gray-50 dark:hover:bg-white/5 placeholder-gray-400 dark:placeholder-gray-600"
+                                        (focus)="serviceSearchControl.value && (showServiceDropdown = true)"
+                                        (blur)="showServiceDropdown = false" />
+
+                                    <!-- Service Dropdown -->
+                                    <div *ngIf="showServiceDropdown && filteredServices.length > 0"
+                                        class="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-surface-dark rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 max-h-60 overflow-y-auto custom-scrollbar z-50">
+                                        <ul>
+                                            <li *ngFor="let s of filteredServices" (mousedown)="addService(s)"
+                                                class="px-4 py-3 hover:bg-gray-50 dark:hover:bg-white/5 cursor-pointer flex justify-between items-center transition-colors border-b border-gray-50 dark:border-gray-800 last:border-0 group">
+                                                <div class="flex flex-col">
+                                                    <span
+                                                        class="text-sm font-bold text-[#111418] dark:text-white group-hover:text-primary transition-colors">{{s.name}}</span>
+                                                    <span class="text-xs text-[#617289]">{{s.code}} |
+                                                        {{s.category?.name}}</span>
+                                                </div>
+                                                <span class="text-sm font-bold text-[#111418] dark:text-white">{{s.price
+                                                    |
+                                                    currency}}</span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <!-- Suggested Chips -->
+                                <div class="flex flex-wrap gap-2 items-center">
+                                    <span
+                                        class="text-xs font-bold text-[#617289] dark:text-gray-500 py-1">Sugeridos:</span>
+                                    <button type="button" *ngFor="let s of suggestedServices"
+                                        (click)="addSuggestedService(s)"
+                                        class="px-3 py-1 bg-primary/10 hover:bg-primary/20 text-primary text-xs font-bold rounded-full transition-colors border border-transparent">
+                                        + {{s.name}}
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Services Table -->
+                            <div class="overflow-x-auto w-full">
+                                <table class="w-full text-left border-collapse">
+                                    <thead
+                                        class="bg-background-light dark:bg-background-dark border-b border-border-light dark:border-border-dark">
+                                        <tr
+                                            class="text-text-secondary-light text-xs uppercase tracking-wider border-b border-border-light dark:border-border-dark">
+                                            <th class="px-6 py-4 font-semibold w-[40%] text-left">Servicio / Tratamiento
+                                            </th>
+                                            <th class="px-4 py-4 font-semibold text-center w-[10%]">Cant.</th>
+                                            <th class="px-4 py-4 font-semibold text-right w-[15%]">Precio Unit.</th>
+                                            <th class="px-4 py-4 font-semibold text-center w-[15%]">Desc. %</th>
+                                            <th class="px-4 py-4 font-semibold text-right w-[15%]">Total</th>
+                                            <th class="px-4 py-4 font-semibold text-center w-[5%]"></th>
+                                        </tr>
+                                    <tbody [formGroup]="form">
+                                        <ng-container formArrayName="items">
+                                            <tr *ngFor="let item of items.controls; let i = index" [formGroupName]="i"
+                                                class="group hover:bg-background-light/50 dark:hover:bg-white/5 transition-colors border-b border-border-light dark:border-border-dark last:border-0">
+                                                <td class="px-6 py-4">
+                                                    <div class="flex flex-col">
+                                                        <span
+                                                            class="font-bold text-[#111418] dark:text-white text-sm">{{
+                                                            getServiceForIndex(i)?.name }}</span>
+                                                        <span class="text-xs text-[#617289] dark:text-gray-400">
+                                                            Cód: {{ getServiceForIndex(i)?.code }}
+                                                        </span>
+                                                    </div>
+                                                </td>
+                                                <td class="px-4 py-4 text-center">
+                                                    <input formControlName="quantity" type="number" min="1"
+                                                        class="w-16 text-center bg-white dark:bg-black border border-gray-200 dark:border-gray-700 rounded-md p-1.5 text-sm font-bold focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" />
+                                                </td>
+                                                <td
+                                                    class="px-4 py-4 text-right font-medium text-[#111418] dark:text-white text-sm">
+                                                    {{ item.get('price')?.value | currency }}
+                                                </td>
+                                                <td class="px-4 py-4 text-center">
+                                                    <input formControlName="discount" type="number" min="0" max="100"
+                                                        class="w-16 text-center bg-white dark:bg-black border border-gray-200 dark:border-gray-700 rounded-md p-1.5 text-sm font-medium text-[#617289] focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" />
+                                                </td>
+                                                <td
+                                                    class="px-4 py-4 text-right font-bold text-[#111418] dark:text-white text-sm">
+                                                    {{ (item.get('price')?.value *
+                                                    item.get('quantity')?.value * (1 -
+                                                    (item.get('discount')?.value || 0)/100)) |
+                                                    currency }}
+                                                </td>
+                                                <td class="px-4 py-4 text-center">
+                                                    <button (click)="removeItem(i)"
+                                                        class="text-gray-400 hover:text-red-500 p-2 rounded-full hover:bg-red-50 dark:hover:bg-red-900/20 transition-all opacity-0 group-hover:opacity-100">
+                                                        <span
+                                                            class="material-symbols-outlined text-[20px]">delete</span>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            <tr *ngIf="items.length === 0">
+                                                <td colspan="6"
+                                                    class="p-8 text-center text-[#617289] dark:text-gray-500 bg-gray-50/50 dark:bg-gray-800/10">
+                                                    <div class="flex flex-col items-center gap-2">
+                                                        <span
+                                                            class="material-symbols-outlined text-4xl opacity-50">playlist_add</span>
+                                                        <p class="text-sm font-medium">No hay
+                                                            servicios en el presupuesto</p>
+                                                        <p class="text-xs opacity-75">Utiliza el
+                                                            buscador arriba para agregar
+                                                            tratamientos</p>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </ng-container>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div
+                            class="p-6 border-t border-border-light dark:border-border-dark mt-auto bg-gray-50/50 dark:bg-black/20">
+                            <label class="flex flex-col gap-2">
+                                <span
+                                    class="text-xs font-bold text-[#617289] dark:text-gray-400 uppercase tracking-wide">Observaciones
+                                    Internas</span>
+                                <textarea formControlName="observations"
+                                    class="w-full bg-white dark:bg-background-dark border border-gray-200 dark:border-gray-700 rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary h-20 resize-none transition-all placeholder-gray-400"
+                                    placeholder="Agregar notas sobre el tratamiento, preferencias del paciente, etc."></textarea>
+                            </label>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Right Column: Totals & Actions (Span 1) -->
+                <div class="lg:col-span-1 flex flex-col gap-6">
+
+                    <!-- Financing Card -->
+                    <section [formGroup]="form"
+                        class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm border border-border-light dark:border-border-dark p-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="flex items-center gap-2">
+                                <span class="material-symbols-outlined text-primary">credit_score</span>
+                                <h3 class="text-lg font-bold text-[#111418] dark:text-white">
+                                    Financiación</h3>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" formControlName="financingEnabled" class="sr-only peer">
+                                <div
+                                    class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary/50 dark:peer-focus:ring-primary/50 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary">
+                                </div>
+                            </label>
+                        </div>
+
+                        <div class="space-y-4" [class.opacity-50]="!form.get('financingEnabled')?.value"
+                            [class.pointer-events-none]="!form.get('financingEnabled')?.value">
+                            <div class="grid grid-cols-2 gap-3">
+                                <label class="flex flex-col gap-1.5">
+                                    <span class="text-xs font-bold text-[#617289]">Entrega
+                                        Inicial ($)</span>
+                                    <input formControlName="initialPayment" type="number" min="0"
+                                        class="w-full bg-background-light dark:bg-background-dark border-transparent rounded-lg px-3 py-2 text-sm font-bold text-[#111418] dark:text-white focus:ring-primary focus:border-primary" />
+                                </label>
+                                <label class="flex flex-col gap-1.5">
+                                    <span class="text-xs font-bold text-[#617289]">Cuotas</span>
+                                    <select formControlName="installments"
+                                        class="w-full bg-background-light dark:bg-background-dark border-transparent rounded-lg px-3 py-2 text-sm font-bold text-[#111418] dark:text-white focus:ring-primary focus:border-primary">
+                                        <option *ngFor="let opt of installmentOptions" [ngValue]="opt">
+                                            {{opt}} pagos</option>
+                                    </select>
+                                </label>
+                            </div>
+                            <div *ngIf="calculateInterest && financingInterest > 0"
+                                class="p-3 bg-primary/5 dark:bg-primary/10 rounded-lg flex justify-between items-center border border-primary/10">
+                                <span class="text-xs font-bold text-primary">Interés ({{ interestRate }}%)</span>
+                                <span class="text-sm font-bold text-primary">+{{
+                                    financingInterest | currency }}</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Summary Sticky Card -->
+                    <section
+                        class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-lg border border-primary/20 p-6 lg:sticky lg:top-4">
+                        <h3
+                            class="text-lg font-bold mb-6 text-[#111418] dark:text-white border-b border-gray-100 dark:border-gray-800 pb-4">
+                            Resumen de Costos</h3>
+                        <div class="space-y-3 mb-6">
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="text-[#617289] dark:text-gray-400 font-medium">Subtotal
+                                    Servicios</span>
+                                <span class="font-bold text-[#111418] dark:text-white">{{
+                                    subtotal | currency }}</span>
+                            </div>
+                            <div class="flex justify-between items-center text-sm" *ngIf="discounts > 0">
+                                <span class="text-[#617289] dark:text-gray-400 font-medium">Descuentos</span>
+                                <span class="font-bold text-green-600">-{{ discounts | currency
+                                    }}</span>
+                            </div>
+                            <div class="flex justify-between items-center text-sm" *ngIf="financingInterest > 0">
+                                <span class="text-[#617289] dark:text-gray-400 font-medium">Intereses
+                                    Financiación</span>
+                                <span class="font-bold text-[#111418] dark:text-white">+{{
+                                    financingInterest | currency }}</span>
+                            </div>
+                            <div class="h-px bg-border-light dark:bg-border-dark my-4 border-dashed">
+                            </div>
+                            <div class="flex justify-between items-end">
+                                <span class="text-base font-bold text-[#111418] dark:text-white">TOTAL</span>
+                                <span class="text-3xl font-black text-primary tracking-tight">{{
+                                    total | currency }}</span>
+                            </div>
+                            <div class="text-right text-xs text-[#617289] dark:text-gray-400 mt-2"
+                                *ngIf="form.get('financingEnabled')?.value">
+                                {{ form.get('installments')?.value }} cuotas de <span
+                                    class="font-bold text-[#111418] dark:text-white">{{ (total -
+                                    (form.get('initialPayment')?.value || 0)) /
+                                    (form.get('installments')?.value || 1) | currency }}</span>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col gap-3">
+                            <button type="button" (click)="save(QuoteStatus.APPROVED)"
+                                [disabled]="form.invalid || items.length === 0 || isSaving"
+                                class="w-full py-4 bg-primary hover:bg-cyan-400 text-white font-bold rounded-xl shadow-lg shadow-primary/30 transition-all transform active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed group">
+                                <span class="material-symbols-outlined group-hover:animate-bounce"
+                                    *ngIf="!isSaving">check_circle</span>
+                                <span class="material-symbols-outlined animate-spin" *ngIf="isSaving">sync</span>
+                                <span class="text-lg">Aceptar Presupuesto</span>
+                            </button>
+                            <p class="text-center text-xs text-[#617289] mt-4 font-medium">El
+                                presupuesto tiene validez por {{ expirationDays }} días.</p>
+                        </div>
+                    </section>
+
+                </div>
+            </form>
+        </div>
+    </main>
+</div>
