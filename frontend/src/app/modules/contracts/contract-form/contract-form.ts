@@ -200,7 +200,12 @@ export class ContractFormComponent implements OnInit {
 
         const val = this.form.getRawValue();
         const installments = Number(val.installments) || 1;
-        const startDate = new Date(val.startDate || new Date());
+        let startDate = new Date();
+        if (val.startDate) {
+            // Manual parse to ensure local time is used (avoid UTC shift)
+            const [year, month, day] = val.startDate.split('-').map(Number);
+            startDate = new Date(year, month - 1, day);
+        }
 
         const newSchedule = [];
         for (let i = 0; i < installments; i++) {

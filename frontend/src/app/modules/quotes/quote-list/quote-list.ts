@@ -10,6 +10,8 @@ import { ContractsService } from '../../contracts/contracts.service';
 import { Quote, QuoteStatus } from '../quotes.models';
 import { CustomTableComponent, TableColumn } from '../../../shared/components/custom-table/custom-table';
 import { ConfirmationDialogComponent } from '../../../shared/components/confirmation-dialog/confirmation-dialog';
+import { PdfService } from '../../../shared/services/pdf.service';
+import { SystemConfigService } from '../../configuration/system-config.service';
 
 @Component({
   selector: 'app-quote-list',
@@ -27,6 +29,8 @@ import { ConfirmationDialogComponent } from '../../../shared/components/confirma
 export class QuoteListComponent implements OnInit {
   quotesService = inject(QuotesService);
   contractsService = inject(ContractsService);
+  pdfService = inject(PdfService);
+  configService = inject(SystemConfigService);
   router = inject(Router);
   snackBar = inject(MatSnackBar);
   dialog = inject(MatDialog);
@@ -46,6 +50,12 @@ export class QuoteListComponent implements OnInit {
 
   ngOnInit() {
     this.loadData();
+  }
+
+  downloadPdf(quote: Quote) {
+    this.configService.getConfigs().subscribe(configs => {
+      this.pdfService.generateQuotePdf(quote, configs['clinic_info']?.value);
+    });
   }
 
   loadData() {

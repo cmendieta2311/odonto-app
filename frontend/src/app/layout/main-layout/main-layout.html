@@ -4,23 +4,27 @@
         class="flex w-64 flex-col border-r border-[#dbe4e6] dark:border-[#2a3e42] bg-surface-light dark:bg-surface-dark transition-colors duration-200 hidden md:flex">
         <div class="flex h-full flex-col justify-between p-4">
             <div class="flex flex-col gap-6 overflow-y-auto">
-                <!-- Logo / User Profile -->
-                <a routerLink="/profile"
-                    class="flex gap-3 items-center mb-2 px-2 hover:bg-gray-50 dark:hover:bg-white/5 p-2 rounded-lg transition-colors group cursor-pointer">
+                <!-- Logo / Business Name -->
+                <div class="flex gap-3 items-center mb-6 px-2">
                     <div
-                        class="bg-primary/20 rounded-full size-12 flex items-center justify-center text-primary group-hover:scale-105 transition-transform">
-                        <span class="material-symbols-outlined fill" style="font-size: 32px;">account_circle</span>
+                        class="bg-primary rounded-xl size-10 flex items-center justify-center text-white shadow-lg shadow-primary/20">
+                        <svg class="size-6" fill="currentColor" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M44 11.2727C44 14.0109 39.8386 16.3957 33.69 17.6364C39.8386 18.877 44 21.2618 44 24C44 26.7382 39.8386 29.123 33.69 30.3636C39.8386 31.6043 44 33.9891 44 36.7273C44 40.7439 35.0457 44 24 44C12.9543 44 4 40.7439 4 36.7273C4 33.9891 8.16144 31.6043 14.31 30.3636C8.16144 29.123 4 26.7382 4 24C4 21.2618 8.16144 18.877 14.31 17.6364C8.16144 16.3957 4 14.0109 4 11.2727C4 7.25611 12.9543 4 24 4C35.0457 4 44 7.25611 44 11.2727Z">
+                            </path>
+                        </svg>
                     </div>
                     <div class="flex flex-col">
-                        <h1 class="text-text-main-light dark:text-text-main-dark text-base font-bold leading-normal">
-                            {{ authService.currentUser()?.name || 'Usuario' }}
+                        <h1
+                            class="text-text-main-light dark:text-text-main-dark text-lg font-bold leading-none tracking-tight">
+                            DentalAdmin
                         </h1>
                         <p
-                            class="text-text-secondary-light dark:text-text-secondary-dark text-xs font-normal leading-normal">
-                            {{ authService.currentUser()?.role || 'Personal' }}
+                            class="text-text-secondary-light dark:text-text-secondary-dark text-[11px] font-medium uppercase tracking-wide mt-1">
+                            Gestión Odontológica
                         </p>
                     </div>
-                </a>
+                </div>
 
                 <!-- Navigation Groups -->
                 <div class="flex flex-col gap-6">

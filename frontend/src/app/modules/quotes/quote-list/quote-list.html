@@ -141,6 +141,11 @@
                 title="Eliminar">
                 <span class="material-symbols-outlined text-[20px]">delete</span>
             </button>
+            <button (click)="$event.stopPropagation(); downloadPdf(quote)"
+                class="p-1.5 text-text-secondary-light hover:text-blue-600 hover:bg-blue-500/10 rounded-lg transition-all"
+                title="Descargar PDF">
+                <span class="material-symbols-outlined text-[20px]">picture_as_pdf</span>
+            </button>
             <button *ngIf="quote.status === 'DRAFT' || quote.status === 'REJECTED'"
                 (click)="$event.stopPropagation(); updateStatus(quote, 'APPROVED')"
                 class="p-1.5 text-text-secondary-light hover:text-green-600 hover:bg-green-500/10 rounded-lg transition-all"

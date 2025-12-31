@@ -14,6 +14,7 @@ export interface QuoteItem {
     service?: Service;
     price?: number;
     quantity: number;
+    discount?: number;
 }
 
 export interface Quote {

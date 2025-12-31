@@ -12,6 +12,7 @@ import { Patient } from '../../patients/patients.models';
 import { Service } from '../../catalog/catalog.models';
 
 import { SystemConfigService } from '../../configuration/system-config.service';
+import { PdfService } from '../../../shared/services/pdf.service';
 
 @Component({
   selector: 'app-quote-form',
@@ -34,6 +35,7 @@ export class QuoteFormComponent implements OnInit {
   private catalogService = inject(CatalogService);
   private snackBar = inject(MatSnackBar);
   private configService = inject(SystemConfigService);
+  private pdfService = inject(PdfService);
 
   patients: Patient[] = [];
   services: Service[] = [];
@@ -323,5 +325,12 @@ export class QuoteFormComponent implements OnInit {
 
   print() {
     window.print();
+  }
+
+  downloadPdf() {
+    if (!this.quote) return;
+    this.configService.getConfigs().subscribe(configs => {
+      this.pdfService.generateQuotePdf(this.quote!, configs['clinic_info']?.value);
+    });
   }
 }
