@@ -3,17 +3,16 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: sgodonto_backend
+    container_name: sgodonto_backend_local
     environment:
-      DATABASE_URL: postgresql://sgodonto:password123@db:5432/sgodonto_db?schema=public
-      PORT: ${BACKEND_PORT}
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}?schema=public
+      PORT: 3000
       JWT_SECRET: ${JWT_SECRET}
-      CORS_ORIGIN: ${CORS_ORIGIN}
-      FORCE_REBUILD: "true"
+      CORS_ORIGIN: "http://localhost:8085"
     ports:
-      - "3001:${BACKEND_PORT}"
+      - "3001:3000"
     networks:
-      - dokploy-network
+      - local-network
     depends_on:
       - db
     restart: always
@@ -22,20 +21,21 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: sgodonto_frontend
+    container_name: sgodonto_frontend_local
     environment:
+      # Nginx config is static, but this forces rebuild if needed
       FORCE_REBUILD: "true"
     ports:
-      - "${FRONTEND_PORT:-8085}:80"
+      - "8085:80"
     networks:
-      - dokploy-network
+      - local-network
     depends_on:
       - backend
     restart: always
 
   db:
     image: postgres:15-alpine
-    container_name: sgodonto_db
+    container_name: sgodonto_db_local
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -43,15 +43,15 @@ services:
     ports:
       - "5433:5432"
     networks:
-      - dokploy-network
+      - local-network
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data_local:/var/lib/postgresql/data
     restart: always
 
 volumes:
-  postgres_data:
+  postgres_data_local:
 
 
 networks:
-  dokploy-network:
-    external: true
+  local-network:
+    driver: bridge

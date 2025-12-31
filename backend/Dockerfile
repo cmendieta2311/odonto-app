@@ -10,7 +10,7 @@ RUN npm ci
 
 COPY . .
 
-RUN rm -f prisma.config.ts prisma.config.js
+ENV DATABASE_URL="postgresql://dummy:5432/dummy"
 RUN npx prisma generate
 RUN npm run build
 

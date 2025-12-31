@@ -65,12 +65,6 @@ async function main() {
         });
     }
 
-    // Clear existing service catalog data
-    await prisma.service.deleteMany();
-    await prisma.serviceCategory.deleteMany();
-    await prisma.serviceArea.deleteMany();
-    console.log('Cleared existing catalog data');
-
     // Seed Service Areas & Categories
     const catalog = [
         {
@@ -133,16 +127,22 @@ async function main() {
     ];
 
     for (const areaData of catalog) {
-        const area = await prisma.serviceArea.create({
-            data: {
+        const area = await prisma.serviceArea.upsert({
+            where: { name: areaData.area },
+            update: {},
+            create: {
                 name: areaData.area,
                 tenantId: 'default'
             }
         });
 
         for (const catData of areaData.categories) {
-            const category = await prisma.serviceCategory.create({
-                data: {
+            const category = await prisma.serviceCategory.upsert({
+                where: { name: catData.name },
+                update: {
+                    areaId: area.id
+                },
+                create: {
                     name: catData.name,
                     areaId: area.id,
                     tenantId: 'default'
@@ -150,8 +150,15 @@ async function main() {
             });
 
             for (const srvData of catData.services) {
-                await prisma.service.create({
-                    data: {
+                await prisma.service.upsert({
+                    where: { code: srvData.code },
+                    update: {
+                        name: srvData.name,
+                        price: srvData.price,
+                        type: srvData.type as any,
+                        categoryId: category.id,
+                    },
+                    create: {
                         name: srvData.name,
                         code: srvData.code,
                         price: srvData.price,
