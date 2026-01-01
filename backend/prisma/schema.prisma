@@ -16,6 +16,7 @@ model User {
   updatedAt DateTime @updatedAt
   tenantId  String   @default("default")
   tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  appointments Appointment[]
 }
 
 model Patient {
@@ -36,6 +37,7 @@ model Patient {
   
   documentTypeId String?
   documentType   PersonDocumentType? @relation(fields: [documentTypeId], references: [id])
+  appointments   Appointment[]
 }
 
 
@@ -296,6 +298,35 @@ model SystemConfig {
   @@unique([tenantId, key])
 }
 
+
+model Appointment {
+  id          String            @id @default(uuid())
+  patientId   String?           // Optional for "Blocker" events or quick unregistered appts
+  dentistId   String?           // User ID of the doctor
+  startTime   DateTime
+  endTime     DateTime
+  title       String?           // Reason or display title
+  notes       String?
+  status      AppointmentStatus @default(PENDING)
+  
+  patient     Patient? @relation(fields: [patientId], references: [id])
+  dentist     User?    @relation(fields: [dentistId], references: [id]) 
+  
+  tenantId    String   @default("default")
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+enum AppointmentStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
 model Tenant {
   id          String       @id @default(uuid())
   name        String
@@ -314,10 +345,11 @@ model Tenant {
   configs           SystemConfig[]
   serviceCategories ServiceCategory[]
   serviceAreas      ServiceArea[]
-  offices           Office[]
-  proformas         Proforma[]
-  invoiceItems      InvoiceItem[]
+  offices       Office[]
+  proformas     Proforma[]
+  invoiceItems  InvoiceItem[]
   personDocumentTypes PersonDocumentType[]
+  appointments  Appointment[]
 }
 
 model PersonDocumentType {

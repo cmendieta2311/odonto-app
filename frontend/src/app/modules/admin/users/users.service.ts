@@ -11,8 +11,10 @@ export class UsersService {
     private http = inject(HttpClient);
     private apiUrl = `${environment.apiUrl}/users`;
 
-    getUsers(): Observable<User[]> {
-        return this.http.get<User[]>(this.apiUrl);
+    getUsers(role?: string): Observable<User[]> {
+        const params: any = {};
+        if (role) params.role = role;
+        return this.http.get<User[]>(this.apiUrl, { params });
     }
 
     getUser(id: string): Observable<User> {

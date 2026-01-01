@@ -4,12 +4,26 @@ import { Router } from '@angular/router';
 import { tap } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
+
+interface User {
+    id?: string;
+    email?: string;
+    name?: string;
+    role?: string;
+    tenantId?: string;
+    token?: string;
+}
+
+interface AuthResponse {
+    access_token: string;
+}
+
 @Injectable({
     providedIn: 'root',
 })
 export class AuthService {
     private apiUrl = `${environment.apiUrl}/auth`;
-    currentUser = signal<any>(null);
+    currentUser = signal<User | null>(null);
 
     constructor(private http: HttpClient, private router: Router) {
         const token = localStorage.getItem('access_token');
@@ -25,7 +39,7 @@ export class AuthService {
     }
 
     getProfile() {
-        return this.http.get<any>(`${this.apiUrl}/profile`).pipe(
+        return this.http.get<User>(`${this.apiUrl}/profile`).pipe(
             tap(user => {
                 const current = this.currentUser();
                 this.currentUser.set({ ...current, ...user });
@@ -34,7 +48,7 @@ export class AuthService {
     }
 
     login(credentials: any) {
-        return this.http.post<{ access_token: string }>(`${this.apiUrl}/login`, credentials).pipe(
+        return this.http.post<AuthResponse>(`${this.apiUrl}/login`, credentials).pipe(
             tap((response) => {
                 localStorage.setItem('access_token', response.access_token);
                 this.currentUser.set({ token: response.access_token });

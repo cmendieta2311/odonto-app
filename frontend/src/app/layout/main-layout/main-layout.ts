@@ -2,13 +2,15 @@ import { Component, inject } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { NavBarComponent } from '../nav-bar/nav-bar';
 import { AuthService } from '../../auth/auth.service';
+import { BrandLogoComponent } from '../../shared/components/brand-logo/brand-logo.component';
+
 
 import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-main-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, NavBarComponent],
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, NavBarComponent, BrandLogoComponent],
   templateUrl: './main-layout.html',
   styleUrl: './main-layout.css'
 })
@@ -60,6 +62,7 @@ export class MainLayoutComponent {
           ]
         },
         { label: 'Usuarios y Roles', icon: 'manage_accounts', route: '/configuration/users' },
+        { label: 'Profesionales', icon: 'dentistry', route: '/configuration/professionals' },
         { label: 'Impresión', icon: 'print', route: '/configuration/printing' }
       ]
     },

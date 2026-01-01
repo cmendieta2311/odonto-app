@@ -19,6 +19,10 @@ export const routes: Routes = [
                 loadComponent: () => import('./modules/profile/profile').then(m => m.ProfileComponent)
             },
             {
+                path: 'agenda',
+                loadComponent: () => import('./modules/agenda/agenda.component').then(m => m.AgendaComponent)
+            },
+            {
                 path: 'admin/users',
                 loadComponent: () => import('./modules/admin/users/user-list/user-list').then(m => m.UserListComponent)
             },
@@ -109,6 +113,10 @@ export const routes: Routes = [
                     {
                         path: 'users',
                         loadComponent: () => import('./modules/admin/users/user-list/user-list').then(m => m.UserListComponent)
+                    },
+                    {
+                        path: 'professionals',
+                        loadComponent: () => import('./modules/configuration/professionals/professionals.component').then(m => m.ProfessionalsComponent)
                     },
                     {
                         path: 'printing',

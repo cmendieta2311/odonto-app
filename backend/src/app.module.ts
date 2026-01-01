@@ -16,6 +16,7 @@ import { ClinicalModule } from './clinical/clinical.module';
 import { OfficesModule } from './configuration/offices/offices.module';
 import { SystemConfigModule } from './configuration/system-config/system-config.module';
 import { DocumentTypesModule } from './configuration/document-types/document-types.module';
+import { AppointmentsModule } from './appointments/appointments.module';
 
 @Module({
   imports: [
@@ -33,7 +34,8 @@ import { DocumentTypesModule } from './configuration/document-types/document-typ
     ClinicalModule,
     OfficesModule,
     SystemConfigModule,
-    DocumentTypesModule
+    DocumentTypesModule,
+    AppointmentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

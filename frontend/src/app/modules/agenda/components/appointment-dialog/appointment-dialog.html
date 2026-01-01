@@ -1,0 +1,189 @@
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" *ngIf="isOpen"
+    (click)="close()">
+    <!-- Stop propagation to prevent closing when clicking inside the modal -->
+    <div class="bg-white dark:bg-surface-dark rounded-xl shadow-2xl w-full max-w-lg overflow-hidden animate-fade-in-up transform transition-all"
+        (click)="$event.stopPropagation()">
+
+        <!-- Header -->
+        <div
+            class="flex items-center justify-between px-6 py-5 border-b border-border-light dark:border-border-dark bg-white dark:bg-surface-dark">
+            <h2 class="text-xl font-bold text-text-main-light dark:text-white flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary">{{ isEdit ? 'edit_calendar' : 'add_circle'
+                    }}</span>
+                {{ isEdit ? 'Editar Cita' : 'Nueva Cita' }}
+            </h2>
+            <button
+                class="btn-icon p-1 rounded-full text-text-secondary-light hover:text-text-main-light hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
+                (click)="close()">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+
+        <!-- Body -->
+        <div class="p-6 flex flex-col gap-5 bg-white dark:bg-surface-dark">
+
+            <!-- Patient Search (Floating-like input) -->
+            <div class="flex flex-col gap-1.5 z-20">
+                <label class="text-xs font-bold uppercase tracking-wider text-text-secondary-light">
+                    Paciente <span class="text-red-500">*</span>
+                </label>
+                <div class="relative group">
+                    <span
+                        class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors">search</span>
+                    <input type="text" [ngModel]="patientName" (input)="onSearchInput($event)"
+                        placeholder="Buscar por nombre o DNI..." [class.border-red-500]="errors.patient"
+                        class="form-input w-full pl-10 h-10 rounded-lg border border-border-light hover:border-gray-400 focus:border-primary focus:ring-1 focus:ring-primary dark:bg-white/5 dark:border-white/10 dark:text-white transition-all shadow-sm" />
+                    <span *ngIf="errors.patient" class="text-xs text-red-500 mt-1">El paciente es obligatorio</span>
+
+                    <!-- Results Dropdown -->
+                    <div *ngIf="showResults && searchResults.length > 0"
+                        class="absolute z-10 w-full mt-1 bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl shadow-xl max-h-60 overflow-y-auto custom-scrollbar">
+                        <div *ngFor="let patient of searchResults"
+                            class="px-4 py-3 hover:bg-gray-50 dark:hover:bg-white/5 cursor-pointer flex items-center justify-between border-b border-border-light dark:border-border-dark last:border-0 transition-colors group/item"
+                            (click)="selectPatient(patient)">
+                            <div class="flex flex-col">
+                                <span
+                                    class="font-medium text-text-main-light dark:text-white text-sm group-hover/item:text-primary transition-colors">{{
+                                    patient.firstName }} {{ patient.lastName }}</span>
+                                <span class="text-xs text-text-secondary-light">DNI: {{ patient.dni }}</span>
+                            </div>
+                            <span
+                                class="material-symbols-outlined text-gray-300 group-hover/item:text-primary text-sm">chevron_right</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Row 1: Date, Time, Duration -->
+            <div class="grid grid-cols-3 gap-5">
+                <!-- Date Input -->
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-bold uppercase tracking-wider text-text-secondary-light">
+                        Fecha <span class="text-red-500">*</span>
+                    </label>
+                    <div class="relative group">
+                        <span
+                            class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors text-[20px]">calendar_today</span>
+                        <input type="date" [(ngModel)]="date" (change)="errors.date = false"
+                            [class.border-red-500]="errors.date"
+                            class="form-input w-full h-10 pl-10 rounded-lg border border-border-light hover:border-gray-400 focus:border-primary focus:ring-1 focus:ring-primary dark:bg-white/5 dark:border-white/10 dark:text-white transition-all shadow-sm text-sm" />
+                    </div>
+                    <span *ngIf="errors.date" class="text-xs text-red-500">Obligatorio</span>
+                </div>
+                <!-- Time Input -->
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-bold uppercase tracking-wider text-text-secondary-light">
+                        Hora <span class="text-red-500">*</span>
+                    </label>
+                    <div class="relative group">
+                        <span
+                            class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors text-[20px]">schedule</span>
+                        <input type="time" [(ngModel)]="startTime" (change)="errors.time = false"
+                            [class.border-red-500]="errors.time"
+                            class="form-input w-full h-10 pl-10 rounded-lg border border-border-light hover:border-gray-400 focus:border-primary focus:ring-1 focus:ring-primary dark:bg-white/5 dark:border-white/10 dark:text-white transition-all shadow-sm text-sm" />
+                    </div>
+                    <span *ngIf="errors.time" class="text-xs text-red-500">Obligatorio</span>
+                </div>
+                <!-- Duration Select -->
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-bold uppercase tracking-wider text-text-secondary-light">
+                        Duración <span class="text-red-500">*</span>
+                    </label>
+                    <div class="relative group">
+                        <span
+                            class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors text-[20px]">timer</span>
+                        <select [(ngModel)]="duration"
+                            class="form-select w-full h-10 pl-10 rounded-lg border border-border-light hover:border-gray-400 focus:border-primary focus:ring-1 focus:ring-primary dark:bg-white/5 dark:border-white/10 dark:text-white transition-all shadow-sm text-sm cursor-pointer">
+                            <option [value]="15">15 min</option>
+                            <option [value]="30">30 min</option>
+                            <option [value]="45">45 min</option>
+                            <option [value]="60">1 hora</option>
+                            <option [value]="90">1.5 horas</option>
+                        </select>
+                    </div>
+                    <span *ngIf="errors.duration" class="text-xs text-red-500">Obligatorio</span>
+                </div>
+            </div>
+
+            <!-- Row 2: Dentist, Status -->
+            <div class="grid grid-cols-2 gap-5">
+                <!-- Dentist Select -->
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-bold uppercase tracking-wider text-text-secondary-light">
+                        Odontólogo <span class="text-red-500">*</span>
+                    </label>
+                    <div class="relative group">
+                        <span
+                            class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors text-[20px]">dentistry</span>
+                        <select [(ngModel)]="dentistId"
+                            class="form-select w-full h-10 pl-10 pr-8 rounded-lg border border-border-light hover:border-gray-400 focus:border-primary focus:ring-1 focus:ring-primary dark:bg-white/5 dark:border-white/10 dark:text-white transition-all shadow-sm text-sm cursor-pointer appearance-none">
+                            <option value="" disabled>Seleccionar...</option>
+                            <option *ngFor="let dentist of dentists" [value]="dentist.id">{{ dentist.name }}</option>
+                        </select>
+                        <span
+                            class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 material-symbols-outlined text-sm">expand_more</span>
+                    </div>
+                    <span *ngIf="errors.dentist" class="text-xs text-red-500">Obligatorio</span>
+                </div>
+                <!-- Status Select -->
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-bold uppercase tracking-wider text-text-secondary-light">Estado</label>
+                    <div class="relative group">
+                        <span
+                            class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors text-[20px]">bookmark</span>
+                        <select [(ngModel)]="status"
+                            class="form-select w-full h-10 pl-10 rounded-lg border border-border-light hover:border-gray-400 focus:border-primary focus:ring-1 focus:ring-primary dark:bg-white/5 dark:border-white/10 dark:text-white transition-all shadow-sm text-sm cursor-pointer">
+                            <option value="PENDING">Pendiente</option>
+                            <option value="CONFIRMED">Confirmada</option>
+                            <option value="COMPLETED">Realizada</option>
+                            <option value="CANCELLED">Cancelada</option>
+                            <option value="NO_SHOW">No asistió</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Row 3: Notes (Full Width) -->
+            <div class="flex flex-col gap-1.5 w-full">
+                <label class="text-xs font-bold uppercase tracking-wider text-text-secondary-light">Notas</label>
+                <div class="relative group">
+                    <span
+                        class="material-symbols-outlined absolute left-3 top-3 text-gray-400 group-focus-within:text-primary transition-colors text-[20px]">description</span>
+                    <textarea [(ngModel)]="notes" rows="3"
+                        class="form-input w-full pl-10 rounded-lg border border-border-light hover:border-gray-400 focus:border-primary focus:ring-1 focus:ring-primary dark:bg-white/5 dark:border-white/10 dark:text-white transition-all shadow-sm text-sm align-top resize-none py-2"
+                        placeholder="Escribe detalles de la consulta..."></textarea>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Footer -->
+        <div
+            class="flex items-center justify-between px-6 py-4 bg-gray-50 dark:bg-white/5 border-t border-border-light dark:border-border-dark">
+
+            <div>
+                <button *ngIf="isEdit"
+                    class="px-4 py-2 rounded-lg text-sm font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors flex items-center gap-1"
+                    (click)="delete()">
+                    <span class="material-symbols-outlined text-lg">delete</span>
+                    Eliminar
+                </button>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <button
+                    class="px-4 py-2 rounded-lg text-sm font-bold text-text-secondary-light hover:bg-gray-200 dark:hover:bg-white/10 transition-colors"
+                    (click)="close()">
+                    Cancelar
+                </button>
+                <button
+                    class="px-5 py-2 rounded-lg bg-primary hover:bg-primary-hover text-white text-sm font-bold shadow-md shadow-primary/20 transition-all active:scale-95 flex items-center gap-2"
+                    (click)="save()">
+                    <span class="material-symbols-outlined text-sm">save</span>
+                    Guardar Cita
+                </button>
+            </div>
+        </div>
+
+    </div>
+</div>

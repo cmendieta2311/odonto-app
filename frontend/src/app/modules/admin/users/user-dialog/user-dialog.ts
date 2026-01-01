@@ -20,12 +20,12 @@ export class UserDialogComponent {
 
     constructor(
         public dialogRef: MatDialogRef<UserDialogComponent>,
-        @Inject(MAT_DIALOG_DATA) public data: { user?: User }
+        @Inject(MAT_DIALOG_DATA) public data: { user?: User; fixedRole?: Role }
     ) {
         this.form = this.fb.group({
             name: [data.user?.name || '', Validators.required],
             email: [data.user?.email || '', [Validators.required, Validators.email]],
-            role: [data.user?.role || Role.ODONTOLOGO, Validators.required],
+            role: [{ value: data.fixedRole || data.user?.role || Role.ODONTOLOGO, disabled: !!data.fixedRole }, Validators.required],
             password: ['', data.user ? [] : [Validators.required, Validators.minLength(6)]]
         });
     }
@@ -34,7 +34,7 @@ export class UserDialogComponent {
         if (this.form.invalid) return;
 
         this.isSaving = true;
-        const formValue = this.form.value;
+        const formValue = this.form.getRawValue(); // Use getRawValue() to include disabled fields
 
         if (this.data.user) {
             // Update

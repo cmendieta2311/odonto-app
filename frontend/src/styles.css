@@ -9,6 +9,12 @@
   }
 }
 
+@layer components {
+  .btn-icon {
+    @apply flex items-center justify-center rounded-lg size-10 bg-background-light dark:bg-background-dark text-text-main-light dark:text-text-main-dark hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors cursor-pointer border-none;
+  }
+}
+
 .material-symbols-outlined {
   font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
