@@ -2,7 +2,7 @@
     class="flex items-center justify-between whitespace-nowrap border-b border-[#dbe4e6] dark:border-[#2a3e42] bg-surface-light dark:bg-surface-dark px-6 py-3 transition-colors duration-200">
     <div class="flex items-center gap-4 text-text-main-light dark:text-text-main-dark">
         <!-- Mobile Menu Button (Visible on small screens) -->
-        <button class="md:hidden p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800">
+        <button class="md:hidden p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800" (click)="onToggleMenu()">
             <span class="material-symbols-outlined">menu</span>
         </button>
         <div class="md:hidden">

@@ -1,11 +1,11 @@
-import { Component, inject } from '@angular/core';
-import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/router';
+import { Component, inject, DestroyRef } from '@angular/core';
+import { RouterOutlet, RouterLink, RouterLinkActive, Router, NavigationEnd } from '@angular/router';
 import { NavBarComponent } from '../nav-bar/nav-bar';
 import { AuthService } from '../../auth/auth.service';
 import { BrandLogoComponent } from '../../shared/components/brand-logo/brand-logo.component';
-
-
 import { CommonModule } from '@angular/common';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-main-layout',
@@ -17,6 +17,26 @@ import { CommonModule } from '@angular/common';
 export class MainLayoutComponent {
   authService = inject(AuthService);
   private router = inject(Router);
+  private destroyRef = inject(DestroyRef);
+  mobileMenuOpen = false;
+
+  constructor() {
+    // Close mobile menu on any navigation
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(() => {
+      this.closeMobileMenu();
+    });
+  }
+
+  toggleMobileMenu() {
+    this.mobileMenuOpen = !this.mobileMenuOpen;
+  }
+
+  closeMobileMenu() {
+    this.mobileMenuOpen = false;
+  }
 
   mainMenu = [
     {

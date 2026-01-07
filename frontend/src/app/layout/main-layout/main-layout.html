@@ -61,7 +61,62 @@
 
     <!-- Main Content -->
     <main class="flex-1 flex flex-col h-full overflow-hidden bg-background-light dark:bg-background-dark relative">
-        <app-nav-bar></app-nav-bar>
+        <app-nav-bar (toggleMenu)="toggleMobileMenu()"></app-nav-bar>
+
+        <!-- Mobile Sidebar Drawer -->
+        <div *ngIf="mobileMenuOpen" class="fixed inset-0 z-50 flex md:hidden">
+            <!-- Backdrop -->
+            <div class="fixed inset-0 bg-black/50 transition-opacity" (click)="closeMobileMenu()"></div>
+
+            <!-- Drawer -->
+            <aside
+                class="relative w-64 h-full bg-surface-light dark:bg-surface-dark shadow-xl flex flex-col overflow-y-auto animate-in slide-in-from-left duration-200">
+                <div class="p-4 flex flex-col gap-6">
+                    <!-- Logo -->
+                    <div class="px-2 cursor-pointer" (click)="closeMobileMenu()">
+                        <app-brand-logo></app-brand-logo>
+                    </div>
+
+                    <!-- Navigation -->
+                    <!-- Reusing the logic from desktop sidebar but adapted for mobile actions -->
+                    <nav class="flex flex-col gap-6">
+                        <div *ngFor="let group of menuGroups">
+                            <p class="text-[#618389] text-xs font-bold uppercase tracking-wider mb-2 px-3">
+                                {{group.title}}</p>
+                            <div class="flex flex-col gap-1">
+                                <ng-container *ngFor="let item of group.items">
+                                    <!-- Item with Children -->
+                                    <div *ngIf="item.children" class="flex flex-col gap-1">
+                                        <div
+                                            class="px-3 py-2 flex items-center gap-3 text-gray-600 dark:text-gray-300 font-bold">
+                                            <span class="material-symbols-outlined text-[20px]">{{item.icon}}</span>
+                                            <span class="text-sm flex-1">{{item.label}}</span>
+                                        </div>
+                                        <div
+                                            class="flex flex-col gap-1 pl-10 border-l border-gray-200 dark:border-gray-700 ml-5">
+                                            <a *ngFor="let child of item.children" [routerLink]="child.route"
+                                                (click)="closeMobileMenu()" routerLinkActive="text-primary font-bold"
+                                                class="text-sm text-gray-500 dark:text-gray-400 py-1">
+                                                {{child.label}}
+                                            </a>
+                                        </div>
+                                    </div>
+
+                                    <!-- Standard Item -->
+                                    <a *ngIf="!item.children" [routerLink]="item.route" (click)="closeMobileMenu()"
+                                        routerLinkActive="active bg-primary/10 text-primary font-bold"
+                                        class="nav-link flex items-center gap-3 px-3 py-2 rounded-lg text-gray-600 dark:text-gray-300 transition-colors">
+                                        <span class="material-symbols-outlined text-[20px]"
+                                            [ngClass]="{'fill-1': item.icon === 'receipt_long'}">{{item.icon}}</span>
+                                        <span class="text-sm font-medium">{{item.label}}</span>
+                                    </a>
+                                </ng-container>
+                            </div>
+                        </div>
+                    </nav>
+                </div>
+            </aside>
+        </div>
 
         <div class="flex-1 overflow-y-auto p-4 md:p-8">
             <div class="max-w-7xl mx-auto flex flex-col gap-6">
