@@ -1,4 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
+import { BaseListComponent } from '../../../shared/classes/base-list.component';
 import { CommonModule } from '@angular/common';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -26,19 +27,14 @@ import { SystemConfigService } from '../../configuration/system-config.service';
   templateUrl: './quote-list.html',
   styleUrl: './quote-list.css'
 })
-export class QuoteListComponent implements OnInit {
+export class QuoteListComponent extends BaseListComponent<Quote> implements OnInit {
   quotesService = inject(QuotesService);
   contractsService = inject(ContractsService);
   pdfService = inject(PdfService);
   configService = inject(SystemConfigService);
   router = inject(Router);
-  snackBar = inject(MatSnackBar);
-  dialog = inject(MatDialog);
   QuoteStatus = QuoteStatus;
 
-  quotes: Quote[] = [];
-  filteredQuotes: Quote[] = [];
-  searchQuery = '';
   statusFilter = '';
 
   columns: TableColumn[] = [
@@ -48,33 +44,35 @@ export class QuoteListComponent implements OnInit {
     { key: 'status', label: 'Estado' }
   ];
 
-  ngOnInit() {
-    this.loadData();
+  override ngOnInit() {
+    super.ngOnInit();
   }
 
   downloadPdf(quote: Quote) {
-    this.configService.getConfigs().subscribe(configs => {
-      this.pdfService.generateQuotePdf(quote, configs['clinic_info']?.value);
+    this.quotesService.getQuote(quote.id).subscribe(fullQuote => {
+      if (!fullQuote) return;
+      this.configService.getConfigs().subscribe(configs => {
+        this.pdfService.generateQuotePdf(fullQuote, configs['clinic_info']);
+      });
     });
   }
 
   loadData() {
-    this.quotesService.getQuotes().subscribe(data => {
-      this.quotes = data;
-      this.applyFilters();
-    });
+    this.isLoading = true;
+    this.quotesService.getQuotes(this.page, this.pageSize, this.searchQuery, this.statusFilter)
+      .subscribe({
+        next: (res) => {
+          this.data = res.data;
+          this.totalItems = res.meta.total;
+          this.isLoading = false;
+        },
+        error: (err) => this.handleError(err)
+      });
   }
 
-  applyFilters() {
-    this.filteredQuotes = this.quotes.filter(q => {
-      const matchesSearch = !this.searchQuery ||
-        `${q.patient?.firstName} ${q.patient?.lastName}`.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-        q.id.toLowerCase().includes(this.searchQuery.toLowerCase());
-
-      const matchesStatus = !this.statusFilter || q.status === this.statusFilter;
-
-      return matchesSearch && matchesStatus;
-    });
+  onStatusChange() {
+    this.page = 1;
+    this.loadData();
   }
 
   navigateToQuoteForm(quoteId?: string) {

@@ -1,7 +1,8 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { Patient } from './patients.models';
+import { PaginatedResult } from '../../shared/interfaces/paginated-result';
 
 @Injectable({
     providedIn: 'root'
@@ -10,10 +11,16 @@ export class PatientsService {
     private http = inject(HttpClient);
     private apiUrl = environment.apiUrl;
 
-    getPatients(search?: string) {
-        const params: any = {};
-        if (search) params.search = search;
-        return this.http.get<Patient[]>(`${this.apiUrl}/patients`, { params });
+    getPatients(page: number = 1, limit: number = 10, search: string = '') {
+        let params = new HttpParams()
+            .set('page', page.toString())
+            .set('limit', limit.toString());
+
+        if (search) {
+            params = params.set('search', search);
+        }
+
+        return this.http.get<PaginatedResult<Patient>>(`${this.apiUrl}/patients`, { params });
     }
 
     getPatient(id: string) {

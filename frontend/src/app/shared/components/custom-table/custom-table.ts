@@ -3,18 +3,18 @@ import { CommonModule } from '@angular/common';
 import { Output, EventEmitter, TemplateRef } from '@angular/core';
 
 export interface TableColumn {
-    key: string;
-    label: string;
-    class?: string;
-    headerClass?: string;
-    hiddenOnMobile?: boolean;
+  key: string;
+  label: string;
+  class?: string;
+  headerClass?: string;
+  hiddenOnMobile?: boolean;
 }
 
 @Component({
-    selector: 'app-custom-table',
-    standalone: true,
-    imports: [CommonModule],
-    template: `
+  selector: 'app-custom-table',
+  standalone: true,
+  imports: [CommonModule],
+  template: `
     <div class="bg-surface-light dark:bg-surface-dark rounded-xl border border-[#dbe4e6] dark:border-[#2a3e42] shadow-sm overflow-hidden flex flex-col">
       <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
@@ -71,38 +71,85 @@ export interface TableColumn {
       </div>
       
       <!-- Pagination -->
-      <div *ngIf="showPagination" class="p-4 border-t border-[#dbe4e6] dark:border-[#2a3e42] flex flex-col sm:flex-row items-center justify-between gap-4">
-        <span class="text-sm text-text-secondary-light dark:text-text-secondary-dark">
-          Mostrando <span class="font-bold text-text-main-light dark:text-text-main-dark">1-{{data.length}}</span> de <span class="font-bold text-text-main-light dark:text-text-main-dark">{{totalItems || data.length}}</span> resultados
-        </span>
+      <!-- Pagination -->
+      <div *ngIf="showPagination && totalItems > 0" class="p-4 border-t border-[#dbe4e6] dark:border-[#2a3e42] flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="flex items-center gap-4">
+          <div class="flex items-center gap-2">
+            <label class="text-xs text-text-secondary-light dark:text-text-secondary-dark">Ver:</label>
+            <select 
+              [value]="pageSize" 
+              (change)="onPageSizeChange($event)"
+              class="bg-background-light dark:bg-background-dark border border-[#dbe4e6] dark:border-[#2a3e42] text-text-main-light dark:text-text-main-dark text-xs rounded-lg px-2 py-1 outline-none cursor-pointer focus:border-primary transition-colors">
+              <option *ngFor="let size of pageSizeOptions" [value]="size" [selected]="size === pageSize">{{size}}</option>
+            </select>
+          </div>
+          <span class="text-sm text-text-secondary-light dark:text-text-secondary-dark">
+            <span class="font-bold text-text-main-light dark:text-text-main-dark">{{startItemIndex}}-{{endItemIndex}}</span> de <span class="font-bold text-text-main-light dark:text-text-main-dark">{{totalItems}}</span> resultados
+          </span>
+        </div>
         <div class="flex items-center gap-2">
-          <button class="px-3 py-1.5 rounded-lg border border-[#dbe4e6] dark:border-[#2a3e42] text-sm text-text-secondary-light dark:text-text-secondary-dark hover:bg-background-light dark:hover:bg-background-dark disabled:opacity-50" [disabled]="true">
+          <button 
+            class="px-3 py-1.5 rounded-lg border border-[#dbe4e6] dark:border-[#2a3e42] text-sm text-text-secondary-light dark:text-text-secondary-dark hover:bg-background-light dark:hover:bg-background-dark disabled:opacity-50 disabled:cursor-not-allowed" 
+            [disabled]="page === 1"
+            (click)="changePage(page - 1)">
             Anterior
           </button>
-          <button class="size-8 rounded-lg bg-primary text-white text-sm font-bold flex items-center justify-center">1</button>
-          <button class="px-3 py-1.5 rounded-lg border border-[#dbe4e6] dark:border-[#2a3e42] text-sm text-text-main-light dark:text-text-main-dark hover:bg-background-light dark:hover:bg-background-dark transition-colors">
+          <span class="text-sm font-medium px-2">Página {{page}} de {{totalPages}}</span>
+          <button 
+            class="px-3 py-1.5 rounded-lg border border-[#dbe4e6] dark:border-[#2a3e42] text-sm text-text-main-light dark:text-text-main-dark hover:bg-background-light dark:hover:bg-background-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            [disabled]="page >= totalPages"
+            (click)="changePage(page + 1)">
             Siguiente
           </button>
         </div>
       </div>
     </div>
   `,
-    styles: [`
+  styles: [`
     :host { display: block; }
   `]
 })
 export class CustomTableComponent {
-    @Input({ required: true }) columns: TableColumn[] = [];
-    @Input({ required: true }) data: any[] = [];
-    @Input() totalItems?: number;
-    @Input() hasActions = true;
-    @Input() showEdit = true;
-    @Input() showDelete = true;
-    @Input() showPagination = true;
+  @Input({ required: true }) columns: TableColumn[] = [];
+  @Input({ required: true }) data: any[] = [];
+  @Input() totalItems = 0;
+  @Input() page = 1;
+  @Input() pageSize = 10;
+  @Input() hasActions = true;
+  @Input() showEdit = true;
+  @Input() showDelete = true;
+  @Input() showPagination = true;
 
-    @Input() columnTemplates: { [key: string]: TemplateRef<any> } = {};
-    @Input() extraActionsTemplate?: TemplateRef<any>;
+  @Input() columnTemplates: { [key: string]: TemplateRef<any> } = {};
+  @Input() extraActionsTemplate?: TemplateRef<any>;
 
-    @Output() onEdit = new EventEmitter<any>();
-    @Output() onDelete = new EventEmitter<any>();
+  @Output() onEdit = new EventEmitter<any>();
+  @Output() onDelete = new EventEmitter<any>();
+  @Output() pageChange = new EventEmitter<number>();
+
+  @Input() pageSizeOptions = [5, 10, 20, 50, 100];
+  @Output() pageSizeChange = new EventEmitter<number>();
+
+  get totalPages(): number {
+    return Math.ceil(this.totalItems / this.pageSize) || 1;
+  }
+
+  get startItemIndex(): number {
+    return (this.page - 1) * this.pageSize + 1;
+  }
+
+  get endItemIndex(): number {
+    return Math.min(this.page * this.pageSize, this.totalItems);
+  }
+
+  changePage(newPage: number) {
+    if (newPage >= 1 && newPage <= this.totalPages) {
+      this.pageChange.emit(newPage);
+    }
+  }
+
+  onPageSizeChange(event: Event) {
+    const newSize = Number((event.target as HTMLSelectElement).value);
+    this.pageSizeChange.emit(newSize);
+  }
 }

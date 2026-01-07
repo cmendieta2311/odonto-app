@@ -127,7 +127,8 @@ export class InvoiceFormComponent implements OnInit {
                 this.isSearching = true;
                 this.showSuggestions = true;
             }),
-            switchMap(term => this.patientsService.getPatients(term || '').pipe(
+            switchMap(term => this.patientsService.getPatients(1, 10, term || '').pipe(
+                map(res => res.data),
                 finalize(() => this.isSearching = false)
             ))
         ).subscribe({
@@ -158,7 +159,7 @@ export class InvoiceFormComponent implements OnInit {
     }
 
     loadPatients() {
-        this.patientsService.getPatients().subscribe(data => this.patients = data);
+        this.patientsService.getPatients().subscribe(res => this.patients = res.data);
     }
 
     loadServices() {

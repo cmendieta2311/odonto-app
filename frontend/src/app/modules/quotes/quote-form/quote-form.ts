@@ -208,8 +208,8 @@ export class QuoteFormComponent implements OnInit {
   searchPatients(query: string) {
     this.isSearching = true;
     this.showPatientDropdown = true;
-    this.patientsService.getPatients(query).subscribe(results => {
-      this.patients = results;
+    this.patientsService.getPatients(1, 10, query).subscribe(res => {
+      this.patients = res.data;
       this.isSearching = false;
     });
   }
@@ -275,6 +275,40 @@ export class QuoteFormComponent implements OnInit {
     }
 
     this.total = this.subtotal - this.discounts + this.financingInterest;
+
+    this.calculateSchedule();
+  }
+
+  paymentSchedule: { installment: number, dueDate: Date, amount: number }[] = [];
+
+  calculateSchedule() {
+    this.paymentSchedule = [];
+    const financingEnabled = this.form.get('financingEnabled')?.value;
+
+    if (!financingEnabled) return;
+
+    const installments = this.form.get('installments')?.value || 1;
+    const initialPayment = this.form.get('initialPayment')?.value || 0;
+
+    // Amount to finance is Total minus Initial Payment
+    // Note: total already includes interest if applicable
+    const financedAmount = Math.max(0, this.total - initialPayment);
+
+    if (financedAmount <= 0) return;
+
+    const installmentAmount = financedAmount / installments;
+    const today = new Date();
+
+    for (let i = 1; i <= installments; i++) {
+      const dueDate = new Date(today);
+      dueDate.setMonth(dueDate.getMonth() + i); // Assuming monthly payments
+
+      this.paymentSchedule.push({
+        installment: i,
+        dueDate: dueDate,
+        amount: installmentAmount
+      });
+    }
   }
 
   isSaving = false;
@@ -330,7 +364,7 @@ export class QuoteFormComponent implements OnInit {
   downloadPdf() {
     if (!this.quote) return;
     this.configService.getConfigs().subscribe(configs => {
-      this.pdfService.generateQuotePdf(this.quote!, configs['clinic_info']?.value);
+      this.pdfService.generateQuotePdf(this.quote!, configs['clinic_info']);
     });
   }
 }

@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { Quote } from './quotes.models';
+import { PaginatedResult } from '../../shared/interfaces/paginated-result';
 
 @Injectable({
     providedIn: 'root'
@@ -10,8 +11,12 @@ export class QuotesService {
     private http = inject(HttpClient);
     private apiUrl = environment.apiUrl;
 
-    getQuotes() {
-        return this.http.get<Quote[]>(`${this.apiUrl}/quotes`);
+    getQuotes(page = 1, limit = 10, search = '', status = '') {
+        let params: any = { page, limit };
+        if (search) params.search = search;
+        if (status) params.status = status;
+
+        return this.http.get<PaginatedResult<Quote>>(`${this.apiUrl}/quotes`, { params });
     }
 
     getQuote(id: string) {

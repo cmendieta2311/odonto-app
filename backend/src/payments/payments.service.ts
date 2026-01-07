@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
+import { GetPaymentsDto } from './dto/get-payments.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreditStatus } from '@prisma/client';
 
@@ -110,13 +111,13 @@ export class PaymentsService {
     }
 
     // 2. Legacy Flow: Paying Contract directly (Auto-generate Invoice)
-    // NOTE: This now auto-generates a PAID invoice (Receipt)
+    // NOTE: This now auto-generates a PAID invoice (Factura Contado)
     if (contractId) {
       const contract = await this.prisma.contract.findUnique({
         where: { id: contractId },
         include: {
           creditSchedule: true,
-          quote: true
+          quote: true // quote has patientId scalar
         }
       });
 
@@ -136,8 +137,8 @@ export class PaymentsService {
         if (pendingScheduleAmount >= Number(amount)) {
           console.log(`[Self-Healing] Contract ${contract.id} balance corrected from ${effectiveBalance} to ${pendingScheduleAmount}`);
           effectiveBalance = pendingScheduleAmount;
-          // We don't update DB yet, we let the transaction below handle the subtraction from this new effective balance
         } else {
+          // Allow small floating point tolerance or just proceed with strict check
           throw new BadRequestException(
             `Payment amount ($${amount}) exceeds contract balance ($${effectiveBalance}) and schedule sum ($${pendingScheduleAmount})`
           );
@@ -145,7 +146,7 @@ export class PaymentsService {
       }
 
       return this.prisma.$transaction(async (prisma) => {
-        // Create Payment
+        // 1. Create Payment first
         const payment = await prisma.payment.create({
           data: {
             contractId,
@@ -154,46 +155,7 @@ export class PaymentsService {
           },
         });
 
-        // Auto-generate Invoice (Receipt style - Paid instantly)
-        const count = await prisma.invoice.count();
-        const invoiceNumber = `REC-${new Date().getFullYear()}-${(count + 1).toString().padStart(5, '0')}`; // REC prefix for receipts
-
-        // Create Invoice linked to this payment?
-        // Wait, Schema: Payment -> invoiceId (optional). Invoice -> payment (1:N).
-        // If we want 1:1 receipt, create Invoice and link Payment to it?
-        // Or create Invoice and sets its status PAID.
-
-        // We need to create invoice, then link payment? Or create payment then invoice?
-        // Payment needs invoiceId?
-        // If we create payment first (line above), it has null invoiceId.
-        // We can update it.
-
-        const invoice = await prisma.invoice.create({
-          data: {
-            number: invoiceNumber,
-            patientId: contract.quote.patientId, // Correctly access patientId via loaded quote relation
-            // Contract has quoteId.
-            // Need to fetch contract.quote.patientId?
-            // "const contract" above NOW includes relations.
-            // Need to fetch patientId.
-            contractId,
-            amount: amount,
-            balance: 0,
-            status: 'PAID',
-            items: {
-              create: [{ description: 'Pago a cuenta de contrato', quantity: 1, unitPrice: Number(amount), total: Number(amount) }]
-            }
-          }
-        });
-
-        // Link payment to this invoice
-        await prisma.payment.update({
-          where: { id: payment.id },
-          data: { invoiceId: invoice.id }
-        });
-
-        // Update Credit Schedule
-        // Update Credit Schedule
+        // 2. Process Credit Schedule to identify what is being paid
         const schedules = await prisma.creditSchedule.findMany({
           where: {
             contractId,
@@ -203,6 +165,8 @@ export class PaymentsService {
         });
 
         let remainingAmount = Number(amount);
+        const paidItemsDescription: string[] = [];
+
         for (const schedule of schedules) {
           if (remainingAmount <= 0) break;
 
@@ -210,16 +174,23 @@ export class PaymentsService {
           const alreadyPaid = Number(schedule.paidAmount) || 0;
           const scheduleBalance = scheduleTotal - alreadyPaid;
 
+          // Determine schedule index for description (e.g. "Cuota 1")
+          // We can find the index in original contract.creditSchedule or purely by date order
+          // Since we loaded `schedules` ordered by date, we can assume sequential processing.
+          // Getting exact number is hard without full list. Let's use Date.
+          const dateStr = new Date(schedule.dueDate).toLocaleDateString('es-PY');
+
           if (remainingAmount >= scheduleBalance) {
             // Pay fully
             await prisma.creditSchedule.update({
               where: { id: schedule.id },
               data: {
                 status: CreditStatus.PAID,
-                paidAmount: scheduleTotal // Fully paid
+                paidAmount: scheduleTotal
               },
             });
             remainingAmount -= scheduleBalance;
+            paidItemsDescription.push(`Cuota del ${dateStr}`);
           } else {
             // Pay partially
             const newPaidAmount = alreadyPaid + remainingAmount;
@@ -230,27 +201,59 @@ export class PaymentsService {
                 paidAmount: newPaidAmount
               },
             });
+            paidItemsDescription.push(`Pago parcial Cuota del ${dateStr}`);
             remainingAmount = 0;
           }
         }
 
-        // Update Contract Balance
-        // Re-calculate effective balance inside transaction to be safe, or just use logic: 
-        // If we are here, we know it's valid. 
-        // We cannot rely on contract.balance if it was wrong.
-        // We should calculate new balance based on specific logic.
+        // 3. Generate Factura (Invoice)
+        const count = await prisma.invoice.count();
+        // Use FAC prefix for standard invoices
+        const invoiceNumber = `FAC-${new Date().getFullYear()}-${(count + 1).toString().padStart(5, '0')}`;
 
+        const description = paidItemsDescription.length > 0
+          ? `Pago: ${paidItemsDescription.join(', ')}`
+          : 'Pago a cuenta de contrato';
+
+        const invoice = await prisma.invoice.create({
+          data: {
+            number: invoiceNumber,
+            patientId: contract.quote.patientId, // Safe access as quote is related
+            contractId,
+            amount: amount,
+            balance: 0,
+            status: 'PAID',
+            type: 'CONTADO',
+            items: {
+              create: [{
+                description: description,
+                quantity: 1,
+                unitPrice: Number(amount),
+                total: Number(amount)
+              }]
+            }
+          }
+        });
+
+        // 4. Link payment to invoice
+        await prisma.payment.update({
+          where: { id: payment.id },
+          data: { invoiceId: invoice.id }
+        });
+
+        // 5. Update Contract Balance
         let currentBalance = Number(contract.balance);
-        const pendingSchedule = contract.creditSchedule
+        const pendingScheduleRef = contract.creditSchedule
           .filter(s => ['PENDING', 'PARTIALLY_PAID', 'OVERDUE'].includes(s.status))
           .reduce((sum, s) => sum + Number(s.amount), 0);
+        // Note: contract.creditSchedule from outside transaction might be stale?
+        // No, logic above just used it for check. We should rely on value.
 
-        if (pendingSchedule > currentBalance) {
-          currentBalance = pendingSchedule;
-        }
+        // Re-fetching or simple math:
+        // newBalance = oldBalance - amount
 
-        const newBalance = currentBalance - Number(amount);
-        const contractStatus = newBalance <= 0 ? 'COMPLETED' : 'ACTIVE';
+        const newBalance = Math.max(0, currentBalance - Number(amount));
+        const contractStatus = newBalance <= 100 ? 'COMPLETED' : 'ACTIVE'; // 100 Guarani tolerance? Or 0.
 
         await prisma.contract.update({
           where: { id: contractId },
@@ -265,10 +268,33 @@ export class PaymentsService {
     }
   }
 
-  findAll() {
-    return this.prisma.payment.findMany({
-      include: { invoice: true, contract: true }
-    });
+  async findAll(query: GetPaymentsDto) {
+    const { page = 1, limit = 10, contractId, patientId } = query;
+    const skip = (page - 1) * limit;
+
+    const where: any = {};
+    if (contractId) where.contractId = contractId;
+    if (patientId) where.contract = { quote: { patientId } }; // Assuming relation path: payment -> contract -> quote -> patient
+
+    const [data, total] = await Promise.all([
+      this.prisma.payment.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { date: 'desc' },
+        include: { invoice: true, contract: { include: { quote: { include: { patient: true } } } } }
+      }),
+      this.prisma.payment.count({ where })
+    ]);
+
+    return {
+      data,
+      meta: {
+        total,
+        page,
+        lastPage: Math.ceil(total / limit),
+      }
+    };
   }
 
   findOne(id: string) {

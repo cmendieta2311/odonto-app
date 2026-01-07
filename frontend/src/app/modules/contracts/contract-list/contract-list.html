@@ -40,7 +40,7 @@
                             <span
                                 class="material-symbols-outlined text-text-secondary-light dark:text-[#8baab0]">search</span>
                         </div>
-                        <input [(ngModel)]="searchQuery" (ngModelChange)="applyFilters()"
+                        <input [(ngModel)]="searchQuery" (ngModelChange)="onSearch($event)"
                             class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-border-light dark:border-[#2a3c40] bg-background-light dark:bg-[#101f22] text-text-primary-light dark:text-white placeholder-text-secondary-light dark:placeholder-[#8baab0] text-sm focus:ring-primary focus:border-primary outline-none"
                             placeholder="Buscar por paciente, contrato o presupuesto..." type="text" />
                     </div>
@@ -50,7 +50,7 @@
                 <label class="flex flex-col gap-1.5">
                     <span
                         class="text-xs font-bold text-text-secondary-light dark:text-[#8baab0] uppercase tracking-wide">Estado</span>
-                    <select [(ngModel)]="statusFilter" (ngModelChange)="applyFilters()"
+                    <select [(ngModel)]="statusFilter" (ngModelChange)="onFilterChange()"
                         class="w-full py-2.5 px-3 rounded-lg border border-border-light dark:border-[#2a3c40] bg-white dark:bg-[#101f22] text-text-primary-light dark:text-white text-sm focus:ring-primary focus:border-primary outline-none cursor-pointer">
                         <option value="">Todos los estados</option>
                         <option value="ACTIVE">Activo</option>
@@ -64,7 +64,7 @@
                     <span
                         class="text-xs font-bold text-text-secondary-light dark:text-[#8baab0] uppercase tracking-wide">Forma
                         de Pago</span>
-                    <select [(ngModel)]="methodFilter" (ngModelChange)="applyFilters()"
+                    <select [(ngModel)]="methodFilter" (ngModelChange)="onFilterChange()"
                         class="w-full py-2.5 px-3 rounded-lg border border-border-light dark:border-[#2a3c40] bg-white dark:bg-[#101f22] text-text-primary-light dark:text-white text-sm focus:ring-primary focus:border-primary outline-none cursor-pointer">
                         <option value="">Todas las formas</option>
                         <option value="CASH">Contado</option>
@@ -78,7 +78,9 @@
     <!-- Contracts Table -->
     <div
         class="bg-white dark:bg-[#1a2c30] shadow-sm border border-border-light dark:border-[#2a3c40] rounded-xl overflow-hidden">
-        <app-custom-table [columns]="columns" [data]="filteredContracts" [showEdit]="false" [showDelete]="false"
+        <app-custom-table [columns]="columns" [data]="data" [totalItems]="totalItems" [page]="page"
+            [pageSize]="pageSize" [showEdit]="false" [showDelete]="false" [showPagination]="true"
+            (pageChange)="onPageChange($event)" (pageSizeChange)="onPageSizeChange($event)"
             [extraActionsTemplate]="extraActions"
             [columnTemplates]="{ patient: patientTmpl, id: idTmpl, createdAt: dateTmpl, total: totalTmpl, financed: financedTmpl, status: statusTmpl }">
         </app-custom-table>
@@ -151,7 +153,7 @@
 
             <!-- Ver Cronograma - Only for CREDIT contracts -->
             <button *ngIf="contract.paymentMethod === 'CREDIT'" (click)="viewSchedule(contract)"
-                class="p-2 text-text-secondary-light dark:text-[#8baab0] hover:text-blue-600 hover:bg-blue-600/10 rounded-lg transition-colors"
+                class="p-2 text-text-secondary-light dark:text-[#8baab0] hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
                 title="Ver Cronograma">
                 <span class="material-symbols-outlined text-[20px]">calendar_month</span>
             </button>

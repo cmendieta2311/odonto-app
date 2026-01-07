@@ -1,0 +1,54 @@
+<div class="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-card-dark overflow-hidden">
+    <!-- Header -->
+    <div
+        class="px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 flex justify-between items-center">
+        <h3 class="font-bold text-slate-800 dark:text-slate-200">Historial de Tratamientos</h3>
+        <button (click)="loadHistory()" class="text-sm text-primary font-medium hover:underline">
+            Actualizar
+        </button>
+    </div>
+
+    <!-- Content -->
+    <div class="p-0">
+        <div *ngIf="isLoading" class="p-8 text-center">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+            <p class="text-slate-500 text-sm">Cargando historial...</p>
+        </div>
+
+        <div *ngIf="!isLoading && history.length === 0" class="p-12 text-center text-slate-500">
+            <span class="material-symbols-outlined text-4xl mb-2 text-slate-300">history_toggle_off</span>
+            <p>No hay tratamientos registrados para este paciente.</p>
+        </div>
+
+        <div *ngIf="!isLoading && history.length > 0" class="divide-y divide-slate-100 dark:divide-slate-800">
+            <div *ngFor="let item of history"
+                class="p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors flex gap-4">
+                <div class="flex flex-col items-center">
+                    <div
+                        class="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 text-primary flex items-center justify-center">
+                        <span class="material-symbols-outlined">dentistry</span>
+                    </div>
+                    <div class="h-full w-px bg-slate-100 dark:bg-slate-800 my-2"></div>
+                </div>
+                <div class="flex-1 pb-4">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h4 class="font-bold text-slate-900 dark:text-white">{{ item.service.name }}</h4>
+                            <p
+                                class="text-xs text-slate-500 uppercase tracking-wide font-medium bg-slate-100 dark:bg-slate-800 inline-block px-2 py-0.5 rounded mt-1">
+                                {{ item.service.code }}
+                            </p>
+                        </div>
+                        <span class="text-xs text-slate-400 font-medium">
+                            {{ item.date | date:'dd MMM yyyy, HH:mm' }}
+                        </span>
+                    </div>
+                    <p *ngIf="item.notes"
+                        class="mt-2 text-sm text-slate-600 dark:text-slate-400 bg-yellow-50 dark:bg-yellow-900/10 p-2 rounded border border-yellow-100 dark:border-yellow-900/20">
+                        {{ item.notes }}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

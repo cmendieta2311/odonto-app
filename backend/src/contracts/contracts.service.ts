@@ -1,6 +1,7 @@
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { CreateContractDto } from './dto/create-contract.dto';
 import { UpdateContractDto } from './dto/update-contract.dto';
+import { GetContractsDto } from './dto/get-contracts.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { QuoteStatus, CreditStatus } from '@prisma/client';
 
@@ -105,17 +106,53 @@ export class ContractsService {
     });
   }
 
-  findAll(patientId?: string) {
-    const whereClause = patientId ? { quote: { patientId } } : {};
-    return this.prisma.contract.findMany({
-      where: whereClause,
-      include: {
-        quote: { include: { patient: true } },
-        creditSchedule: {
-          orderBy: { dueDate: 'asc' }
-        }
+  async findAll(query: GetContractsDto) {
+    const { page = 1, limit = 10, search, patientId, status, paymentMethod } = query;
+    const skip = (page - 1) * limit;
+
+    const where: any = {};
+
+    if (patientId) where.quote = { patientId };
+    if (status && status !== '') where.status = status;
+    if (paymentMethod && paymentMethod !== '') where.paymentMethod = paymentMethod;
+
+    if (search) {
+      where.quote = {
+        ...where.quote,
+        patient: {
+          OR: [
+            { firstName: { contains: search, mode: 'insensitive' } },
+            { lastName: { contains: search, mode: 'insensitive' } },
+            { dni: { contains: search, mode: 'insensitive' } },
+          ],
+        },
+      };
+    }
+
+    const [data, total] = await Promise.all([
+      this.prisma.contract.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          quote: { include: { patient: true } },
+          creditSchedule: {
+            orderBy: { dueDate: 'asc' }
+          }
+        },
+      }),
+      this.prisma.contract.count({ where }),
+    ]);
+
+    return {
+      data,
+      meta: {
+        total,
+        page,
+        lastPage: Math.ceil(total / limit),
       },
-    });
+    };
   }
 
   findOne(id: string) {

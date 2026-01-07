@@ -3,6 +3,7 @@ import { CreateQuoteDto } from './dto/create-quote.dto';
 import { UpdateQuoteDto } from './dto/update-quote.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { QuoteStatus } from '@prisma/client';
+import { GetQuotesDto } from './dto/get-quotes.dto';
 
 @Injectable()
 export class QuotesService {
@@ -69,14 +70,54 @@ export class QuotesService {
     });
   }
 
-  findAll() {
-    return this.prisma.quote.findMany({
-      include: {
-        patient: true,
-        items: true,
-      },
-      orderBy: { createdAt: 'desc' }
-    });
+  async findAll(params: GetQuotesDto) {
+    const { page = 1, limit = 10, search, status } = params;
+    const skip = (page - 1) * limit;
+
+    const where: any = {};
+
+    if (status) {
+      where.status = status;
+    }
+
+    if (search) {
+      where.OR = [
+        {
+          patient: {
+            OR: [
+              { firstName: { contains: search, mode: 'insensitive' } },
+              { lastName: { contains: search, mode: 'insensitive' } }
+            ]
+          }
+        },
+        // Only if id is avalid uuid or simple string search? Prisma uuid search failing if not valid uuid. 
+        // For simplicity assuming search is text. If ID search is needed, handle carefully.
+        // Let's stick to patient Name for now to avoid uuid errors.
+      ];
+    }
+
+    const [data, total] = await Promise.all([
+      this.prisma.quote.findMany({
+        skip,
+        take: limit,
+        where,
+        include: {
+          patient: true,
+          items: true,
+        },
+        orderBy: { createdAt: 'desc' }
+      }),
+      this.prisma.quote.count({ where })
+    ]);
+
+    return {
+      data,
+      meta: {
+        total,
+        page,
+        lastPage: Math.ceil(total / limit)
+      }
+    };
   }
 
   findOne(id: string) {

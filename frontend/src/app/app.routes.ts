@@ -50,8 +50,12 @@ export const routes: Routes = [
                         loadComponent: () => import('./modules/patients/patient-form/patient-form').then(m => m.PatientFormComponent)
                     },
                     {
-                        path: 'edit/:id',
+                        path: ':id/edit',
                         loadComponent: () => import('./modules/patients/patient-form/patient-form').then(m => m.PatientFormComponent)
+                    },
+                    {
+                        path: ':id',
+                        loadComponent: () => import('./modules/patients/patient-detail/patient-detail.component').then(m => m.PatientDetailComponent)
                     }
                 ]
             },

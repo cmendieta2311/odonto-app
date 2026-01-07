@@ -50,14 +50,13 @@ export class MainLayoutComponent {
     {
       title: 'CONFIGURACIÓN',
       items: [
-        { label: 'General', icon: 'settings', route: '/configuration/general' },
+        { label: 'Clínica', icon: 'settings', route: '/configuration/general' },
         { label: 'Facturación', icon: 'receipt_long', route: '/configuration/billing' },
         {
           label: 'Catálogo de Servicios',
           icon: 'category',
           children: [
-            { label: 'Áreas', route: '/configuration/catalog/areas' },
-            { label: 'Categorías', route: '/configuration/catalog/categories' },
+            { label: 'Áreas y Categorías', route: '/configuration/catalog/areas' },
             { label: 'Servicios', route: '/configuration/catalog/services' }
           ]
         },

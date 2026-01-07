@@ -1,7 +1,9 @@
 import { Component, OnInit, inject } from '@angular/core';
+import { BaseListComponent } from '../../../shared/classes/base-list.component';
 import { CommonModule } from '@angular/common';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { RouterLink, Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 
 import { PatientsService } from '../patients.service';
 import { Patient } from '../patients.models';
@@ -15,46 +17,56 @@ import { CustomTableComponent, TableColumn } from '../../../shared/components/cu
     CommonModule,
     RouterLink,
     MatSnackBarModule,
-    CustomTableComponent
+    CustomTableComponent,
+    FormsModule
   ],
   templateUrl: './patient-list.html',
   styleUrl: './patient-list.css'
 })
-export class PatientListComponent implements OnInit {
+export class PatientListComponent extends BaseListComponent<Patient> implements OnInit {
   private patientsService = inject(PatientsService);
-  private snackBar = inject(MatSnackBar);
   private router = inject(Router);
-
-  patients: Patient[] = [];
 
   columns: TableColumn[] = [
     { key: 'patient', label: 'Paciente' },
     { key: 'dni', label: 'Documento' },
     { key: 'contact', label: 'Contacto', hiddenOnMobile: true },
-    { key: 'address', label: 'Ubicación' }
+    { key: 'address', label: 'Ubicación', hiddenOnMobile: true }
   ];
 
-  ngOnInit() {
+  override ngOnInit() {
+    super.ngOnInit();
     this.calculateColumns();
     window.addEventListener('resize', () => this.calculateColumns());
-    this.loadData();
   }
 
   calculateColumns() {
     // Re-assign columns to trigger change detection if needed, or keep static.
-    // For now keeping static definition above is fine, but if we wanted dynamic responsiveness in TS:
   }
 
   loadData() {
-    this.patientsService.getPatients().subscribe(data => this.patients = data);
+    this.isLoading = true;
+    this.patientsService.getPatients(this.page, this.pageSize, this.searchQuery)
+      .subscribe({
+        next: (res) => {
+          this.data = res.data;
+          this.totalItems = res.meta.total;
+          this.isLoading = false;
+        },
+        error: (err) => this.handleError(err)
+      });
   }
 
   createPatient() {
     this.router.navigate(['/reception/patients/new']);
   }
 
+  viewPatient(patient: Patient) {
+    this.router.navigate(['/reception/patients', patient.id]);
+  }
+
   editPatient(patient: Patient) {
-    this.router.navigate(['/reception/patients/edit', patient.id]);
+    this.router.navigate(['/reception/patients', patient.id, 'edit']);
   }
 
   deletePatient(patient: Patient) {

@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateInvoiceDto, CreateInvoiceItemDto } from './dto/create-invoice.dto';
 import { UpdateInvoiceDto } from './dto/update-invoice.dto';
+import { GetInvoicesDto } from './dto/get-invoices.dto';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -57,8 +58,10 @@ export class InvoicesService {
     });
   }
 
-  findAll(params: { search?: string; status?: string; startDate?: string; endDate?: string } = {}) {
-    const { search, status, startDate, endDate } = params;
+  async findAll(query: GetInvoicesDto) {
+    const { page = 1, limit = 10, search, status, startDate, endDate } = query;
+    const skip = (page - 1) * limit;
+
     const where: any = {};
 
     if (search) {
@@ -75,18 +78,15 @@ export class InvoicesService {
       ];
     }
 
-    if (status && status !== 'Todos') {
-      // Create a mapping or use strict checking if frontend sends correct enum values
-      // Frontend sends 'Pagado', 'Pendiente', 'Cancelado' or 'Todos'
-      // We need to map these to InvoiceStatus enum: 'PAID', 'PENDING', 'CANCELLED'
+    if (status && status !== 'Todos' && status !== '') {
       let statusEnum = status;
+      // Map common statuses if needed, though usually frontend should send matching values
       if (status === 'Pagado') statusEnum = 'PAID';
       else if (status === 'Pendiente') statusEnum = 'PENDING';
       else if (status === 'Cancelado') statusEnum = 'CANCELLED';
       else if (status === 'Parcial') statusEnum = 'PARTIALLY_PAID';
 
-      // Check if valid enum value before applying
-      if (['PAID', 'PENDING', 'CANCELLED', 'PARTIALLY_PAID'].includes(statusEnum)) {
+      if (['PAID', 'PENDING', 'CANCELLED', 'PARTIALLY_PAID', 'DRAFT'].includes(statusEnum)) {
         where.status = statusEnum;
       }
     }
@@ -97,25 +97,35 @@ export class InvoicesService {
         where.issuedAt.gte = new Date(startDate);
       }
       if (endDate) {
-        // Set end date to end of day if it's just a date string, or trust the exact ISO string
-        // Usually it's better to add 1 day and use lt for end date to include the full day
         const end = new Date(endDate);
         end.setHours(23, 59, 59, 999);
         where.issuedAt.lte = end;
       }
     }
 
-    return this.prisma.invoice.findMany({
-      where,
-      include: {
-        patient: true,
-        items: true,
-        payment: true
+    const [data, total] = await Promise.all([
+      this.prisma.invoice.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { issuedAt: 'desc' },
+        include: {
+          patient: true,
+          items: true,
+          payment: true
+        },
+      }),
+      this.prisma.invoice.count({ where }),
+    ]);
+
+    return {
+      data,
+      meta: {
+        total,
+        page,
+        lastPage: Math.ceil(total / limit),
       },
-      orderBy: {
-        issuedAt: 'desc'
-      }
-    });
+    };
   }
 
   async findOne(id: string) {

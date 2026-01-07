@@ -1,4 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
+import { BaseListComponent } from '../../../shared/classes/base-list.component';
 import { CommonModule } from '@angular/common';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
@@ -27,16 +28,11 @@ import { CustomTableComponent, TableColumn } from '../../../shared/components/cu
   templateUrl: './contract-list.html',
   styleUrl: './contract-list.css'
 })
-export class ContractListComponent implements OnInit {
+export class ContractListComponent extends BaseListComponent<Contract> implements OnInit {
   contractsService = inject(ContractsService);
   paymentsService = inject(PaymentsService);
-  dialog = inject(MatDialog);
-  snackBar = inject(MatSnackBar);
   router = inject(Router);
 
-  contracts: Contract[] = [];
-  filteredContracts: Contract[] = [];
-  searchQuery = '';
   statusFilter = '';
   methodFilter = '';
 
@@ -49,31 +45,29 @@ export class ContractListComponent implements OnInit {
     { key: 'status', label: 'Estado', class: 'text-center' }
   ];
 
-  ngOnInit() {
-    this.loadData();
+  override ngOnInit() {
+    super.ngOnInit();
   }
 
   loadData() {
-    this.contractsService.getContracts().subscribe(data => {
-      this.contracts = data;
-      this.applyFilters();
-    });
+    this.isLoading = true;
+    this.contractsService.getContracts(this.page, this.pageSize, this.searchQuery, this.statusFilter, this.methodFilter)
+      .subscribe({
+        next: (res) => {
+          this.data = res.data;
+          this.totalItems = res.meta.total;
+          this.isLoading = false;
+        },
+        error: (err) => this.handleError(err)
+      });
   }
 
-  applyFilters() {
-    this.filteredContracts = this.contracts.filter(c => {
-      const patientName = `${c.quote?.patient?.firstName} ${c.quote?.patient?.lastName}`.toLowerCase();
-      const matchesSearch = !this.searchQuery ||
-        patientName.includes(this.searchQuery.toLowerCase()) ||
-        c.id.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-        c.quoteId.toLowerCase().includes(this.searchQuery.toLowerCase());
-
-      const matchesStatus = !this.statusFilter || c.status.toLowerCase() === this.statusFilter.toLowerCase();
-      const matchesMethod = !this.methodFilter || c.paymentMethod === this.methodFilter;
-
-      return matchesSearch && matchesStatus && matchesMethod;
-    });
+  onFilterChange() {
+    this.page = 1;
+    this.loadData();
   }
+
+  // Removed client-side applyFilters
 
   viewSchedule(contract: Contract) {
     const schedule = contract.creditSchedule || contract.schedule;

@@ -2,7 +2,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormControl } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
-import { debounceTime, distinctUntilChanged, switchMap, tap, finalize, filter } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, switchMap, tap, finalize, filter, map } from 'rxjs/operators';
 import { PatientsService } from '../../patients/patients.service';
 import { ContractsService } from '../../contracts/contracts.service';
 import { PaymentsService } from '../../contracts/payments.service';
@@ -71,7 +71,8 @@ export class PaymentRegistrationComponent implements OnInit {
                 this.activeContract = null;
                 this.installments = [];
             }),
-            switchMap(term => this.patientsService.getPatients(term || '').pipe(
+            switchMap(term => this.patientsService.getPatients(1, 10, term || '').pipe(
+                map(res => res.data),
                 finalize(() => this.isSearching = false)
             ))
         ).subscribe({

@@ -5,7 +5,7 @@ import { PatientsService } from '../../../patients/patients.service';
 import { Patient } from '../../../patients/patients.models';
 import { UsersService } from '../../../admin/users/users.service';
 import { User } from '../../../admin/users/users.models';
-import { Subject, debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
+import { Subject, debounceTime, distinctUntilChanged, switchMap, map } from 'rxjs';
 import { Appointment } from '../../services/appointments.service';
 
 @Component({
@@ -53,7 +53,9 @@ export class AppointmentDialogComponent implements OnInit, OnChanges {
         this.searchSubject.pipe(
             debounceTime(300),
             distinctUntilChanged(),
-            switchMap(term => this.patientsService.getPatients(term))
+            switchMap(term => this.patientsService.getPatients(1, 10, term).pipe(
+                map(res => res.data)
+            ))
         ).subscribe(results => {
             this.searchResults = results;
             this.showResults = true;

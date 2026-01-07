@@ -1,0 +1,424 @@
+<div
+    class="flex-1 flex flex-col h-full overflow-hidden bg-slate-50 dark:bg-background-dark font-sans transition-colors">
+    <!-- Breadcrumb -->
+    <div class="px-6 pt-4 pb-0 text-xs text-slate-500 font-medium">
+        Pacientes / <span class="text-slate-800 dark:text-slate-200">{{ patient?.firstName }} {{ patient?.lastName
+            }}</span>
+    </div>
+
+    <!-- Main Content -->
+    <main *ngIf="!isLoading && patient" class="flex-1 flex flex-col overflow-hidden">
+
+        <!-- Patient Header Card -->
+        <div class="px-6 pt-6 pb-2 shrink-0">
+            <div
+                class="bg-white dark:bg-card-dark rounded-xl p-6 shadow-sm border border-slate-200 dark:border-slate-800 flex flex-col md:flex-row items-center justify-between gap-6 transition-all">
+
+                <!-- Avatar & Info -->
+                <div class="flex items-center gap-6 w-full md:w-auto">
+                    <div class="relative">
+                        <div
+                            class="size-24 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center overflow-hidden border-4 border-white dark:border-card-dark shadow-sm">
+                            <!-- Helper for initials if no image -->
+                            <span class="text-3xl font-bold text-slate-400 dark:text-slate-500 uppercase">
+                                {{ patient.firstName[0] }}{{ patient.lastName[0] }}
+                            </span>
+                            <!-- Image placeholder (simulated) -->
+                            <img *ngIf="patient.gender === 'M'" src="assets/avatars/male-1.png"
+                                onerror="this.style.display='none'" class="w-full h-full object-cover">
+                        </div>
+                        <div class="absolute bottom-1 right-1 size-5 bg-green-500 border-2 border-white dark:border-card-dark rounded-full"
+                            title="Activo"></div>
+                    </div>
+
+                    <div class="flex flex-col gap-1">
+                        <h1 class="text-3xl font-bold text-slate-900 dark:text-white tracking-tight leading-none">
+                            {{ patient.firstName }} {{ patient.lastName }}
+                        </h1>
+                        <div
+                            class="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-slate-500 dark:text-slate-400 mt-1">
+                            <span class="font-medium">ID: {{ patient.dni }}</span>
+                            <span class="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-700"></span>
+                            <span>Paciente desde {{ patient.createdAt | date:'yyyy' }}</span>
+                        </div>
+                        <div class="flex items-center gap-2 mt-2">
+                            <span
+                                class="px-3 py-1 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-bold uppercase tracking-wide">
+                                Activo
+                            </span>
+                            <span
+                                class="px-3 py-1 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 text-xs font-bold uppercase tracking-wide">
+                                Plan Premium
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex items-center gap-3 w-full md:w-auto justify-end">
+                    <!-- View Mode Actions -->
+                    <ng-container *ngIf="!isEditing">
+                        <button (click)="toggleEditMode()"
+                            class="px-5 py-2.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-sm transition-colors flex items-center gap-2">
+                            <span class="material-symbols-outlined text-[18px]">edit_square</span>
+                            Ver Ficha
+                        </button>
+                        <button
+                            class="px-5 py-2.5 rounded-lg bg-teal-500 hover:bg-teal-600 text-white font-bold text-sm transition-colors shadow-sm shadow-teal-500/20 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-[20px]">add_circle</span>
+                            Nueva Cita
+                        </button>
+                    </ng-container>
+
+                    <!-- Edit Mode Actions -->
+                    <ng-container *ngIf="isEditing">
+                        <button (click)="toggleEditMode()"
+                            class="px-5 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold text-sm transition-colors">
+                            Cancelar
+                        </button>
+                        <button (click)="saveChanges()"
+                            class="px-5 py-2.5 rounded-lg bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-slate-100 text-white dark:text-slate-900 font-bold text-sm transition-colors shadow-lg flex items-center gap-2">
+                            <span class="material-symbols-outlined text-[20px]">save</span>
+                            Guardar Cambios
+                        </button>
+                    </ng-container>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="px-6 mt-2 shrink-0">
+            <nav class="flex items-center gap-8 border-b border-slate-200 dark:border-slate-800">
+                <button (click)="setActiveTab('summary')" class="relative pb-4 text-sm font-bold transition-colors"
+                    [class.text-teal-600]="activeTab === 'summary'" [class.dark:text-teal-400]="activeTab === 'summary'"
+                    [class.text-slate-500]="activeTab !== 'summary'">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[20px] filled"
+                            *ngIf="activeTab === 'summary'">shopping_bag</span>
+                        <span class="material-symbols-outlined text-[20px]"
+                            *ngIf="activeTab !== 'summary'">shopping_bag</span>
+                        Datos Personales
+                    </div>
+                    <div *ngIf="activeTab === 'summary'"
+                        class="absolute bottom-0 left-0 w-full h-0.5 bg-teal-500 rounded-t-full"></div>
+                </button>
+
+                <!-- Other tabs simplified for demo -->
+                <button (click)="setActiveTab('odontogram')" class="relative pb-4 text-sm font-bold transition-colors"
+                    [class.text-teal-600]="activeTab === 'odontogram'"
+                    [class.dark:text-teal-400]="activeTab === 'odontogram'"
+                    [class.text-slate-500]="activeTab !== 'odontogram'">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[20px]"
+                            [class.filled]="activeTab === 'odontogram'">dentistry</span>
+                        Tratamientos
+                    </div>
+                    <div *ngIf="activeTab === 'odontogram'"
+                        class="absolute bottom-0 left-0 w-full h-0.5 bg-teal-500 rounded-t-full"></div>
+                </button>
+                <button (click)="setActiveTab('financial')" class="relative pb-4 text-sm font-bold transition-colors"
+                    [class.text-teal-600]="activeTab === 'financial'"
+                    [class.dark:text-teal-400]="activeTab === 'financial'"
+                    [class.text-slate-500]="activeTab !== 'financial'">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[20px]"
+                            [class.filled]="activeTab === 'financial'">request_quote</span>
+                        Presupuestos
+                    </div>
+                    <div *ngIf="activeTab === 'financial'"
+                        class="absolute bottom-0 left-0 w-full h-0.5 bg-teal-500 rounded-t-full"></div>
+                </button>
+            </nav>
+        </div>
+
+        <!-- Tab Content -->
+        <div class="flex-1 overflow-y-auto p-6 scroll-smooth bg-slate-50 dark:bg-background-dark">
+            <div *ngIf="activeTab === 'summary'"
+                class="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fadeIn max-w-7xl mx-auto">
+
+                <!-- MAIN FORM COLUMN (Span 2) -->
+                <div class="lg:col-span-2 space-y-6">
+
+                    <!-- Detail Card -->
+                    <div
+                        class="bg-white dark:bg-card-dark rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
+                        <!-- Header -->
+                        <div
+                            class="px-8 py-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                            <h3 *ngIf="!isEditing"
+                                class="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                                <span class="material-symbols-outlined text-slate-400">person</span>
+                                Datos Personales
+                            </h3>
+                            <h3 *ngIf="isEditing"
+                                class="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                                <span class="material-symbols-outlined text-teal-500">edit</span>
+                                Editar Información Personal
+                            </h3>
+                            <span *ngIf="isEditing" class="text-xs font-semibold text-slate-400">* Campos
+                                obligatorios</span>
+                        </div>
+
+                        <!-- Form Content -->
+                        <div class="p-8">
+                            <form [formGroup]="patientForm" class="flex flex-col gap-8">
+
+                                <!-- Identification Section -->
+                                <section class="space-y-4">
+                                    <h4
+                                        class="text-sm font-bold text-slate-900 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-2">
+                                        Identificación</h4>
+
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <!-- First Name -->
+                                        <div class="form-group space-y-1.5">
+                                            <label
+                                                class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Nombres
+                                                <span *ngIf="isEditing" class="text-red-500">*</span></label>
+                                            <input type="text" formControlName="firstName" [readonly]="!isEditing"
+                                                [class]="isEditing ? 
+                                                'w-full px-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all font-medium text-sm' : 
+                                                'w-full py-1 bg-transparent border-0 p-0 text-slate-900 dark:text-white font-medium text-base focus:ring-0 cursor-default placeholder-slate-300'">
+                                        </div>
+
+                                        <!-- Last Name -->
+                                        <div class="form-group space-y-1.5">
+                                            <label
+                                                class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Apellidos
+                                                <span *ngIf="isEditing" class="text-red-500">*</span></label>
+                                            <input type="text" formControlName="lastName" [readonly]="!isEditing"
+                                                [class]="isEditing ? 
+                                                'w-full px-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all font-medium text-sm' : 
+                                                'w-full py-1 bg-transparent border-0 p-0 text-slate-900 dark:text-white font-medium text-base focus:ring-0 cursor-default placeholder-slate-300'">
+                                        </div>
+
+                                        <!-- DNI -->
+                                        <div class="form-group space-y-1.5">
+                                            <label
+                                                class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">DNI
+                                                / Pasaporte <span *ngIf="isEditing"
+                                                    class="text-red-500">*</span></label>
+                                            <input type="text" formControlName="dni" [readonly]="!isEditing"
+                                                [class]="isEditing ? 
+                                                'w-full px-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all font-medium text-sm' : 
+                                                'w-full py-1 bg-transparent border-0 p-0 text-slate-900 dark:text-white font-medium text-base focus:ring-0 cursor-default placeholder-slate-300'">
+                                        </div>
+
+                                        <!-- Birth Date -->
+                                        <div class="form-group space-y-1.5">
+                                            <label
+                                                class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Fecha
+                                                de Nacimiento <span *ngIf="isEditing"
+                                                    class="text-red-500">*</span></label>
+                                            <div class="relative">
+                                                <input type="date" formControlName="birthDate" [readonly]="!isEditing"
+                                                    [class]="isEditing ? 
+                                                    'w-full px-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all font-medium text-sm' : 
+                                                    'w-full py-1 bg-transparent border-0 p-0 text-slate-900 dark:text-white font-medium text-base focus:ring-0 cursor-default placeholder-slate-300'">
+                                            </div>
+                                        </div>
+
+                                        <!-- Gender -->
+                                        <div class="form-group space-y-1.5">
+                                            <label
+                                                class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Género</label>
+                                            <div *ngIf="!isEditing"
+                                                class="py-1 text-base font-medium text-slate-900 dark:text-white">
+                                                {{ patientForm.get('gender')?.value === 'M' ? 'Masculino' : 'Femenino'
+                                                }}
+                                            </div>
+                                            <select *ngIf="isEditing" formControlName="gender"
+                                                class="w-full px-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all font-medium text-sm">
+                                                <option value="M">Masculino</option>
+                                                <option value="F">Femenino</option>
+                                            </select>
+                                        </div>
+
+                                        <!-- Civil Status -->
+                                        <div class="form-group space-y-1.5">
+                                            <label
+                                                class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Estado
+                                                Civil</label>
+                                            <div *ngIf="!isEditing"
+                                                class="py-1 text-base font-medium text-slate-900 dark:text-white">
+                                                {{ patientForm.get('civilStatus')?.value }}
+                                            </div>
+                                            <select *ngIf="isEditing" formControlName="civilStatus"
+                                                class="w-full px-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all font-medium text-sm">
+                                                <option value="Soltero/a">Soltero/a</option>
+                                                <option value="Casado/a">Casado/a</option>
+                                                <option value="Divorciado/a">Divorciado/a</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </section>
+
+                                <!-- Contact Section -->
+                                <section class="space-y-4">
+                                    <h4
+                                        class="text-sm font-bold text-slate-900 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-2">
+                                        Información de Contacto</h4>
+
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <!-- Phone -->
+                                        <div class="form-group space-y-1.5">
+                                            <label
+                                                class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Teléfono
+                                                Móvil <span *ngIf="isEditing" class="text-red-500">*</span></label>
+                                            <div class="relative">
+                                                <span *ngIf="isEditing"
+                                                    class="absolute left-4 top-3 text-slate-400 material-symbols-outlined text-[18px]">phone_iphone</span>
+                                                <input type="text" formControlName="phone" [readonly]="!isEditing"
+                                                    [class]="isEditing ? 
+                                                    'w-full pl-10 pr-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all font-medium text-sm' : 
+                                                    'w-full py-1 bg-transparent border-0 p-0 text-slate-900 dark:text-white font-medium text-base focus:ring-0 cursor-default placeholder-slate-300'">
+                                            </div>
+                                        </div>
+
+                                        <!-- Email -->
+                                        <div class="form-group space-y-1.5">
+                                            <label
+                                                class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Email
+                                                <span *ngIf="isEditing" class="text-red-500">*</span></label>
+                                            <input type="email" formControlName="email" [readonly]="!isEditing"
+                                                [class]="isEditing ? 
+                                                'w-full px-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all font-medium text-sm' : 
+                                                'w-full py-1 bg-transparent border-0 p-0 text-slate-900 dark:text-white font-medium text-base focus:ring-0 cursor-default placeholder-slate-300'">
+                                        </div>
+
+                                        <!-- Address (Full Width) -->
+                                        <div class="form-group space-y-1.5 md:col-span-2">
+                                            <label
+                                                class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Dirección
+                                                <span *ngIf="isEditing" class="text-red-500">*</span></label>
+                                            <input type="text" formControlName="address" [readonly]="!isEditing"
+                                                [class]="isEditing ? 
+                                                'w-full px-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all font-medium text-sm' : 
+                                                'w-full py-1 bg-transparent border-0 p-0 text-slate-900 dark:text-white font-medium text-base focus:ring-0 cursor-default placeholder-slate-300'">
+                                        </div>
+
+                                        <!-- City -->
+                                        <div class="form-group space-y-1.5">
+                                            <label
+                                                class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Ciudad</label>
+                                            <input type="text" formControlName="city" [readonly]="!isEditing"
+                                                [class]="isEditing ? 
+                                                'w-full px-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all font-medium text-sm' : 
+                                                'w-full py-1 bg-transparent border-0 p-0 text-slate-900 dark:text-white font-medium text-base focus:ring-0 cursor-default placeholder-slate-300'">
+                                        </div>
+                                        <!-- Postal Code -->
+                                        <div class="form-group space-y-1.5">
+                                            <label
+                                                class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Código
+                                                Postal</label>
+                                            <input type="text" formControlName="postalCode" [readonly]="!isEditing"
+                                                [class]="isEditing ? 
+                                                'w-full px-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all font-medium text-sm' : 
+                                                'w-full py-1 bg-transparent border-0 p-0 text-slate-900 dark:text-white font-medium text-base focus:ring-0 cursor-default placeholder-slate-300'">
+                                        </div>
+                                    </div>
+                                </section>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RIGHT SIDEBAR COLUMN (Span 1) -->
+                <div class="space-y-6">
+
+                    <!-- Admin Notes -->
+                    <div
+                        class="bg-white dark:bg-card-dark rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-6">
+                        <h4 class="text-xs font-bold text-slate-500 uppercase flex items-center gap-2 mb-4">
+                            <span class="material-symbols-outlined text-[18px]">folder_open</span>
+                            Notas Administrativas
+                        </h4>
+
+                        <!-- Warning/Notice Box -->
+                        <div
+                            class="bg-amber-50 dark:bg-amber-900/20 rounded-lg p-4 mb-4 border border-amber-100 dark:border-amber-800/50">
+                            <p class="text-xs font-bold text-amber-700 dark:text-amber-400 mb-1">Preferencias:</p>
+                            <p class="text-sm text-slate-700 dark:text-slate-300">El paciente prefiere citas por la
+                                tarde, después de las 17:00h.</p>
+                        </div>
+
+                        <div
+                            class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 border border-blue-100 dark:border-blue-800/50">
+                            <p class="text-xs font-bold text-blue-700 dark:text-blue-400 mb-1">Seguro Médico:</p>
+                            <p class="text-sm text-slate-700 dark:text-slate-300">Sanitas Dental - Póliza #987654321.
+                            </p>
+                            <p class="text-sm text-slate-700 dark:text-slate-300 mt-1">Cobertura completa en limpiezas.
+                            </p>
+                        </div>
+
+                        <button
+                            class="w-full mt-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors flex items-center justify-center gap-2">
+                            <span class="material-symbols-outlined text-[16px]">edit_note</span>
+                            Editar Notas
+                        </button>
+                    </div>
+
+                    <!-- Activity (Timeline) -->
+                    <div
+                        class="bg-white dark:bg-card-dark rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-6">
+                        <h4 class="text-xs font-bold text-slate-500 uppercase mb-4">Última Actividad</h4>
+
+                        <div class="relative pl-4 border-l-2 border-slate-100 dark:border-slate-800 space-y-6">
+                            <!-- Item 1 -->
+                            <div class="relative">
+                                <div
+                                    class="absolute -left-[21px] top-1 size-3 bg-white dark:bg-card-dark border-2 border-slate-300 dark:border-slate-600 rounded-full">
+                                </div>
+                                <p class="text-xs text-slate-400 mb-0.5">Hoy, 10:30 AM</p>
+                                <p class="text-sm font-bold text-slate-800 dark:text-white">Actualización de datos</p>
+                                <p class="text-xs text-slate-500">Por: Dra. María López</p>
+                            </div>
+                            <!-- Item 2 -->
+                            <div class="relative">
+                                <div
+                                    class="absolute -left-[21px] top-1 size-3 bg-white dark:bg-card-dark border-2 border-slate-300 dark:border-slate-600 rounded-full">
+                                </div>
+                                <p class="text-xs text-slate-400 mb-0.5">15 Oct 2023</p>
+                                <p class="text-sm font-bold text-slate-800 dark:text-white">Emisión de Factura #23890
+                                </p>
+                            </div>
+                            <!-- Item 3 -->
+                            <div class="relative">
+                                <div
+                                    class="absolute -left-[21px] top-1 size-3 bg-white dark:bg-card-dark border-2 border-slate-300 dark:border-slate-600 rounded-full">
+                                </div>
+                                <p class="text-xs text-slate-400 mb-0.5">01 Ago 2023</p>
+                                <p class="text-sm font-bold text-slate-800 dark:text-white">Registro de nuevo paciente
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Other Tabs Placeholders -->
+            <!-- Odontogram Tab -->
+            <div *ngIf="activeTab === 'odontogram'"
+                class="flex flex-col lg:flex-row gap-6 animate-fadeIn pb-6 lg:h-full">
+                <div
+                    class="flex-1 bg-white dark:bg-card-dark rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col min-h-[500px] lg:min-h-0">
+                    <div class="flex-1 overflow-auto custom-scrollbar p-6 flex flex-col items-center">
+                        <app-odontogram [patientId]="patient.id" (toothSelected)="onToothSelected($event)"
+                            (recordsChange)="onRecordsChange($event)">
+                        </app-odontogram>
+                    </div>
+                </div>
+                <!-- Sidebar -->
+                <div class="w-full lg:w-80 shrink-0">
+                    <app-odontogram-sidebar [selectedTooth]="selectedTooth" [treatments]="selectedToothTreatments">
+                    </app-odontogram-sidebar>
+                </div>
+            </div>
+
+            <!-- History Tab -->
+            <div *ngIf="activeTab === 'history'" class="animate-fadeIn">
+                <app-clinical-history [patientId]="patient.id"></app-clinical-history>
+            </div>
+        </div>
+    </main>
+</div>

@@ -44,9 +44,12 @@ export class PatientFormComponent implements OnInit {
     }
 
     ngOnInit() {
+        // console.log('PatientFormComponent initialized. ID:', this.patientId);
         this.loadDocumentTypes();
 
         this.patientId = this.route.snapshot.paramMap.get('id');
+        console.log('PatientFormComponent initialized. ID:', this.patientId);
+
         if (this.patientId) {
             this.isEditMode = true;
             this.loadPatient(this.patientId);
@@ -61,11 +64,18 @@ export class PatientFormComponent implements OnInit {
     }
 
     loadPatient(id: string) {
+        console.log('Loading patient:', id);
         this.patientsService.getPatient(id).subscribe({
             next: (patient) => {
-                this.form.patchValue(patient);
+                console.log('Patient loaded:', patient);
+                try {
+                    this.form.patchValue(patient);
+                } catch (e) {
+                    console.error('Error patching form:', e);
+                }
             },
-            error: () => {
+            error: (err) => {
+                console.error('Error loading patient:', err);
                 this.snackBar.open('Error al cargar paciente', 'Cerrar', { duration: 3000 });
                 this.router.navigate(['/reception/patients']);
             }

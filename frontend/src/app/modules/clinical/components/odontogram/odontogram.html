@@ -1,0 +1,69 @@
+<div class="flex flex-col gap-6 select-none bg-slate-50 dark:bg-card-dark rounded-xl">
+
+    <!-- Toolbar -->
+    <div
+        class="flex flex-wrap items-center justify-between gap-4 p-4 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 rounded-t-xl">
+        <div class="flex items-center gap-2">
+            <button (click)="setTool('select')" [class.active]="activeTool === 'select'" class="tool-btn">
+                <span class="material-symbols-outlined">near_me</span>
+                <span class="text-xs">Seleccionar</span>
+            </button>
+            <div class="h-8 w-px bg-slate-200 dark:bg-slate-700 mx-1"></div>
+            <button (click)="setTool('caries')" [class.active]="activeTool === 'caries'" class="tool-btn">
+                <div class="size-4 rounded-full bg-red-500 mb-0.5"></div>
+                <span class="text-xs">Caries</span>
+            </button>
+            <button (click)="setTool('restoration')" [class.active]="activeTool === 'restoration'" class="tool-btn">
+                <div class="size-4 rounded-full bg-blue-500 mb-0.5"></div>
+                <span class="text-xs">Restauración</span>
+            </button>
+            <button (click)="setTool('extraction')" [class.active]="activeTool === 'extraction'" class="tool-btn">
+                <span class="material-symbols-outlined text-slate-800 dark:text-slate-200">close</span>
+                <span class="text-xs">Extracción</span>
+            </button>
+        </div>
+
+        <button (click)="toggleDentition()"
+            class="px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-600 text-sm font-medium hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+            {{ isChildDentition ? 'Ver Dentición Adulto' : 'Ver Dentición Infantil' }}
+        </button>
+    </div>
+
+    <!-- Odontogram Grid -->
+    <div class="p-6 flex flex-col items-start md:items-center gap-12 overflow-x-auto w-full">
+        <div class="min-w-[850px] flex flex-col items-center gap-12">
+            <div *ngIf="isLoading" class="absolute inset-0 bg-white/50 z-10 flex items-center justify-center">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            </div>
+
+            <!-- Jaw Container -->
+            <ng-container
+                *ngFor="let jaw of (isChildDentition ? [childTeeth.slice(0,2), childTeeth.slice(2,4)] : [adultTeeth.slice(0,2), adultTeeth.slice(2,4)]); let i = index">
+                <div class="flex gap-16">
+                    <!-- Quadrants -->
+                    <ng-container *ngFor="let quad of jaw">
+                        <div class="flex gap-1"
+                            [class.flex-row-reverse]="quad.quadrant === 1 || quad.quadrant === 4 || quad.quadrant === 5 || quad.quadrant === 8">
+                            <app-tooth *ngFor="let tooth of quad.teeth" [toothNumber]="tooth"
+                                [status]="teethStatus[tooth] || {}" (surfaceClick)="onSurfaceClick(tooth, $event)">
+                            </app-tooth>
+                        </div>
+                    </ng-container>
+                </div>
+            </ng-container>
+        </div>
+    </div>
+
+    <!-- Legend / Footer -->
+    <div class="px-6 py-4 bg-slate-100 dark:bg-slate-900/30 rounded-b-xl flex gap-6 text-xs text-slate-500">
+        <div class="flex items-center gap-2">
+            <div class="size-3 bg-red-500 rounded-sm"></div> Caries
+        </div>
+        <div class="flex items-center gap-2">
+            <div class="size-3 bg-blue-500 rounded-sm"></div> Restauración
+        </div>
+        <div class="flex items-center gap-2">
+            <div class="size-3 bg-slate-800 rounded-sm"></div> Extracción
+        </div>
+    </div>
+</div>

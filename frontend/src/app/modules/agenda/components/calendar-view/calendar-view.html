@@ -80,7 +80,7 @@
 
                         <!-- Vertical Day Columns with Slots -->
                         <div *ngFor="let day of weekDays; let i = index" class="relative group"
-                            [ngClass]="{'bg-blue-50/30 dark:bg-blue-900/10': isToday(day.date), 'bg-white dark:bg-surface-dark': !isToday(day.date)}">
+                            [ngClass]="{'bg-primary/5 dark:bg-primary/10': isToday(day.date), 'bg-white dark:bg-surface-dark': !isToday(day.date)}">
 
                             <!-- Background Lines -->
                             <div class="absolute inset-0 flex flex-col pointer-events-none">
@@ -143,7 +143,7 @@
 
                                     <!-- Doctor -->
                                     <div *ngIf="appt.dentist"
-                                        class="flex items-center gap-1 mt-0.5 text-[10px] text-blue-600 dark:text-blue-400 font-medium truncate">
+                                        class="flex items-center gap-1 mt-0.5 text-[10px] text-primary dark:text-teal-400 font-medium truncate">
                                         <span class="material-symbols-outlined text-[10px]">dentistry</span>
                                         Dr. {{ appt.dentist.name }}
                                     </div>

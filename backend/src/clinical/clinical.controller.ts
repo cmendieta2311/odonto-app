@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { ClinicalService } from './clinical.service';
 import { CreateClinicalDto } from './dto/create-clinical.dto';
 import { UpdateClinicalDto } from './dto/update-clinical.dto';
@@ -13,8 +13,8 @@ export class ClinicalController {
   }
 
   @Get()
-  findAll() {
-    return this.clinicalService.findAll();
+  findAll(@Query('patientId') patientId?: string) {
+    return this.clinicalService.findAll(patientId);
   }
 
   @Get(':id')

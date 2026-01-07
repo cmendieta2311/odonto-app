@@ -9,7 +9,7 @@
                 los presupuestos emitidos en la clínica.</p>
         </div>
         <button (click)="navigateToQuoteForm()"
-            class="flex items-center gap-2 bg-primary hover:bg-cyan-400 text-white px-5 py-3 rounded-lg font-bold shadow-lg shadow-primary/20 transition-all transform active:scale-95">
+            class="flex items-center gap-2 bg-primary hover:bg-primary-hover text-white px-5 py-3 rounded-lg font-bold shadow-lg shadow-primary/20 transition-all transform active:scale-95">
             <span class="material-symbols-outlined text-[20px]">add</span>
             Nuevo Presupuesto
         </button>
@@ -30,7 +30,7 @@
                     <input
                         class="w-full pl-10 pr-4 py-2.5 bg-background-light dark:bg-background-dark border border-transparent focus:bg-white dark:focus:bg-[#1f2e32] focus:border-primary rounded-lg text-sm transition-all text-text-primary-light dark:text-text-primary-dark outline-none"
                         placeholder="Ej. Ana García, PRE-2024..." type="text" [(ngModel)]="searchQuery"
-                        (ngModelChange)="applyFilters()" />
+                        (ngModelChange)="onSearch($event)" />
                 </div>
             </div>
 
@@ -39,7 +39,7 @@
                 <div class="relative">
                     <select
                         class="w-full pl-4 pr-10 py-2.5 bg-background-light dark:bg-background-dark border border-transparent focus:bg-white dark:focus:bg-[#1f2e32] focus:border-primary rounded-lg text-sm appearance-none cursor-pointer text-text-primary-light dark:text-text-primary-dark outline-none"
-                        [(ngModel)]="statusFilter" (ngModelChange)="applyFilters()">
+                        [(ngModel)]="statusFilter" (ngModelChange)="onStatusChange()">
                         <option value="">Todos los estados</option>
                         <option value="DRAFT">Borrador</option>
                         <option value="ACCEPTED">Aceptado</option>
@@ -60,12 +60,12 @@
             </div>
 
             <div class="md:col-span-2 flex gap-2">
-                <button (click)="applyFilters()"
+                <button (click)="loadData()"
                     class="flex-1 h-[42px] bg-primary/10 hover:bg-primary/20 text-primary border border-transparent font-bold rounded-lg transition-colors flex items-center justify-center gap-2">
                     <span class="material-symbols-outlined text-[20px]">filter_list</span>
                     Filtrar
                 </button>
-                <button (click)="searchQuery = ''; statusFilter = ''; applyFilters()"
+                <button (click)="statusFilter = ''; onSearch('')"
                     class="size-[42px] flex items-center justify-center bg-background-light dark:bg-background-dark hover:bg-gray-200 dark:hover:bg-border-dark rounded-lg text-text-secondary-light transition-colors"
                     title="Limpiar filtros">
                     <span class="material-symbols-outlined text-[20px]">restart_alt</span>
@@ -77,7 +77,9 @@
     <!-- Table Container -->
     <div
         class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm border border-border-light dark:border-border-dark overflow-hidden flex flex-col">
-        <app-custom-table [columns]="columns" [data]="filteredQuotes" [showEdit]="false" [showDelete]="false"
+        <app-custom-table [columns]="columns" [data]="data" [totalItems]="totalItems" [page]="page"
+            [pageSize]="pageSize" [showEdit]="false" [showDelete]="false" [showPagination]="true"
+            (pageChange)="onPageChange($event)" (pageSizeChange)="onPageSizeChange($event)"
             [extraActionsTemplate]="extraActions"
             [columnTemplates]="{ createdAt: dateTmpl, patient: patientTmpl, total: totalTmpl, status: statusTmpl }">
         </app-custom-table>
@@ -142,7 +144,7 @@
                 <span class="material-symbols-outlined text-[20px]">delete</span>
             </button>
             <button (click)="$event.stopPropagation(); downloadPdf(quote)"
-                class="p-1.5 text-text-secondary-light hover:text-blue-600 hover:bg-blue-500/10 rounded-lg transition-all"
+                class="p-1.5 text-text-secondary-light hover:text-primary hover:bg-primary/10 rounded-lg transition-all"
                 title="Descargar PDF">
                 <span class="material-symbols-outlined text-[20px]">picture_as_pdf</span>
             </button>

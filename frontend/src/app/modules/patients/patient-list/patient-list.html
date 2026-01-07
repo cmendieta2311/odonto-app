@@ -45,39 +45,33 @@
                     style="font-size: 20px;">search</span>
                 <input
                     class="w-full h-11 pl-10 pr-4 rounded-lg bg-background-light dark:bg-background-dark border border-[#dbe4e6] dark:border-[#2a3e42] text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
-                    placeholder="Buscar por nombre, N° documento, teléfono..." type="text" />
+                    placeholder="Buscar por nombre, N° documento..." type="text" [(ngModel)]="searchQuery"
+                    (ngModelChange)="onSearch($event)" />
             </div>
-            <div class="flex w-full md:w-auto gap-3 overflow-x-auto pb-1 md:pb-0">
-                <select
-                    class="h-11 px-4 pr-8 rounded-lg bg-background-light dark:bg-background-dark border border-[#dbe4e6] dark:border-[#2a3e42] text-sm text-text-main-light dark:text-text-main-dark focus:ring-2 focus:ring-primary outline-none cursor-pointer">
-                    <option value="">Estado Tratamiento</option>
-                    <option value="activo">Activo</option>
-                    <option value="completado">Completado</option>
-                    <option value="pendiente">Pendiente</option>
-                </select>
-                <button
-                    class="h-11 px-4 flex items-center gap-2 rounded-lg border border-[#dbe4e6] dark:border-[#2a3e42] hover:bg-background-light dark:hover:bg-background-dark transition-colors text-sm font-medium whitespace-nowrap">
-                    <span class="material-symbols-outlined" style="font-size: 18px;">filter_list</span>
-                    Más filtros
-                </button>
-            </div>
+            <!-- Disabled filters for now as backend only supports search. Can be re-enabled later if needed -->
+            <!-- <div class="flex w-full md:w-auto gap-3 overflow-x-auto pb-1 md:pb-0">
+                ... 
+            </div> -->
         </div>
     </div>
 
     <!-- Patients Table -->
-    <app-custom-table [columns]="columns" [data]="patients" (onEdit)="editPatient($event)"
-        (onDelete)="deletePatient($event)" [columnTemplates]="{ patient: patientTmpl, contact: contactTmpl }">
+    <app-custom-table [columns]="columns" [data]="data" [totalItems]="totalItems" [page]="page" [pageSize]="pageSize"
+        [showEdit]="true" [showDelete]="true" [showPagination]="true" (pageChange)="onPageChange($event)"
+        (pageSizeChange)="onPageSizeChange($event)" (onEdit)="editPatient($event)" (onDelete)="deletePatient($event)"
+        [columnTemplates]="{ patient: patientTmpl, contact: contactTmpl }">
     </app-custom-table>
 
     <!-- Templates for Custom Table -->
     <ng-template #patientTmpl let-patient>
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-3 cursor-pointer group" (click)="viewPatient(patient)">
             <div
-                class="size-10 rounded-full bg-primary/10 text-primary font-bold flex items-center justify-center shrink-0">
+                class="size-10 rounded-full bg-primary/10 text-primary font-bold flex items-center justify-center shrink-0 group-hover:bg-primary group-hover:text-white transition-colors">
                 {{patient.firstName[0]}}{{patient.lastName[0]}}
             </div>
             <div class="flex flex-col">
-                <span class="text-sm font-bold text-text-main-light dark:text-text-main-dark">{{patient.firstName}}
+                <span
+                    class="text-sm font-bold text-text-main-light dark:text-text-main-dark group-hover:text-primary transition-colors">{{patient.firstName}}
                     {{patient.lastName}}</span>
                 <span class="text-xs text-text-secondary-light dark:text-text-secondary-dark">{{patient.dni}}</span>
             </div>

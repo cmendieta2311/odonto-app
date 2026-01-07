@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestj
 import { InvoicesService } from './invoices.service';
 import { CreateInvoiceDto } from './dto/create-invoice.dto';
 import { UpdateInvoiceDto } from './dto/update-invoice.dto';
+import { GetInvoicesDto } from './dto/get-invoices.dto';
 
 @Controller('invoices')
 export class InvoicesController {
@@ -13,13 +14,9 @@ export class InvoicesController {
   }
 
   @Get()
-  findAll(
-    @Query('search') search?: string,
-    @Query('status') status?: string,
-    @Query('startDate') startDate?: string,
-    @Query('endDate') endDate?: string,
-  ) {
-    return this.invoicesService.findAll({ search, status, startDate, endDate });
+  @Get()
+  findAll(@Query() query: GetInvoicesDto) {
+    return this.invoicesService.findAll(query);
   }
 
   @Get(':id')

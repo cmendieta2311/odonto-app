@@ -4,6 +4,8 @@ import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ContractsService } from '../../contracts/contracts.service';
 import { Contract, CreditStatus } from '../../contracts/contracts.models';
+import { BaseListComponent } from '../../../shared/classes/base-list.component';
+import { CustomTableComponent, TableColumn } from '../../../shared/components/custom-table/custom-table';
 
 interface ContractReceivable {
     contractId: string;
@@ -21,64 +23,77 @@ interface ContractReceivable {
 @Component({
     selector: 'app-payment-list',
     standalone: true,
-    imports: [CommonModule, RouterLink, FormsModule],
+    imports: [CommonModule, RouterLink, FormsModule, CustomTableComponent],
     templateUrl: './payment-list.html'
 })
-export class PaymentListComponent implements OnInit {
+export class PaymentListComponent extends BaseListComponent<ContractReceivable> implements OnInit {
     private contractsService = inject(ContractsService);
     private router = inject(Router);
 
-    receivables: ContractReceivable[] = [];
-    filteredReceivables: ContractReceivable[] = [];
-    isLoading = true;
-    searchTerm = '';
-
-    // Stats
+    // Stats (calculated from current page for now, or need a separate endpoint for global stats)
     totalPending = 0;
     totalOverdue = 0;
     countPending = 0;
 
-    ngOnInit() {
-        this.loadReceivables();
+    columns: TableColumn[] = [
+        { key: 'nextDueDate', label: 'Próximo Vencimiento' },
+        { key: 'patientName', label: 'Paciente' },
+        { key: 'contractId', label: 'Contrato' },
+        { key: 'status', label: 'Estado' },
+        { key: 'contractTotal', label: 'Monto Contrato', class: 'text-right' },
+        { key: 'totalAmount', label: 'Deuda Pendiente', class: 'text-right' },
+        // Actions handled by extraActions
+    ];
+
+    override ngOnInit() {
+        super.ngOnInit();
     }
 
-    loadReceivables() {
+    loadData() {
         this.isLoading = true;
-        this.contractsService.getContracts().subscribe({
-            next: (contracts) => {
-                this.processContracts(contracts);
-                this.isLoading = false;
-            },
-            error: (err) => {
-                console.error(err);
-                this.isLoading = false;
-            }
-        });
+        // Fetch ACTIVE contracts to find receivables
+        // Note: Ideally we want a backend endpoint specifically for 'Receivables' to filter only those with balance > 0
+        // For now using getContracts with status='ACTIVE'
+        this.contractsService.getContracts(this.page, this.pageSize, this.searchQuery, 'ACTIVE')
+            .subscribe({
+                next: (res) => {
+                    this.processContracts(res.data);
+                    this.totalItems = res.meta.total; // This is total CONTRACTS, not necessarily total receivables. 
+                    // To imply total receivables properly, backend should filter by balance > 0.
+                    // Assuming ACTIVE contracts imply non-zero balance usually, or we filter locally.
+                    this.isLoading = false;
+                },
+                error: (err) => this.handleError(err)
+            });
     }
 
     processContracts(contracts: any[]) {
         const items: ContractReceivable[] = [];
-        let globalPendingSum = 0;
-        let globalOverdueSum = 0;
-        let globalPendingCount = 0;
+        let pagePendingSum = 0;
+        let pageOverdueSum = 0;
+        let pagePendingCount = 0;
 
         contracts.forEach(contract => {
-            if (contract.status === 'ACTIVE' && contract.creditSchedule) {
+            // Filter out if no balance? The list view implies 'Cuentas por Cobrar'. 
+            // If we strictly follow pagination of Contracts, we might show contracts with 0 balance if they are ACTIVE?
+            // Let's filter visually but we can't hide rows easily if totalItems is fixed by backend.
+            // For now, map all ACTIVE contracts, show status.
+
+            // Re-using logic:
+            if (contract.creditSchedule) {
                 const patient = contract.patient || (contract.quote ? contract.quote.patient : null);
                 const patientName = patient ? `${patient.firstName} ${patient.lastName}` : 'Cliente Desconocido';
                 const patientId = patient ? patient.id : '';
 
                 let contractPending = 0;
-                let contractOverdue = 0; // Amount
+                let contractOverdue = 0;
                 let pendingInstallments: any[] = [];
                 let overdueCount = 0;
 
                 contract.creditSchedule.forEach((inst: any) => {
-                    // Check relevant statuses
                     if (inst.status === CreditStatus.PENDING || inst.status === CreditStatus.OVERDUE || inst.status === CreditStatus.PARTIALLY_PAID) {
                         const amount = Number(inst.amount) - (Number(inst.paidAmount) || 0);
                         contractPending += amount;
-
                         pendingInstallments.push(inst);
 
                         if (inst.status === CreditStatus.OVERDUE) {
@@ -89,7 +104,6 @@ export class PaymentListComponent implements OnInit {
                 });
 
                 if (pendingInstallments.length > 0) {
-                    // Sort installments by date to find next due
                     pendingInstallments.sort((a: any, b: any) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime());
 
                     items.push({
@@ -97,41 +111,32 @@ export class PaymentListComponent implements OnInit {
                         patientName: patientName,
                         patientId: patientId,
                         totalAmount: contractPending,
-                        contractTotal: contract.totalAmount || 0, // Populate original total
-                        paidAmount: contract.totalAmount - contract.balance, // visual only
+                        contractTotal: contract.totalAmount || 0,
+                        paidAmount: contract.totalAmount - contract.balance,
                         pendingCount: pendingInstallments.length,
                         nextDueDate: pendingInstallments[0].dueDate,
                         status: overdueCount > 0 ? 'OVERDUE' : 'PENDING',
                         overdueCount: overdueCount
                     });
 
-                    globalPendingSum += contractPending;
-                    globalOverdueSum += contractOverdue;
-                    globalPendingCount += pendingInstallments.length;
+                    pagePendingSum += contractPending;
+                    pageOverdueSum += contractOverdue;
+                    pagePendingCount += pendingInstallments.length;
                 }
             }
         });
 
-        // Sort by status (Overdue first) then by next due date
-        this.receivables = items.sort((a, b) => {
+        // Sort items by status/date
+        this.data = items.sort((a, b) => {
             if (a.status === 'OVERDUE' && b.status !== 'OVERDUE') return -1;
             if (a.status !== 'OVERDUE' && b.status === 'OVERDUE') return 1;
             return new Date(a.nextDueDate).getTime() - new Date(b.nextDueDate).getTime();
         });
 
-        this.filteredReceivables = [...this.receivables];
-
-        this.totalPending = globalPendingSum;
-        this.totalOverdue = globalOverdueSum;
-        this.countPending = globalPendingCount;
-    }
-
-    filter() {
-        const term = this.searchTerm.toLowerCase();
-        this.filteredReceivables = this.receivables.filter(item =>
-            item.patientName.toLowerCase().includes(term) ||
-            item.contractId.toLowerCase().includes(term)
-        );
+        // Update stats (Note: these are now Page stats, not Global. Updating labels in UI to reflect this might be needed or accepted limitation)
+        this.totalPending = pagePendingSum;
+        this.totalOverdue = pageOverdueSum;
+        this.countPending = pagePendingCount;
     }
 
     payItem(item: ContractReceivable) {
@@ -141,5 +146,12 @@ export class PaymentListComponent implements OnInit {
                 contractId: item.contractId
             }
         });
+    }
+
+    // Unused methods override or remove
+    override onSearch(query: string) {
+        this.searchQuery = query;
+        this.page = 1;
+        this.loadData();
     }
 }

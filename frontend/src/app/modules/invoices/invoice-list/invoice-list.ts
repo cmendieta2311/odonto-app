@@ -1,86 +1,103 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
 import { InvoicesService } from '../invoices.service';
 import { Invoice, InvoiceStatus } from '../invoices.models';
 import { PaymentsService } from '../../contracts/payments.service';
+import { BaseListComponent } from '../../../shared/classes/base-list.component';
+import { CustomTableComponent, TableColumn } from '../../../shared/components/custom-table/custom-table';
 
 @Component({
     selector: 'app-invoice-list',
     standalone: true,
-    imports: [CommonModule, RouterLink, ReactiveFormsModule],
+    imports: [CommonModule, RouterLink, ReactiveFormsModule, FormsModule, CustomTableComponent],
     templateUrl: './invoice-list.html',
     styleUrl: './invoice-list.css'
 })
-export class InvoiceListComponent implements OnInit {
-    invoices: any[] = [];
+export class InvoiceListComponent extends BaseListComponent<any> implements OnInit {
+    // Custom logic for Payment Modal
     selectedInvoice: any = null;
     paymentForm: FormGroup;
     isProcessingPayment = false;
 
-    filterForm: FormGroup;
+    // Filters (managed via BaseList logic + extra filters)
+    statusFilter = 'Todos';
+    startDate = '';
+    endDate = '';
 
-    constructor(
-        private invoicesService: InvoicesService,
-        private paymentsService: PaymentsService,
-        private router: Router,
-        private fb: FormBuilder
-    ) {
+    // We can keep 'filterForm' if we want detailed date range picker binding, or simplify.
+    // BaseList has 'searchQuery'.
+    // Let's keep a simplified filter binding like other lists.
+
+    columns: TableColumn[] = [
+        { key: 'number', label: 'N° Factura' },
+        { key: 'date', label: 'Fecha' },
+        { key: 'patient', label: 'Paciente' },
+        { key: 'concept', label: 'Concepto / Contrato' },
+        { key: 'status', label: 'Estado' },
+        { key: 'amount', label: 'Monto', class: 'text-right' },
+        // Actions
+    ];
+
+    private invoicesService = inject(InvoicesService);
+    private paymentsService = inject(PaymentsService);
+    private router = inject(Router);
+    private fb = inject(FormBuilder);
+
+    constructor() {
+        super();
         this.paymentForm = this.fb.group({
             amount: [0, [Validators.required, Validators.min(0.01)]],
             method: ['CASH', Validators.required]
         });
-
-        this.filterForm = this.fb.group({
-            search: [''],
-            dateRange: [''],
-            status: ['Todos']
-        });
     }
 
-    ngOnInit(): void {
-        this.loadInvoices();
-
-        // Subscribe to filter changes
-        this.filterForm.valueChanges.subscribe(() => {
-            this.loadInvoices();
-        });
+    override ngOnInit(): void {
+        super.ngOnInit();
     }
 
-    loadInvoices() {
-        const filters = this.filterForm.value;
-        const queryParams: any = {
-            search: filters.search,
-            status: filters.status
-        };
+    loadData() {
+        this.isLoading = true;
+        this.invoicesService.findAll(this.page, this.pageSize, this.searchQuery, this.statusFilter, this.startDate, this.endDate)
+            .subscribe({
+                next: (res) => {
+                    // Map data to view format
+                    this.data = res.data.map(inv => this.mapInvoiceToView(inv));
+                    this.totalItems = res.meta.total;
+                    this.isLoading = false;
+                },
+                error: (err) => this.handleError(err)
+            });
+    }
 
-        if (filters.dateRange) {
+    onFilterChange() {
+        this.page = 1;
+        this.loadData();
+    }
+
+    // Custom filtering for date range (simplified handler)
+    onDateRangeChange(range: string) {
+        if (!range) {
+            this.startDate = '';
+            this.endDate = '';
+        } else {
             // Parse simple format DD/MM/AAAA - DD/MM/AAAA
-            const parts = filters.dateRange.split(' - ');
+            const parts = range.split(' - ');
             if (parts.length === 2) {
                 const [start, end] = parts;
-                // Convert to ISO format for backend if valid dates
-                // Assuming format DD/MM/YYYY
                 const startDateParts = start.split('/');
                 const endDateParts = end.split('/');
 
                 if (startDateParts.length === 3 && endDateParts.length === 3) {
-                    const isoStart = `${startDateParts[2]}-${startDateParts[1]}-${startDateParts[0]}`;
-                    const isoEnd = `${endDateParts[2]}-${endDateParts[1]}-${endDateParts[0]}`;
-                    queryParams.startDate = isoStart;
-                    queryParams.endDate = isoEnd;
+                    this.startDate = `${startDateParts[2]}-${startDateParts[1]}-${startDateParts[0]}`;
+                    this.endDate = `${endDateParts[2]}-${endDateParts[1]}-${endDateParts[0]}`;
                 }
             }
         }
-
-        this.invoicesService.findAll(queryParams).subscribe({
-            next: (data) => {
-                this.invoices = data.map(inv => this.mapInvoiceToView(inv));
-            },
-            error: (err) => console.error('Error loading invoices', err)
-        });
+        this.onFilterChange();
     }
+
 
     mapInvoiceToView(inv: Invoice): any {
         const patientName = inv.patient ? `${inv.patient.firstName} ${inv.patient.lastName}` : 'Desconocido';
@@ -162,7 +179,7 @@ export class InvoiceListComponent implements OnInit {
             next: () => {
                 this.isProcessingPayment = false;
                 this.closePaymentModal();
-                this.loadInvoices(); // Refresh list to show updated status
+                this.loadData(); // Refresh list to show updated status
                 alert('Pago registrado correctamente');
             },
             error: (err) => {

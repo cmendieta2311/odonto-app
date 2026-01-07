@@ -38,6 +38,7 @@ model Patient {
   documentTypeId String?
   documentType   PersonDocumentType? @relation(fields: [documentTypeId], references: [id])
   appointments   Appointment[]
+  clinicalHistory ServicePerformed[]
 }
 
 
@@ -231,6 +232,10 @@ model ServicePerformed {
   notes     String?
   service   Service  @relation(fields: [serviceId], references: [id])
   tenantId  String   @default("default")
+  patientId   String
+  patient     Patient  @relation(fields: [patientId], references: [id])
+  toothNumber Int?     // ISO 3950 (11-48, 51-85)
+  surface     String?  // M, O, D, V, L or combinations
 }
 
 enum Role {
