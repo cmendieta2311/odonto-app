@@ -21,6 +21,7 @@ services:
       - dokploy-network
     depends_on:
       - db
+    command: sh -c "npx prisma migrate deploy && node dist/main"
     restart: always
 
   frontend:
