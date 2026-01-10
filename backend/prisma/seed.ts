@@ -498,11 +498,12 @@ async function main() {
 
 
 
-    console.log('!!! STARTING FRESH SEED - CLEARING CATALOG !!!');
-    // Clear old data to avoid stale entries
-    await prisma.service.deleteMany({});
-    await prisma.serviceCategory.deleteMany({});
-    await prisma.serviceArea.deleteMany({});
+    // console.log('!!! STARTING FRESH SEED - CLEARING CATALOG !!!');
+    // // Clear old data to avoid stale entries
+    // // DANGER: This causes Foreign Key errors if Quotes/Invoices exist
+    // // await prisma.service.deleteMany({});
+    // // await prisma.serviceCategory.deleteMany({});
+    // // await prisma.serviceArea.deleteMany({});
 
     for (const areaData of catalog) {
         const area = await prisma.serviceArea.upsert({
