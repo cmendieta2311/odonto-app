@@ -32,4 +32,8 @@ export class UsersService {
     delete(id: string): Observable<void> {
         return this.http.delete<void>(`${this.apiUrl}/${id}`);
     }
+
+    getDocumentTypes(): Observable<any[]> {
+        return this.http.get<any[]>(`${environment.apiUrl}/configuration/document-types`);
+    }
 }

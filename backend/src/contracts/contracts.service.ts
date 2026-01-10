@@ -117,16 +117,20 @@ export class ContractsService {
     if (paymentMethod && paymentMethod !== '') where.paymentMethod = paymentMethod;
 
     if (search) {
-      where.quote = {
-        ...where.quote,
-        patient: {
-          OR: [
-            { firstName: { contains: search, mode: 'insensitive' } },
-            { lastName: { contains: search, mode: 'insensitive' } },
-            { dni: { contains: search, mode: 'insensitive' } },
-          ],
-        },
-      };
+      where.OR = [
+        { id: { contains: search, mode: 'insensitive' } },
+        {
+          quote: {
+            patient: {
+              OR: [
+                { firstName: { contains: search, mode: 'insensitive' } },
+                { lastName: { contains: search, mode: 'insensitive' } },
+                { dni: { contains: search, mode: 'insensitive' } },
+              ],
+            },
+          },
+        }
+      ];
     }
 
     const [data, total] = await Promise.all([

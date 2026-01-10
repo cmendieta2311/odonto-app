@@ -128,6 +128,17 @@
                     <div *ngIf="activeTab === 'financial'"
                         class="absolute bottom-0 left-0 w-full h-0.5 bg-teal-500 rounded-t-full"></div>
                 </button>
+                <button (click)="setActiveTab('files')" class="relative pb-4 text-sm font-bold transition-colors"
+                    [class.text-teal-600]="activeTab === 'files'" [class.dark:text-teal-400]="activeTab === 'files'"
+                    [class.text-slate-500]="activeTab !== 'files'">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[20px]"
+                            [class.filled]="activeTab === 'files'">folder</span>
+                        Archivos
+                    </div>
+                    <div *ngIf="activeTab === 'files'"
+                        class="absolute bottom-0 left-0 w-full h-0.5 bg-teal-500 rounded-t-full"></div>
+                </button>
             </nav>
         </div>
 
@@ -396,6 +407,44 @@
                 </div>
             </div>
 
+            <!-- Financial Tab -->
+            <div *ngIf="activeTab === 'financial'" class="space-y-8 animate-fadeIn max-w-7xl mx-auto">
+                <!-- Invoices Section -->
+                <section>
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                            <span class="material-symbols-outlined text-teal-500">receipt_long</span>
+                            Facturas
+                        </h3>
+                    </div>
+                    <!-- Reuse Invoice List with patient filter -->
+                    <div
+                        class="bg-white dark:bg-card-dark rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
+                        <app-invoice-list [patientId]="patient.id"></app-invoice-list>
+                    </div>
+                </section>
+
+                <!-- Contracts/Debts Section -->
+                <section>
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                            <span class="material-symbols-outlined text-teal-500">request_quote</span>
+                            Contratos y Deudas
+                        </h3>
+                    </div>
+                    <!-- Reuse Payment List (Receivables) with patient filter -->
+                    <div
+                        class="bg-white dark:bg-card-dark rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
+                        <app-payment-list [patientId]="patient.id"></app-payment-list>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Files Tab -->
+            <div *ngIf="activeTab === 'files'" class="animate-fadeIn max-w-7xl mx-auto">
+                <app-patient-files></app-patient-files>
+            </div>
+
             <!-- Other Tabs Placeholders -->
             <!-- Odontogram Tab -->
             <div *ngIf="activeTab === 'odontogram'"
@@ -404,13 +453,14 @@
                     class="flex-1 bg-white dark:bg-card-dark rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col min-h-[500px] lg:min-h-0">
                     <div class="flex-1 overflow-auto custom-scrollbar p-6 flex flex-col items-center">
                         <app-odontogram [patientId]="patient.id" (toothSelected)="onToothSelected($event)"
-                            (recordsChange)="onRecordsChange($event)">
+                            (recordsChange)="onRecordsChange($event)" (teethStatusChange)="onTeethStatusChange($event)">
                         </app-odontogram>
                     </div>
                 </div>
                 <!-- Sidebar -->
                 <div class="w-full lg:w-80 shrink-0">
-                    <app-odontogram-sidebar [selectedTooth]="selectedTooth" [treatments]="selectedToothTreatments">
+                    <app-odontogram-sidebar [selectedTooth]="selectedTooth" [treatments]="selectedToothTreatments"
+                        [teethStatus]="currentTeethStatus" (deleteRecord)="onDeleteRecord($event)">
                     </app-odontogram-sidebar>
                 </div>
             </div>

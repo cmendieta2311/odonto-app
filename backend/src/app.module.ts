@@ -17,9 +17,17 @@ import { OfficesModule } from './configuration/offices/offices.module';
 import { SystemConfigModule } from './configuration/system-config/system-config.module';
 import { DocumentTypesModule } from './configuration/document-types/document-types.module';
 import { AppointmentsModule } from './appointments/appointments.module';
+import { CashModule } from './cash/cash.module';
+import { PaymentMethodsModule } from './configuration/payment-methods/payment-methods.module';
+import { CommonModule } from './common/common.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: ['../.env', '.env'],
+    }),
     PrismaModule,
     UsersModule,
     AuthModule,
@@ -36,6 +44,9 @@ import { AppointmentsModule } from './appointments/appointments.module';
     SystemConfigModule,
     DocumentTypesModule,
     AppointmentsModule,
+    CashModule,
+    PaymentMethodsModule,
+    CommonModule,
   ],
   controllers: [AppController],
   providers: [AppService],

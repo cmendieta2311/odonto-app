@@ -26,6 +26,7 @@ export class ServiceFormComponent implements OnInit {
     isSaving = false;
     isEditing = false;
     serviceId: string | null = null;
+    priceDisplay = '';
 
     form = this.fb.group({
         categoryId: ['', Validators.required],
@@ -50,22 +51,6 @@ export class ServiceFormComponent implements OnInit {
     }
 
     loadService(id: string) {
-        // Ideally we have a getService(id) method, or we find it from the list if cached.
-        // Assuming getService exists or we filter from list via a service method.
-        // If not, we might need to add getService to CatalogService.
-        // Let's assume getServices() returns all and we find it, or add getService(id).
-        // Better to use getService(id) if available.
-        // Checking catalog.service.ts... (I saw it earlier, let's assume it might not have getService(id) yet or check).
-        // I will check catalog service details if I get an error, but for now I'll assume I can implement it or it exists.
-        // Actually, I should probably check if getService(id) exists in CatalogService.
-        // Wait, createService and updateService were used in list.
-
-        // Let's try to fetch all (cached usually) and find.
-        // Or better, I'll assume I need to add getService to the service if missing.
-        // I'll use find from getServices for now to be safe if no endpoint, but endpoint likely exists.
-        // Actually, standard REST usually has it.
-
-        // Wait, let's implement a safe approach:
         this.catalogService.getServices().subscribe(services => {
             const service = services.find(s => s.id === id);
             if (service) {
@@ -77,9 +62,32 @@ export class ServiceFormComponent implements OnInit {
                     type: service.type
                 });
                 const cat = this.categories.find(c => c.id === service.categoryId);
-                this.searchTerm = cat ? cat.name : '';
+                this.priceDisplay = this.formatNumber(service.price);
             }
         });
+    }
+
+    formatNumber(value: number | string): string {
+        if (!value) return '';
+        return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    }
+
+    parseNumber(value: string): number {
+        return Number(value.replace(/\./g, ''));
+    }
+
+    onPriceInput(event: any) {
+        const input = event.target;
+        let raw = input.value.replace(/\D/g, '');
+        if (!raw) {
+            this.priceDisplay = '';
+            this.form.patchValue({ price: 0 });
+            return;
+        }
+
+        const num = Number(raw);
+        this.priceDisplay = this.formatNumber(raw);
+        this.form.patchValue({ price: num });
     }
 
     filterCategories() {

@@ -103,7 +103,7 @@
 
     <ng-template #idTmpl let-contract>
         <div class="flex flex-col">
-            <span class="text-sm font-bold text-base font-mono text-text-primary-light dark:text-white">{{
+            <span class="text-sm font-bold text-base font-mono text-text-primary-light dark:text-white">#{{
                 contract.id.slice(0, 8) | uppercase }}</span>
             <span class="text-[10px] text-text-secondary-light uppercase tracking-tighter">PRE: {{
                 contract.quoteId.slice(0, 8) }}</span>
@@ -165,12 +165,7 @@
                 <span class="material-symbols-outlined text-[20px]">payments</span>
             </button>
 
-            <!-- Generar Proforma - For all contracts -->
-            <button (click)="generateProforma(contract)"
-                class="p-2 text-text-secondary-light dark:text-[#8baab0] hover:text-purple-600 hover:bg-purple-600/10 rounded-lg transition-colors"
-                title="Generar Proforma">
-                <span class="material-symbols-outlined text-[20px]">description</span>
-            </button>
+
         </div>
     </ng-template>
 </div>

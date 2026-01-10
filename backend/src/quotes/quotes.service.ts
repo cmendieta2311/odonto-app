@@ -8,6 +8,7 @@ import { GetQuotesDto } from './dto/get-quotes.dto';
 @Injectable()
 export class QuotesService {
   constructor(private prisma: PrismaService) { }
+  // Trigger restart for schema update
 
   async create(createQuoteDto: CreateQuoteDto) {
     console.log('Creating Quote:', JSON.stringify(createQuoteDto));

@@ -3,18 +3,32 @@ import { CreatePaymentDto } from './dto/create-payment.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
 import { GetPaymentsDto } from './dto/get-payments.dto';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreditStatus } from '@prisma/client';
+import { CashService } from '../cash/cash.service';
+import { CreditStatus, CashMovementType } from '@prisma/client';
 
 @Injectable()
 export class PaymentsService {
-  constructor(private prisma: PrismaService) { }
+  constructor(
+    private prisma: PrismaService,
+    private cashService: CashService
+  ) { }
 
   async create(createPaymentDto: CreatePaymentDto) {
-    const { contractId, invoiceId, amount, method } = createPaymentDto;
+    const { contractId, invoiceId, amount, method, paymentMethodId } = createPaymentDto;
 
     // Validate request
     if (!contractId && !invoiceId) {
       throw new BadRequestException('Must provide either contractId or invoiceId');
+    }
+
+    // Resolve Payment Method
+    let resolvedMethod = method;
+    if (paymentMethodId) {
+      const pm = await this.prisma.paymentMethod.findUnique({ where: { id: paymentMethodId } });
+      if (!pm) throw new NotFoundException('Payment Method not found');
+      resolvedMethod = (pm as any).code;
+    } else if (!method) {
+      throw new BadRequestException('Payment method or paymentMethodId is required');
     }
 
     // 1. New Flow: Paying an existing Invoice
@@ -40,10 +54,21 @@ export class PaymentsService {
         const payment = await prisma.payment.create({
           data: {
             invoiceId,
-            contractId: invoice.contractId || contractId, // Use Invoice's contract if exists, else input
+            contractId: invoice.contractId || contractId,
             amount,
-            method
+            method: resolvedMethod!,
+            paymentMethodId
           }
+        });
+
+        // Register Cash Movement
+        await this.cashService.create({
+          amount: Number(amount),
+          type: CashMovementType.INCOME,
+          description: `Cobro Factura #${invoice.number}`,
+          paymentMethod: resolvedMethod!,
+          referenceId: payment.id,
+          source: 'SYSTEM'
         });
 
         // Update Invoice Balance
@@ -54,7 +79,7 @@ export class PaymentsService {
           where: { id: invoiceId },
           data: {
             balance: newInvBalance,
-            status: invStatus === 'PARTIALLY_PAID' ? 'PENDING' : 'PAID' // Assuming Schema Enum: PENDING, PAID, CANCELLED. Maybe PARTIALLY_PAID isn't in schema enum from step 98?
+            status: invStatus === 'PARTIALLY_PAID' ? 'PENDING' : 'PAID'
             // Step 98 Enum: PENDING, PAID, CANCELLED, PARTIALLY_PAID. Yes it is there.
           }
         });
@@ -86,22 +111,12 @@ export class PaymentsService {
             for (const schedule of schedules) {
               if (remainingAmount <= 0) break;
               const scheduleAmount = Number(schedule.amount); // Should refer to schedule balance ideally, but schema only has amount. 
-              // Need to check if schedule is partially paid? Schema tracks status but logic was simplistic.
-              // Assuming schedule.amount is total. If PARTIALLY_PAID, handling is tricky without 'paidAmount' on schedule.
-              // For now, let's skip complex schedule update on Invoice payment to avoid breaking things, 
-              // OR try strict application if we trust the logic. The logic in legacy flow was:
-              // if remaining >= scheduleAmount -> PAID.
-              // This implies schedule.amount IS the due amount? Or original amount?
-              // Legacy code: "const scheduleAmount = Number(schedule.amount)".
-              // It assumes full amount.
 
               if (remainingAmount >= scheduleAmount) {
                 await prisma.creditSchedule.update({ where: { id: schedule.id }, data: { status: CreditStatus.PAID } });
                 remainingAmount -= scheduleAmount;
               }
               // If partial, existing logic didn't track HOW partial. Just "PARTIALLY_PAID".
-              // This is a flaw in legacy code. I won't exacerbate it.
-              // I'll leave CreditSchedule update logic for Contract Payment ONLY for now to keep it safe.
             }
           }
         }
@@ -151,8 +166,19 @@ export class PaymentsService {
           data: {
             contractId,
             amount,
-            method,
+            method: resolvedMethod!,
+            paymentMethodId,
           },
+        });
+
+        // Register Cash Movement
+        await this.cashService.create({
+          amount: Number(amount),
+          type: CashMovementType.INCOME,
+          description: `Cobro Contrato (Pago directo)`,
+          paymentMethod: resolvedMethod!,
+          referenceId: payment.id,
+          source: 'SYSTEM'
         });
 
         // 2. Process Credit Schedule to identify what is being paid
@@ -206,10 +232,20 @@ export class PaymentsService {
           }
         }
 
-        // 3. Generate Factura (Invoice)
-        const count = await prisma.invoice.count();
-        // Use FAC prefix for standard invoices
-        const invoiceNumber = `FAC-${new Date().getFullYear()}-${(count + 1).toString().padStart(5, '0')}`;
+        // 3. Generate Factura (Invoice) or Recibo (Receipt)
+        const documentType = createPaymentDto.documentType || 'INVOICE';
+        const prefix = documentType === 'RECEIPT' ? 'REC' : 'FAC';
+        const year = new Date().getFullYear();
+
+        // Count existing documents of this type for the current year (or total if preferred, sticking to total as per previous logic but filtered by prefix)
+        // Note: Previous logic was global count. Better to count by prefix to have separate sequences.
+        const count = await prisma.invoice.count({
+          where: {
+            number: { startsWith: `${prefix}-` }
+          }
+        });
+
+        const invoiceNumber = `${prefix}-${year}-${(count + 1).toString().padStart(5, '0')}`;
 
         const description = paidItemsDescription.length > 0
           ? `Pago: ${paidItemsDescription.join(', ')}`

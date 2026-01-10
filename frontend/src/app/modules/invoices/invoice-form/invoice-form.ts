@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormArray, FormControl } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { debounceTime, distinctUntilChanged, switchMap, tap, finalize, startWith, map } from 'rxjs/operators';
 import { Subject, Observable, combineLatest } from 'rxjs';
 import { InvoicesService } from '../invoices.service';
@@ -37,6 +37,7 @@ export class InvoiceFormComponent implements OnInit {
         private fb: FormBuilder,
         private invoicesService: InvoicesService,
         private router: Router,
+        private route: ActivatedRoute,
         private patientsService: PatientsService,
         private catalogService: CatalogService
     ) {
@@ -50,7 +51,6 @@ export class InvoiceFormComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.addItem(); // Start with one item
         this.setupSearch();
         this.setupServiceSearch();
         this.loadServices();
@@ -73,6 +73,59 @@ export class InvoiceFormComponent implements OnInit {
             dueDateControl?.updateValueAndValidity();
             installmentsControl?.updateValueAndValidity();
         });
+
+        // Check for ID for editing
+        const id = this.route.snapshot.paramMap.get('id');
+        if (id) {
+            this.isLoading = true;
+            this.invoicesService.findOne(id).subscribe({
+                next: (invoice) => {
+                    this.patchForm(invoice);
+                    this.isLoading = false;
+                },
+                error: (err) => {
+                    console.error(err);
+                    this.isLoading = false;
+                    alert('Error al cargar la factura');
+                    this.router.navigate(['/admin/invoices']);
+                }
+            });
+        } else {
+            this.addItem(); // Start with one item if new
+        }
+    }
+
+    patchForm(invoice: any) {
+        // Patch main fields
+        this.invoiceForm.patchValue({
+            patientId: invoice.patientId,
+            type: invoice.type,
+            dueDate: invoice.dueDate ? invoice.dueDate.split('T')[0] : '',
+            installments: invoice.installments || 1
+        });
+
+        // Handle Patient Search Control
+        if (invoice.patient) {
+            const p = invoice.patient;
+            this.searchControl.setValue(`${p.firstName} ${p.lastName} (${p.dni})`, { emitEvent: false });
+        }
+
+        // Patch items
+        this.items.clear(); // Clear existing items (e.g. from default addItem)
+        if (invoice.items && invoice.items.length > 0) {
+            invoice.items.forEach((item: any) => {
+                const itemGroup = this.fb.group({
+                    description: [item.description, Validators.required],
+                    quantity: [item.quantity, [Validators.required, Validators.min(1)]],
+                    unitPrice: [item.unitPrice, [Validators.required, Validators.min(0)]],
+                    discount: [item.discount || 0, [Validators.min(0)]],
+                    taxRate: [item.taxRate || 10, [Validators.required, Validators.min(0)]]
+                });
+                this.items.push(itemGroup);
+            });
+        } else {
+            this.addItem();
+        }
     }
 
     get items() {
@@ -212,17 +265,32 @@ export class InvoiceFormComponent implements OnInit {
             installments: formValue.type === 'CREDITO' ? Number(formValue.installments) : undefined
         };
 
-        this.invoicesService.create(dto).subscribe({
-            next: (res) => {
-                this.isLoading = false;
-                this.router.navigate(['/admin/invoices']);
-            },
-            error: (err) => {
-                console.error(err);
-                this.isLoading = false;
-                alert('Error al crear factura');
-            }
-        });
+        const id = this.route.snapshot.paramMap.get('id');
+        if (id) {
+            this.invoicesService.update(id, dto).subscribe({
+                next: (res) => {
+                    this.isLoading = false;
+                    this.router.navigate(['/admin/invoices']);
+                },
+                error: (err) => {
+                    console.error(err);
+                    this.isLoading = false;
+                    alert('Error al actualizar factura');
+                }
+            });
+        } else {
+            this.invoicesService.create(dto).subscribe({
+                next: (res) => {
+                    this.isLoading = false;
+                    this.router.navigate(['/admin/invoices']);
+                },
+                error: (err) => {
+                    console.error(err);
+                    this.isLoading = false;
+                    alert('Error al crear factura');
+                }
+            });
+        }
     }
 
     protected readonly InvoiceStatusEnum = InvoiceStatus;

@@ -18,15 +18,29 @@
             <div class="md:col-span-4 flex flex-col gap-3">
                 <label class="block text-sm font-bold text-[#111418] dark:text-white">Logotipo del
                     Consultorio</label>
-                <div
-                    class="aspect-square w-full relative rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-600 bg-background-light dark:bg-background-dark flex flex-col items-center justify-center cursor-pointer hover:border-primary transition-colors group">
-                    <div
-                        class="size-16 rounded-full bg-white dark:bg-surface-dark shadow-sm flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                        <span class="material-symbols-outlined text-primary text-3xl">cloud_upload</span>
-                    </div>
-                    <p class="text-sm font-medium text-[#617289] dark:text-gray-400 text-center px-4">Arrastra tu
-                        logo aquí o <span class="text-primary">haz clic</span> para subir</p>
-                    <p class="text-xs text-gray-400 mt-1">PNG, JPG (Max 2MB)</p>
+
+                <input type="file" id="logoInput" class="hidden" (change)="onFileSelected($event)" accept="image/*">
+
+                <div (click)="triggerFileInput()"
+                    class="aspect-square w-full relative rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-600 bg-background-light dark:bg-background-dark flex flex-col items-center justify-center cursor-pointer hover:border-primary transition-colors group overflow-hidden">
+
+                    <ng-container *ngIf="!logoUrl; else showLogo">
+                        <div
+                            class="size-16 rounded-full bg-white dark:bg-surface-dark shadow-sm flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                            <span class="material-symbols-outlined text-primary text-3xl">cloud_upload</span>
+                        </div>
+                        <p class="text-sm font-medium text-[#617289] dark:text-gray-400 text-center px-4">Arrastra tu
+                            logo aquí o <span class="text-primary">haz clic</span> para subir</p>
+                        <p class="text-xs text-gray-400 mt-1">PNG, JPG (Max 2MB)</p>
+                    </ng-container>
+
+                    <ng-template #showLogo>
+                        <img [src]="logoUrl" class="w-full h-full object-contain p-4" alt="Clinic Logo">
+                        <div
+                            class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                            <span class="material-symbols-outlined text-white text-3xl">edit</span>
+                        </div>
+                    </ng-template>
                 </div>
             </div>
             <!-- Form Fields -->

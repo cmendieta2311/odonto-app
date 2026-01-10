@@ -38,7 +38,7 @@ export class ContractListComponent extends BaseListComponent<Contract> implement
 
   columns: TableColumn[] = [
     { key: 'patient', label: 'Paciente' },
-    { key: 'id', label: 'Ref. Contrato' },
+    { key: 'id', label: 'N° Contrato' },
     { key: 'createdAt', label: 'Inicio' },
     { key: 'total', label: 'Total' },
     { key: 'financed', label: 'Financiado' },
@@ -105,16 +105,5 @@ export class ContractListComponent extends BaseListComponent<Contract> implement
     this.router.navigate(['/commercial/contracts/view', contract.id]);
   }
 
-  generateProforma(contract: Contract) {
-    this.contractsService.generateProforma(contract.id).subscribe({
-      next: () => {
-        this.snackBar.open('Proforma generada exitosamente', 'Cerrar', { duration: 3000 });
-        this.loadData(); // Reload to show proforma
-      },
-      error: (err) => {
-        const message = err.error?.message || 'Error al generar proforma';
-        this.snackBar.open(message, 'Cerrar', { duration: 4000 });
-      }
-    });
-  }
+
 }

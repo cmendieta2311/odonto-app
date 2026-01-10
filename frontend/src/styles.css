@@ -22,3 +22,27 @@
 .material-symbols-outlined.fill {
   font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
+
+/* Fix Snackbar Action Button Visibility */
+.mat-mdc-snack-bar-action {
+  color: #a5b4fc !important; /* Indigo-300 or similar visible color */
+}
+.mat-mdc-snack-bar-container .mdc-snackbar__surface {
+    background-color: #1f2937 !important; /* Dark gray background */
+}
+.mat-mdc-snack-bar-container .mdc-snackbar__label {
+    color: #f3f4f6 !important; /* Light text */
+}
+
+/* Custom Snackbars */
+.success-snackbar {
+    --mdc-snackbar-container-color: #059669 !important; /* emerald-600 */
+    --mdc-snackbar-supporting-text-color: #ffffff !important;
+    --mat-snack-bar-button-color: #ffffff !important;
+}
+
+.error-snackbar {
+    --mdc-snackbar-container-color: #dc2626 !important; /* red-600 */
+    --mdc-snackbar-supporting-text-color: #ffffff !important;
+    --mat-snack-bar-button-color: #ffffff !important;
+}

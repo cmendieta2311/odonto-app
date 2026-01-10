@@ -172,10 +172,15 @@
 
     <ng-template #extraActions let-item>
         <button [title]="'Registrar cobro'" (click)="openPaymentModal(item)"
-            *ngIf="item.statusCode !== 'PAID' && item.statusCode !== 'CANCELLED'"
+            *ngIf="item.statusCode !== 'PAID' && item.statusCode !== 'CANCELLED' && item.statusCode !== 'DRAFT'"
             class="text-green-600 hover:text-green-800 p-1 mr-2 rounded-full hover:bg-green-50 transition">
             <span class="material-symbols-outlined text-[20px]">payments</span>
         </button>
+        <a [routerLink]="['/admin/invoices', item.id, 'edit']" *ngIf="item.statusCode === 'DRAFT'"
+            [title]="'Editar factura'"
+            class="text-[#618389] hover:text-primary p-1 mr-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition inline-flex">
+            <span class="material-symbols-outlined text-[20px]">edit</span>
+        </a>
         <button
             class="text-gray-400 hover:text-[#111718] dark:hover:text-white p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition">
             <span class="material-symbols-outlined text-[20px]">more_vert</span>

@@ -24,7 +24,7 @@ export class ContractsService {
         );
     }
 
-    getContracts(page: number = 1, limit: number = 10, search: string = '', status: string = '', paymentMethod: string = '') {
+    getContracts(page: number = 1, limit: number = 10, search: string = '', status: string = '', paymentMethod: string = '', patientId: string = '') {
         let params = new HttpParams()
             .set('page', page.toString())
             .set('limit', limit.toString());
@@ -32,6 +32,7 @@ export class ContractsService {
         if (search) params = params.set('search', search);
         if (status) params = params.set('status', status);
         if (paymentMethod) params = params.set('paymentMethod', paymentMethod);
+        if (patientId) params = params.set('patientId', patientId);
 
         return this.http.get<PaginatedResult<Contract>>(`${this.apiUrl}/contracts`, { params });
     }

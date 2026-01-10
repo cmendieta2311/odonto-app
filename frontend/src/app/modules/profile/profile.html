@@ -11,12 +11,12 @@
             <div class="flex flex-col gap-1">
                 <label class="text-xs font-bold uppercase tracking-wider text-text-secondary-light">Nombre</label>
                 <input type="text" formControlName="name"
-                    class="form-input rounded-lg border-[#dbe4e6] dark:border-[#2a3e42] bg-background-light dark:bg-background-dark text-sm focus:ring-primary focus:border-primary shadow-sm">
+                    class="form-input w-full rounded-lg border border-[#dbe4e6] dark:border-[#2a3e42] bg-white dark:bg-background-dark text-sm focus:ring-primary focus:border-primary shadow-sm px-4 py-3">
             </div>
             <div class="flex flex-col gap-1">
                 <label class="text-xs font-bold uppercase tracking-wider text-text-secondary-light">Email</label>
                 <input type="email" formControlName="email"
-                    class="form-input rounded-lg border-[#dbe4e6] dark:border-[#2a3e42] bg-background-light-disabled dark:bg-background-dark text-sm opacity-70 cursor-not-allowed"
+                    class="form-input w-full rounded-lg border border-[#dbe4e6] dark:border-[#2a3e42] bg-gray-50 dark:bg-background-dark text-sm text-text-secondary-light cursor-not-allowed px-4 py-3"
                     readonly>
                 <span class="text-xs text-text-secondary-light">El email no se puede cambiar.</span>
             </div>
@@ -38,8 +38,19 @@
                 <label class="text-xs font-bold uppercase tracking-wider text-text-secondary-light">Nueva
                     Contraseña</label>
                 <input type="password" formControlName="password"
-                    class="form-input rounded-lg border-[#dbe4e6] dark:border-[#2a3e42] bg-background-light dark:bg-background-dark text-sm focus:ring-primary focus:border-primary shadow-sm"
+                    class="form-input w-full rounded-lg border border-[#dbe4e6] dark:border-[#2a3e42] bg-white dark:bg-background-dark text-sm focus:ring-primary focus:border-primary shadow-sm px-4 py-3"
                     placeholder="Mínimo 6 caracteres">
+            </div>
+            <div class="flex flex-col gap-1">
+                <label class="text-xs font-bold uppercase tracking-wider text-text-secondary-light">Confirmar
+                    Contraseña</label>
+                <input type="password" formControlName="confirmPassword"
+                    class="form-input w-full rounded-lg border border-[#dbe4e6] dark:border-[#2a3e42] bg-white dark:bg-background-dark text-sm focus:ring-primary focus:border-primary shadow-sm px-4 py-3"
+                    placeholder="Repite tu nueva contraseña">
+                <span *ngIf="passwordForm.hasError('mismatch') && passwordForm.get('confirmPassword')?.touched"
+                    class="text-xs text-red-500">
+                    Las contraseñas no coinciden.
+                </span>
             </div>
             <div class="flex justify-end">
                 <button type="submit" [disabled]="passwordForm.invalid || isUpdatingPass"

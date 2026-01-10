@@ -81,11 +81,17 @@
             [pageSize]="pageSize" [showEdit]="false" [showDelete]="false" [showPagination]="true"
             (pageChange)="onPageChange($event)" (pageSizeChange)="onPageSizeChange($event)"
             [extraActionsTemplate]="extraActions"
-            [columnTemplates]="{ createdAt: dateTmpl, patient: patientTmpl, total: totalTmpl, status: statusTmpl }">
+            [columnTemplates]="{ number: numberTmpl, createdAt: dateTmpl, patient: patientTmpl, total: totalTmpl, status: statusTmpl }">
         </app-custom-table>
     </div>
 
     <!-- Templates -->
+    <ng-template #numberTmpl let-quote>
+        <span class="font-bold text-gray-900 dark:text-white">
+            #{{ quote.number | number:'2.0-0' }}
+        </span>
+    </ng-template>
+
     <ng-template #dateTmpl let-quote>
         <div class="text-text-secondary-light dark:text-text-secondary-dark">
             {{ quote.createdAt | date:'dd MMM yyyy' }}

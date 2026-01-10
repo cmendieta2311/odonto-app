@@ -12,21 +12,11 @@ const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
-    const service = await prisma.service.findUnique({
-        where: { code: 'OD001' }
-    });
+    const users = await prisma.user.findMany({ take: 5 });
+    console.log('Users found:', users.map(u => ({ email: u.email, tenantId: u.tenantId })));
 
-    if (service) {
-        console.log('VALID_SERVICE_ID:', service.id);
-    } else {
-        console.log('Service OD001 not found. Checking any service...');
-        const anyService = await prisma.service.findFirst();
-        if (anyService) {
-            console.log('VALID_SERVICE_ID:', anyService.id);
-        } else {
-            console.log('No services found at all.');
-        }
-    }
+    const configs = await prisma.systemConfig.findMany();
+    console.log('SystemConfigs found:', configs.length);
 }
 
 main()

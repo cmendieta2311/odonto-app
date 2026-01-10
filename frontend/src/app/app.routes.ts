@@ -129,6 +129,10 @@ export const routes: Routes = [
                     {
                         path: 'offices',
                         loadComponent: () => import('./modules/configuration/offices/office-list/office-list').then(m => m.OfficeList)
+                    },
+                    {
+                        path: 'payment-methods',
+                        loadComponent: () => import('./modules/configuration/payment-methods/payment-methods-list/payment-methods-list.component').then(m => m.PaymentMethodsListComponent)
                     }
                 ]
             },
@@ -161,6 +165,10 @@ export const routes: Routes = [
                         loadComponent: () => import('./modules/invoices/invoice-detail/invoice-detail').then(m => m.InvoiceDetailComponent)
                     }
                 ]
+            },
+            {
+                path: 'admin/cash',
+                loadComponent: () => import('./modules/cash/pages/cash-dashboard/cash-dashboard.component').then(m => m.CashDashboardComponent)
             }
         ]
     },

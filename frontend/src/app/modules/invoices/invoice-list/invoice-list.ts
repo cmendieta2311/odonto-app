@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
@@ -16,6 +16,7 @@ import { CustomTableComponent, TableColumn } from '../../../shared/components/cu
     styleUrl: './invoice-list.css'
 })
 export class InvoiceListComponent extends BaseListComponent<any> implements OnInit {
+    @Input() patientId: string | null = null;
     // Custom logic for Payment Modal
     selectedInvoice: any = null;
     paymentForm: FormGroup;
@@ -59,7 +60,7 @@ export class InvoiceListComponent extends BaseListComponent<any> implements OnIn
 
     loadData() {
         this.isLoading = true;
-        this.invoicesService.findAll(this.page, this.pageSize, this.searchQuery, this.statusFilter, this.startDate, this.endDate)
+        this.invoicesService.findAll(this.page, this.pageSize, this.searchQuery, this.statusFilter, this.startDate, this.endDate, this.patientId || '')
             .subscribe({
                 next: (res) => {
                     // Map data to view format
@@ -124,6 +125,11 @@ export class InvoiceListComponent extends BaseListComponent<any> implements OnIn
             case InvoiceStatus.PARTIALLY_PAID:
                 statusClass = 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300';
                 statusLabel = 'Parcial';
+                break;
+            case 'DRAFT' as any: // Handle DRAFT string or enum if present
+            case InvoiceStatus.DRAFT:
+                statusClass = 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300';
+                statusLabel = 'BORRADOR';
                 break;
             default:
                 statusClass = 'bg-gray-100 text-gray-800';

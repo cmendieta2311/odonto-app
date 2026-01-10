@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../auth/auth.service';
 import { UsersService } from '../admin/users/users.service';
+import { NotificationService } from '../../shared/services/notification.service';
 
 @Component({
     selector: 'app-profile',
@@ -20,6 +21,7 @@ export class ProfileComponent implements OnInit {
     private fb = inject(FormBuilder);
     private authService = inject(AuthService);
     private usersService = inject(UsersService);
+    private notificationService = inject(NotificationService);
 
     currentUser: any = null;
 
@@ -30,8 +32,15 @@ export class ProfileComponent implements OnInit {
         });
 
         this.passwordForm = this.fb.group({
-            password: ['', [Validators.required, Validators.minLength(6)]]
-        });
+            password: ['', [Validators.required, Validators.minLength(6)]],
+            confirmPassword: ['', Validators.required]
+        }, { validators: this.passwordMatchValidator });
+    }
+
+    passwordMatchValidator(g: FormGroup) {
+        const password = g.get('password')?.value;
+        const confirmPassword = g.get('confirmPassword')?.value;
+        return password === confirmPassword ? null : { mismatch: true };
     }
 
     ngOnInit() {
@@ -68,11 +77,12 @@ export class ProfileComponent implements OnInit {
             next: (updated) => {
                 this.isUpdatingInfo = false;
                 // Update local state if needed via AuthService
-                alert('Información actualizada');
+                this.notificationService.showSuccess('Información actualizada correctamente');
             },
             error: (err) => {
                 console.error(err);
                 this.isUpdatingInfo = false;
+                this.notificationService.showError('Error al actualizar la información');
             }
         });
     }
@@ -87,11 +97,12 @@ export class ProfileComponent implements OnInit {
             next: () => {
                 this.isUpdatingPass = false;
                 this.passwordForm.reset();
-                alert('Contraseña actualizada');
+                this.notificationService.showSuccess('Contraseña actualizada correctamente');
             },
             error: (err) => {
                 console.error(err);
                 this.isUpdatingPass = false;
+                this.notificationService.showError('Error al actualizar la contraseña');
             }
         });
     }

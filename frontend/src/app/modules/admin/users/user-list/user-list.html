@@ -1,43 +1,54 @@
-<div class="flex flex-col gap-6">
-    <div class="flex justify-between items-end">
+<div class="flex flex-col gap-6 max-w-[1600px] mx-auto w-full h-full">
+    <!-- Breadcrumbs -->
+    <div class="flex flex-wrap gap-2 text-sm">
+        <a class="text-[#617289] dark:text-gray-400 hover:text-primary transition-colors" routerLink="/">Inicio</a>
+        <span class="text-[#617289] dark:text-gray-400">/</span>
+        <span class="text-[#111418] dark:text-white font-medium">Usuarios</span>
+    </div>
+
+    <!-- Page Heading & Main Action -->
+    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
             <h2 class="text-2xl font-bold text-[#111418] dark:text-white">Gestión de Usuarios</h2>
             <p class="text-[#617289] dark:text-gray-400 mt-1">Administra el personal y sus roles de acceso.</p>
         </div>
-        <button (click)="openDialog()"
-            class="h-10 px-4 rounded-lg bg-primary text-white font-bold text-sm hover:bg-primary/90 transition-colors shadow-sm flex items-center gap-2">
-            <span class="material-symbols-outlined">person_add</span> Nuevo Usuario
+        <button
+            class="flex items-center gap-2 bg-primary hover:bg-primary-hover text-white px-4 py-2 rounded-lg font-bold text-sm shadow-sm transition-all active:scale-95"
+            (click)="openDialog()">
+            <span class="material-symbols-outlined text-[18px]">add</span>
+            <span>Nuevo Usuario</span>
         </button>
     </div>
 
+    <!-- Main Content Card -->
     <section
-        class="bg-white dark:bg-surface-dark rounded-xl shadow-sm border border-border-light dark:border-border-dark overflow-hidden mb-8">
-        <div class="px-6 py-4 border-b border-border-light dark:border-border-dark flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="p-2 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg text-indigo-600 dark:text-indigo-400">
-                    <span class="material-symbols-outlined">group</span>
-                </div>
-                <h3 class="text-lg font-bold text-[#111418] dark:text-white">Usuarios del Sistema</h3>
-            </div>
+        class="bg-white dark:bg-surface-dark rounded-xl shadow-sm border border-border-light dark:border-border-dark overflow-hidden flex-1 flex flex-col min-h-0">
 
-            <!-- Search Bar -->
-            <div class="relative w-64">
+        <!-- Search & Filter Header -->
+        <div
+            class="p-4 border-b border-border-light dark:border-border-dark flex flex-col md:flex-row gap-4 justify-between items-center bg-background-light/50 dark:bg-background-dark/50">
+            <div class="relative flex-1 w-full md:max-w-md">
                 <span
-                    class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xl">search</span>
-                <input [(ngModel)]="searchTerm" type="text" placeholder="Buscar usuario..."
-                    class="w-full h-10 pl-10 pr-4 rounded-lg bg-background-light dark:bg-background-dark border-transparent focus:border-primary focus:ring-0 text-sm" />
+                    class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#617289] dark:text-gray-400 text-[20px]">search</span>
+                <input
+                    class="w-full h-10 pl-10 pr-4 rounded-lg bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder-gray-400"
+                    placeholder="Buscar por nombre, email o rol..." type="text" [(ngModel)]="searchQuery"
+                    (ngModelChange)="onSearch($event)" />
             </div>
         </div>
 
-        <div class="p-6">
-            <app-custom-table [columns]="columns" [data]="filteredUsers" (onEdit)="openDialog($event)"
-                (onDelete)="deleteUser($event)" [columnTemplates]="{ role: roleTmpl }">
+        <!-- Users Table -->
+        <div class="p-0 flex-1 min-h-0 flex flex-col">
+            <app-custom-table [columns]="columns" [data]="data" [totalItems]="totalItems" [page]="page"
+                [pageSize]="pageSize" [showEdit]="true" [showDelete]="true" [showPagination]="true"
+                (pageChange)="onPageChange($event)" (pageSizeChange)="onPageSizeChange($event)"
+                (onEdit)="openDialog($event)" (onDelete)="deleteUser($event)" [columnTemplates]="{ role: roleTmpl }">
             </app-custom-table>
         </div>
     </section>
 
     <ng-template #roleTmpl let-user>
-        <span class="px-2.5 py-1 rounded-md text-xs font-bold border" [ngClass]="{
+        <span class="px-2.5 py-1 rounded-md text-xs font-bold border inline-block" [ngClass]="{
             'bg-purple-50 text-purple-700 border-purple-100 dark:bg-purple-900/20 dark:text-purple-300 dark:border-purple-800': user.role === 'ADMIN',
             'bg-blue-50 text-blue-700 border-blue-100 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-800': user.role === 'ODONTOLOGO',
             'bg-green-50 text-green-700 border-green-100 dark:bg-green-900/20 dark:text-green-300 dark:border-green-800': user.role === 'RECEPCION'

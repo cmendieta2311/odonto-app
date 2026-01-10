@@ -132,9 +132,9 @@
                         <label class="text-sm font-medium text-[#618389] dark:text-gray-400">Monto a pagar</label>
                         <div class="relative flex items-center">
                             <span class="absolute left-4 text-[#111718] dark:text-white font-bold text-xl">₲</span>
-                            <input [(ngModel)]="amount" type="number"
+                            <input [ngModel]="displayAmount" (ngModelChange)="onAmountInput($event)" type="text"
                                 class="w-full rounded-lg border border-[#dbe4e6] dark:border-gray-700 bg-background-light dark:bg-black/20 h-14 pl-10 pr-4 text-2xl font-bold text-[#111718] dark:text-white focus:border-primary focus:ring-0 placeholder:text-gray-300"
-                                placeholder="0.00" />
+                                placeholder="0" />
                         </div>
                     </div>
                     <div class="flex flex-col gap-2">
@@ -147,38 +147,41 @@
                     </div>
                 </div>
 
+                <!-- Document Type -->
+                <div class="flex flex-col gap-3">
+                    <label class="text-sm font-medium text-[#618389] dark:text-gray-400">Tipo de Documento</label>
+                    <div class="flex gap-4">
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" value="INVOICE" [(ngModel)]="documentType"
+                                class="w-5 h-5 text-primary border-gray-300 focus:ring-primary">
+                            <span class="text-[#111718] dark:text-white font-medium">Factura</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" value="RECEIPT" [(ngModel)]="documentType"
+                                class="w-5 h-5 text-primary border-gray-300 focus:ring-primary">
+                            <span class="text-[#111718] dark:text-white font-medium">Recibo</span>
+                        </label>
+                    </div>
+                </div>
+
                 <!-- Payment Method -->
                 <div class="flex flex-col gap-3">
                     <label class="text-sm font-medium text-[#618389] dark:text-gray-400">Método de Pago</label>
                     <div class="grid grid-cols-2 gap-4">
-                        <label class="flex items-center gap-3 p-4 rounded-lg border cursor-pointer transition-all"
-                            [ngClass]="paymentMethod === 'CASH' ? 'border-primary bg-primary/5' : 'border-[#dbe4e6] dark:border-gray-700 bg-background-light dark:bg-black/20 hover:bg-gray-50 dark:hover:bg-white/5'">
+                        <label *ngFor="let method of availablePaymentMethods"
+                            class="flex items-center gap-3 p-4 rounded-lg border cursor-pointer transition-all"
+                            [ngClass]="selectedPaymentMethod?.id === method.id ? 'border-primary bg-primary/5' : 'border-[#dbe4e6] dark:border-gray-700 bg-background-light dark:bg-black/20 hover:bg-gray-50 dark:hover:bg-white/5'">
                             <input type="radio" name="payment_method"
                                 class="w-5 h-5 text-primary border-gray-300 focus:ring-primary"
-                                [checked]="paymentMethod === 'CASH'" (change)="selectPaymentMethod('CASH')">
-                            <span class="text-base font-bold text-[#111718] dark:text-white">Efectivo</span>
-                        </label>
-                        <label class="flex items-center gap-3 p-4 rounded-lg border cursor-pointer transition-all"
-                            [ngClass]="paymentMethod === 'CREDIT_CARD' ? 'border-primary bg-primary/5' : 'border-[#dbe4e6] dark:border-gray-700 bg-background-light dark:bg-black/20 hover:bg-gray-50 dark:hover:bg-white/5'">
-                            <input type="radio" name="payment_method"
-                                class="w-5 h-5 text-primary border-gray-300 focus:ring-primary"
-                                [checked]="paymentMethod === 'CREDIT_CARD'"
-                                (change)="selectPaymentMethod('CREDIT_CARD')">
-                            <span class="text-base font-bold text-[#111718] dark:text-white">Crédito</span>
-                        </label>
-                        <label class="flex items-center gap-3 p-4 rounded-lg border cursor-pointer transition-all"
-                            [ngClass]="paymentMethod === 'DEBIT_CARD' ? 'border-primary bg-primary/5' : 'border-[#dbe4e6] dark:border-gray-700 bg-background-light dark:bg-black/20 hover:bg-gray-50 dark:hover:bg-white/5'">
-                            <input type="radio" name="payment_method"
-                                class="w-5 h-5 text-primary border-gray-300 focus:ring-primary"
-                                [checked]="paymentMethod === 'DEBIT_CARD'" (change)="selectPaymentMethod('DEBIT_CARD')">
-                            <span class="text-base font-bold text-[#111718] dark:text-white">Débito</span>
-                        </label>
-                        <label class="flex items-center gap-3 p-4 rounded-lg border cursor-pointer transition-all"
-                            [ngClass]="paymentMethod === 'TRANSFER' ? 'border-primary bg-primary/5' : 'border-[#dbe4e6] dark:border-gray-700 bg-background-light dark:bg-black/20 hover:bg-gray-50 dark:hover:bg-white/5'">
-                            <input type="radio" name="payment_method"
-                                class="w-5 h-5 text-primary border-gray-300 focus:ring-primary"
-                                [checked]="paymentMethod === 'TRANSFER'" (change)="selectPaymentMethod('TRANSFER')">
-                            <span class="text-base font-bold text-[#111718] dark:text-white">Transferencia</span>
+                                [checked]="selectedPaymentMethod?.id === method.id"
+                                (change)="selectPaymentMethod(method)">
+                            <div class="flex flex-col">
+                                <span class="text-base font-bold text-[#111718] dark:text-white">{{method.name}}</span>
+                                <span *ngIf="method.code === 'TRANSFER' || method.code === 'OTHER'"
+                                    class="text-xs text-[#618389]">
+                                    {{method.requiresReference ? 'Requiere referencia' : ''}}
+                                </span>
+                            </div>
                         </label>
                     </div>
                 </div>

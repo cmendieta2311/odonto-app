@@ -11,8 +11,13 @@ async function bootstrap() {
     transform: true,
   }));
   app.setGlobalPrefix('api/v1');
+  const corsOrigins = process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',').map(origin => origin.trim()) : [];
+  if (!corsOrigins.includes('http://localhost:4200')) {
+    corsOrigins.push('http://localhost:4200');
+  }
+
   app.enableCors({
-    origin: process.env.CORS_ORIGIN || '*',
+    origin: corsOrigins.length > 0 ? corsOrigins : '*',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });

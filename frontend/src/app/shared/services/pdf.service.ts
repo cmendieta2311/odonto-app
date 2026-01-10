@@ -10,33 +10,49 @@ export class PdfService {
 
     constructor() { }
 
-    generateQuotePdf(quote: Quote, clinicInfo: any) {
+    async generateQuotePdf(quote: Quote, clinicInfo: any) {
         const doc = new jsPDF();
         const pageWidth = doc.internal.pageSize.width;
         const pageHeight = doc.internal.pageSize.height;
 
         // --- Header ---
+        let headerY = 20;
+
+        // Logo
+        if (clinicInfo?.logoUrl) {
+            try {
+                const imgData = await this.getBase64ImageFromURL(clinicInfo.logoUrl);
+                if (imgData) {
+                    doc.addImage(imgData, 14, 10, 30, 30, undefined, 'FAST');
+                }
+            } catch (e) {
+                console.error('Error loading logo for PDF', e);
+            }
+        }
+
+        const textX = clinicInfo?.logoUrl ? 50 : 14;
+
         doc.setFontSize(22);
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(0, 169, 224); // Primary Blue
-        doc.text(clinicInfo?.businessName || 'DentalApp Clinic', 14, 20);
+        doc.text(clinicInfo?.businessName || 'DentalApp Clinic', textX, 20);
 
         doc.setFontSize(9);
         doc.setFont('helvetica', 'normal');
         doc.setTextColor(100);
 
-        let headerY = 26;
+        headerY = 26;
         const ruc = clinicInfo?.ruc || '';
         const address = clinicInfo?.address || 'Dirección de la Clínica';
         const phone = clinicInfo?.phone || '';
         const email = clinicInfo?.email || '';
 
         if (ruc) {
-            doc.text(`RUC: ${ruc}`, 14, headerY);
+            doc.text(`RUC: ${ruc}`, textX, headerY);
             headerY += 5;
         }
 
-        doc.text(address, 14, headerY);
+        doc.text(address, textX, headerY);
         headerY += 5;
 
         let contactInfo = '';
@@ -44,7 +60,7 @@ export class PdfService {
         if (email) contactInfo += (contactInfo ? ' | ' : '') + `${email}`;
 
         if (contactInfo) {
-            doc.text(contactInfo, 14, headerY);
+            doc.text(contactInfo, textX, headerY);
         }
 
         // --- Title & Quote Info ---
@@ -296,5 +312,251 @@ export class PdfService {
     private printSummaryLine(doc: jsPDF, label: string, value: string, y: number, rightX: number) {
         doc.text(label, rightX - 60, y);
         doc.text(value, rightX, y, { align: 'right' });
+    }
+
+    private async getBase64ImageFromURL(url: string): Promise<string> {
+        return new Promise(async (resolve, reject) => { // added async to internal callback for cleaner await if needed, or just use fetch promise chain
+            try {
+                const response = await fetch(url);
+                const blob = await response.blob();
+                const reader = new FileReader();
+
+                reader.onloadend = () => {
+                    if (reader.result) {
+                        resolve(reader.result as string);
+                    } else {
+                        reject(new Error('Failed to convert blob to base64'));
+                    }
+                };
+
+                reader.onerror = () => {
+                    reject(new Error('Failed to read blob'));
+                };
+
+                reader.readAsDataURL(blob);
+
+            } catch (e) {
+                reject(e);
+            }
+        });
+    }
+
+    async generateCashReportPdf(data: { summary: any, movements: any[], status: any, date: Date, userName?: string, openUser?: string }, clinicInfo: any) {
+        const doc = new jsPDF();
+        const pageWidth = doc.internal.pageSize.width;
+        // const pageHeight = doc.internal.pageSize.height; // Unused for now
+
+        // --- Header ---
+        let headerY = 20;
+
+        // Logo
+        if (clinicInfo?.logoUrl) {
+            try {
+                const imgData = await this.getBase64ImageFromURL(clinicInfo.logoUrl);
+                if (imgData) {
+                    doc.addImage(imgData, 14, 10, 30, 30, undefined, 'FAST');
+                }
+            } catch (e) {
+                console.error('Error loading logo for PDF', e);
+            }
+        }
+
+        const textX = clinicInfo?.logoUrl ? 50 : 14;
+
+        doc.setFontSize(22);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(0, 169, 224); // Primary Blue
+        doc.text(clinicInfo?.businessName || 'DentalApp Clinic', textX, 20);
+
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(100);
+
+        headerY = 26;
+        const ruc = clinicInfo?.ruc || '';
+        const address = clinicInfo?.address || 'Dirección de la Clínica';
+        const phone = clinicInfo?.phone || '';
+        const email = clinicInfo?.email || '';
+
+        if (ruc) {
+            doc.text(`RUC: ${ruc}`, textX, headerY);
+            headerY += 5;
+        }
+
+        doc.text(address, textX, headerY);
+        headerY += 5;
+
+        let contactInfo = '';
+        if (phone) contactInfo += `Tel: ${phone}`;
+        if (email) contactInfo += (contactInfo ? ' | ' : '') + `${email}`;
+
+        if (contactInfo) {
+            doc.text(contactInfo, textX, headerY);
+        }
+
+        // --- Title and Date ---
+        doc.setFontSize(16);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(50);
+        doc.text('REPORTE DE CAJA', pageWidth - 14, 20, { align: 'right' });
+
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(100);
+        doc.text(`Fecha: ${new Date(data.date).toLocaleDateString()}`, pageWidth - 14, 28, { align: 'right' });
+        doc.text(`Generado: ${new Date().toLocaleTimeString()}`, pageWidth - 14, 33, { align: 'right' });
+
+        if (data.userName) {
+            doc.setFontSize(8);
+            doc.text(`Por: ${data.userName}`, pageWidth - 14, 38, { align: 'right' });
+        }
+
+        if (data.openUser) {
+            doc.setFontSize(9);
+            doc.setTextColor(50);
+            doc.text(`Cajero: ${data.openUser}`, 14, 38);
+        }
+
+
+        // --- Summary Section ---
+        let currentY = 50;
+
+        // Draw a line separator
+        doc.setDrawColor(230);
+        doc.line(14, 45, pageWidth - 14, 45);
+
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(30);
+        doc.text('Resumen del Día', 14, currentY);
+
+        const summaryData = [
+            ['Saldo Inicial', Number(data.status.startBalance).toLocaleString('es-PY', { style: 'currency', currency: 'PYG' })],
+            ['Total Ingresos', Number(data.summary.income).toLocaleString('es-PY', { style: 'currency', currency: 'PYG' })],
+            ['Total Egresos', Number(data.summary.expense).toLocaleString('es-PY', { style: 'currency', currency: 'PYG' })],
+            ['Saldo Actual', Number(data.status.currentBalance).toLocaleString('es-PY', { style: 'currency', currency: 'PYG' })]
+        ];
+
+        autoTable(doc, {
+            startY: currentY + 5,
+            head: [['Concepto', 'Monto']],
+            body: summaryData,
+            theme: 'plain',
+            styles: { fontSize: 10, cellPadding: 2 },
+            headStyles: { fontStyle: 'bold', fillColor: [248, 250, 252], textColor: [100, 116, 139] },
+            columnStyles: {
+                0: { cellWidth: 50, fontStyle: 'bold' },
+                1: { cellWidth: 50, halign: 'right' }
+            }
+        });
+
+        // --- Summary by Payment Method ---
+        const lastSummaryY = (doc as any).lastAutoTable.finalY || 40;
+        currentY = lastSummaryY + 15;
+
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(30);
+        doc.text('Resumen por Método de Pago', 14, currentY);
+
+        // Calculate totals by method
+        const methodTotals: Record<string, number> = {};
+        data.movements.forEach(m => {
+            const amount = Number(m.amount);
+            if (m.type === 'INCOME') { // Using string literal as seen in previous logic
+                methodTotals[m.paymentMethod] = (methodTotals[m.paymentMethod] || 0) + amount;
+            } else if (m.type === 'EXPENSE') {
+                methodTotals[m.paymentMethod] = (methodTotals[m.paymentMethod] || 0) - amount;
+            }
+        });
+
+        const methodData = Object.entries(methodTotals).map(([method, total]) => [
+            method,
+            total.toLocaleString('es-PY', { style: 'currency', currency: 'PYG' })
+        ]);
+
+        autoTable(doc, {
+            startY: currentY + 5,
+            head: [['Método', 'Total Neto']],
+            body: methodData,
+            theme: 'plain',
+            styles: { fontSize: 9, cellPadding: 2 },
+            headStyles: { fontStyle: 'bold', fillColor: [248, 250, 252], textColor: [100, 116, 139] },
+            columnStyles: {
+                0: { cellWidth: 50, fontStyle: 'bold' },
+                1: { cellWidth: 50, halign: 'right' }
+            }
+        });
+
+
+        // --- Movements Section ---
+        const lastMethodY = (doc as any).lastAutoTable.finalY;
+        currentY = lastMethodY + 15;
+
+        // Check page break
+        if (currentY + 50 > doc.internal.pageSize.height) {
+            doc.addPage();
+            currentY = 20;
+        }
+
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(30);
+        doc.text('Detalle de Movimientos', 14, currentY);
+
+        const movementsData = data.movements
+            .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+            .map(m => {
+                const amount = Number(m.amount);
+                return [
+                    new Date(m.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                    m.description,
+                    m.referenceId || '-',
+                    m.paymentMethod,
+                    // Income Column
+                    (m.type === 'INCOME' || m.type === 'OPENING') ? amount.toLocaleString('es-PY', { style: 'currency', currency: 'PYG' }) : '-',
+                    // Expense Column
+                    (m.type === 'EXPENSE' || m.type === 'CLOSING') ? amount.toLocaleString('es-PY', { style: 'currency', currency: 'PYG' }) : '-'
+                ];
+            });
+
+        autoTable(doc, {
+            startY: currentY + 5,
+            head: [['Hora', 'Descripción', 'Ref', 'Método', 'Ingreso', 'Egreso']],
+            body: movementsData,
+            theme: 'striped',
+            headStyles: {
+                fillColor: [22, 163, 74], // Emerald color
+                textColor: 255,
+                fontStyle: 'bold'
+            },
+            styles: { fontSize: 8, cellPadding: 2, valign: 'middle' }, // Slightly smaller font
+            columnStyles: {
+                0: { cellWidth: 15 }, // Time
+                1: { cellWidth: 'auto' }, // Desc
+                2: { cellWidth: 20 }, // Ref
+                3: { cellWidth: 25 }, // Method
+                4: { cellWidth: 25, halign: 'right', textColor: [22, 163, 74] }, // Income (Green)
+                5: { cellWidth: 25, halign: 'right', textColor: [220, 38, 38] }  // Expense (Red)
+            }
+        });
+
+        // --- Footer & Page Numbers ---
+        const pageCount = doc.getNumberOfPages();
+        for (let i = 1; i <= pageCount; i++) {
+            doc.setPage(i);
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(8);
+            doc.setTextColor(150);
+            doc.text('Generado por DentalApp', 14, doc.internal.pageSize.height - 10);
+            doc.text(`Página ${i} de ${pageCount}`, pageWidth - 14, doc.internal.pageSize.height - 10, { align: 'right' });
+        }
+
+        // Save
+        window.open(doc.output('bloburl'), '_blank');
+    }
+
+    private retrieveOriginalItem(data: any[], index: number) {
+        return data[index];
     }
 }

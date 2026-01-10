@@ -45,4 +45,7 @@ export class CreateQuoteDto {
     @IsOptional()
     @Min(1)
     installments?: number;
+
+    @IsOptional()
+    observations?: string;
 }

@@ -1,5 +1,5 @@
 import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsUUID, Min, IsString } from 'class-validator';
-import { PaymentMethod } from '@prisma/client';
+import { PaymentType } from '@prisma/client';
 
 export class CreatePaymentDto {
     @IsOptional()
@@ -14,11 +14,19 @@ export class CreatePaymentDto {
     @Min(0.01)
     amount: number;
 
-    @IsEnum(PaymentMethod)
-    @IsNotEmpty()
-    method: PaymentMethod;
+    @IsEnum(PaymentType)
+    @IsOptional()
+    method?: PaymentType;
+
+    @IsOptional()
+    @IsUUID()
+    paymentMethodId?: string;
 
     @IsOptional()
     @IsString()
     notes?: string;
+
+    @IsOptional()
+    @IsString()
+    documentType?: 'INVOICE' | 'RECEIPT';
 }

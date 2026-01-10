@@ -28,6 +28,7 @@ export class OdontogramComponent implements OnInit, OnChanges {
 
     @Output() toothSelected = new EventEmitter<number>();
     @Output() recordsChange = new EventEmitter<ServicePerformed[]>();
+    @Output() teethStatusChange = new EventEmitter<{ [key: number]: ToothSurfaceStatus }>();
 
     // Services
     private clinicalService = inject(ClinicalService);
@@ -120,6 +121,7 @@ export class OdontogramComponent implements OnInit, OnChanges {
 
         // Assign new reference to trigger CD
         this.teethStatus = newStatus;
+        this.teethStatusChange.emit(this.teethStatus);
     }
 
     updateLocalState(tooth: number, surface: string, status: string) {
@@ -141,6 +143,7 @@ export class OdontogramComponent implements OnInit, OnChanges {
             ...this.teethStatus,
             [tooth]: currentToothStatus
         };
+        this.teethStatusChange.emit(this.teethStatus);
     }
 
     onSurfaceClick(tooth: number, surface: string) {

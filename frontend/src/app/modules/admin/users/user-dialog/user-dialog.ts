@@ -1,6 +1,6 @@
-import { Component, Inject, inject } from '@angular/core';
+import { Component, Inject, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { UsersService } from '../users.service';
 import { User, Role } from '../users.models';
@@ -26,15 +26,38 @@ export class UserDialogComponent {
             name: [data.user?.name || '', Validators.required],
             email: [data.user?.email || '', [Validators.required, Validators.email]],
             role: [{ value: data.fixedRole || data.user?.role || Role.ODONTOLOGO, disabled: !!data.fixedRole }, Validators.required],
-            password: ['', data.user ? [] : [Validators.required, Validators.minLength(6)]]
-        });
+            password: ['', data.user ? [] : [Validators.required, Validators.minLength(6)]],
+            confirmPassword: ['']
+        }, { validators: this.passwordMatchValidator });
+    }
+
+    passwordMatchValidator(control: AbstractControl): ValidationErrors | null {
+        const password = control.get('password');
+        const confirmPassword = control.get('confirmPassword');
+
+        // Only validate if password is dirty or touched (or creating new user)
+        if (!password || !confirmPassword) return null;
+
+        if (password.value !== confirmPassword.value && (password.dirty || password.touched || confirmPassword.dirty || confirmPassword.touched)) {
+            confirmPassword.setErrors({ mismatch: true });
+            return { mismatch: true };
+        } else {
+            // Clear mismatch error if it was the only one
+            if (confirmPassword.hasError('mismatch')) {
+                confirmPassword.setErrors(null);
+            }
+        }
+        return null;
     }
 
     save() {
         if (this.form.invalid) return;
 
         this.isSaving = true;
-        const formValue = this.form.getRawValue(); // Use getRawValue() to include disabled fields
+        const formValue = this.form.getRawValue();
+
+        // Remove confirmPassword from DTO
+        delete formValue.confirmPassword;
 
         if (this.data.user) {
             // Update

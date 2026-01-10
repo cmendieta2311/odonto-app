@@ -15,8 +15,8 @@ export interface TableColumn {
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="bg-surface-light dark:bg-surface-dark rounded-xl border border-[#dbe4e6] dark:border-[#2a3e42] shadow-sm overflow-hidden flex flex-col">
-      <div class="overflow-x-auto">
+    <div class="bg-surface-light dark:bg-surface-dark rounded-xl border border-[#dbe4e6] dark:border-[#2a3e42] shadow-sm overflow-hidden flex flex-col h-full">
+      <div class="overflow-x-auto flex-1">
         <table class="w-full text-left border-collapse">
           <thead>
             <tr class="bg-background-light dark:bg-background-dark border-b border-[#dbe4e6] dark:border-[#2a3e42]">
@@ -106,7 +106,7 @@ export interface TableColumn {
     </div>
   `,
   styles: [`
-    :host { display: block; }
+    :host { display: block; height: 100%; }
   `]
 })
 export class CustomTableComponent {

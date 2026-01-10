@@ -33,9 +33,9 @@
                 <label class="text-sm font-bold text-text-main-light dark:text-text-main-dark">Monto a pagar</label>
                 <div class="relative">
                     <span class="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary-light font-bold">₲</span>
-                    <input type="number" formControlName="amount"
+                    <input type="text" [value]="formattedAmount" (input)="onAmountInput($event)"
                         class="w-full h-11 pl-8 pr-4 rounded-xl bg-surface-white dark:bg-surface-dark border border-[#dbe4e6] dark:border-[#2a3e42] text-sm text-text-main-light dark:text-text-main-dark focus:ring-2 focus:ring-primary outline-none transition-all"
-                        placeholder="0.00">
+                        placeholder="0">
                 </div>
                 <p *ngIf="form.get('amount')?.errors?.['max']" class="text-[10px] text-red-500 font-bold italic">
                     El monto no puede exceder el saldo pendiente.
@@ -48,7 +48,7 @@
                 <div class="relative">
                     <select formControlName="method"
                         class="w-full h-11 pl-4 pr-10 rounded-xl bg-surface-white dark:bg-surface-dark border border-[#dbe4e6] dark:border-[#2a3e42] text-sm text-text-main-light dark:text-text-main-dark focus:ring-2 focus:ring-primary outline-none appearance-none cursor-pointer transition-all">
-                        <option *ngFor="let method of paymentMethods" [value]="method">{{ method }}</option>
+                        <option *ngFor="let opt of paymentOpts" [value]="opt.value">{{ opt.label }}</option>
                     </select>
                     <span
                         class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary-light pointer-events-none">expand_more</span>

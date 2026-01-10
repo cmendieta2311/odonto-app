@@ -55,6 +55,7 @@ export class MainLayoutComponent {
         { label: 'Contratos', icon: 'description', route: '/commercial/contracts' },
         { label: 'Cobros', icon: 'payments', route: '/payments' },
         { label: 'Facturación', icon: 'receipt_long', route: '/admin/invoices' },
+        { label: 'Caja', icon: 'point_of_sale', route: '/admin/cash' }
       ]
     },
     {
@@ -72,6 +73,7 @@ export class MainLayoutComponent {
       items: [
         { label: 'Clínica', icon: 'settings', route: '/configuration/general' },
         { label: 'Facturación', icon: 'receipt_long', route: '/configuration/billing' },
+        { label: 'Métodos de Pago', icon: 'payments', route: '/configuration/payment-methods' },
         {
           label: 'Catálogo de Servicios',
           icon: 'category',

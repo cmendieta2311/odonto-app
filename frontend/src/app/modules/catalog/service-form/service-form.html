@@ -70,9 +70,9 @@
         <div class="flex flex-col gap-2">
             <label class="text-sm font-bold text-[#618389]">Precio *</label>
             <div class="relative">
-                <input type="number" formControlName="price"
+                <input type="text" [value]="priceDisplay" (input)="onPriceInput($event)"
                     class="w-full p-3 bg-gray-50 dark:bg-[#101f22] border border-gray-200 dark:border-gray-700 rounded-lg outline-none focus:border-primary font-bold">
-                <span class="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-[#64748b]">₲</span>
+                <span class="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-[#64748b]">Gs.</span>
             </div>
         </div>
 

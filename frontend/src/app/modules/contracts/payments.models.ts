@@ -11,5 +11,8 @@ export interface CreatePaymentDto {
     contractId?: string;
     invoiceId?: string;
     amount: number;
-    method: string;
+    method?: string;
+    paymentMethodId?: string;
+    notes?: string;
+    documentType?: 'INVOICE' | 'RECEIPT';
 }

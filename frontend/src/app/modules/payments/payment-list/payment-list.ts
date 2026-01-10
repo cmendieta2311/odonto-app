@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -27,6 +27,7 @@ interface ContractReceivable {
     templateUrl: './payment-list.html'
 })
 export class PaymentListComponent extends BaseListComponent<ContractReceivable> implements OnInit {
+    @Input() patientId: string | null = null;
     private contractsService = inject(ContractsService);
     private router = inject(Router);
 
@@ -54,7 +55,7 @@ export class PaymentListComponent extends BaseListComponent<ContractReceivable> 
         // Fetch ACTIVE contracts to find receivables
         // Note: Ideally we want a backend endpoint specifically for 'Receivables' to filter only those with balance > 0
         // For now using getContracts with status='ACTIVE'
-        this.contractsService.getContracts(this.page, this.pageSize, this.searchQuery, 'ACTIVE')
+        this.contractsService.getContracts(this.page, this.pageSize, this.searchQuery, 'ACTIVE', '', this.patientId || '')
             .subscribe({
                 next: (res) => {
                     this.processContracts(res.data);

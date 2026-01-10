@@ -38,6 +38,7 @@ export class QuoteListComponent extends BaseListComponent<Quote> implements OnIn
   statusFilter = '';
 
   columns: TableColumn[] = [
+    { key: 'number', label: 'N°' },
     { key: 'createdAt', label: 'Fecha' },
     { key: 'patient', label: 'Paciente' },
     { key: 'total', label: 'Total ($)' },

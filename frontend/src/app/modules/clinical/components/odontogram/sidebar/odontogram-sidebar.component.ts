@@ -97,12 +97,17 @@ import { ToothSurfaceStatus } from '../tooth/tooth.component';
                                 <p class="text-xs text-slate-500 truncate">
                                     {{ item.surface ? 'Cara ' + item.surface : 'Diente Completo' }}
                                 </p>
-                                <!-- Status Badge (Mock logic for now as 'Completado') -->
-                                <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-800">
-                                    Completado
+                                <!-- Status Badge -->
+                                <span [class]="'inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium ' + getRecordStatusColor(item)">
+                                    {{ getRecordStatus(item) }}
                                 </span>
                             </div>
                         </div>
+
+                        <!-- Delete Action -->
+                        <button (click)="onDelete(item)" class="p-1 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors opacity-0 group-hover:opacity-100" title="Eliminar registro">
+                            <span class="material-symbols-outlined text-[18px]">delete</span>
+                        </button>
                      </div>
                  </ng-container>
 
@@ -136,11 +141,18 @@ export class OdontogramSidebarComponent {
     @Input() selectedTooth: number | null = null;
     @Input() teethStatus: { [key: number]: ToothSurfaceStatus } = {};
     @Input() treatments: any[] = []; // ServicePerformed[]
+    @Output() deleteRecord = new EventEmitter<any>();
 
     hasStatus(tooth: number): boolean {
         const statuses = this.teethStatus[tooth];
         if (!statuses) return false;
         return Object.values(statuses).some(s => s);
+    }
+
+    onDelete(record: any) {
+        if (confirm('¿Está seguro de eliminar este registro?')) {
+            this.deleteRecord.emit(record);
+        }
     }
 
     getToothStatuses(tooth: number): string[] {
@@ -178,5 +190,30 @@ export class OdontogramSidebarComponent {
     formatDate(dateStr: string): string {
         if (!dateStr) return '';
         return new Date(dateStr).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
+    }
+
+    getRecordStatus(record: any): string {
+        const notes = (record.notes?.toLowerCase() || '') + (record.service?.name?.toLowerCase() || '');
+
+        if (notes.includes('caries')) return 'Diagnóstico';
+        if (notes.includes('restauración') || notes.includes('curación') || notes.includes('resina')) return 'Tratamiento';
+        if (notes.includes('extracc')) return 'Procedimiento';
+
+        return 'Registrado';
+    }
+
+    getRecordStatusColor(record: any): string {
+        const status = this.getRecordStatus(record);
+
+        switch (status) {
+            case 'Diagnóstico':
+                return 'bg-amber-50 text-amber-700 border border-amber-100 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800';
+            case 'Tratamiento':
+                return 'bg-emerald-50 text-emerald-700 border border-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-800';
+            case 'Procedimiento':
+                return 'bg-slate-100 text-slate-700 border border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700';
+            default:
+                return 'bg-blue-50 text-blue-700 border border-blue-100 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800';
+        }
     }
 }

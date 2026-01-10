@@ -1,11 +1,12 @@
 import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { AuthService } from './auth.service';
 import { catchError, throwError } from 'rxjs';
 
 export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
     const token = localStorage.getItem('access_token');
-    const router = inject(Router);
+    const authService = inject(AuthService);
 
     if (token) {
         req = req.clone({
@@ -19,8 +20,7 @@ export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
         catchError((error: HttpErrorResponse) => {
             if (error.status === 401) {
                 // Token expired or invalid
-                localStorage.removeItem('access_token');
-                router.navigate(['/auth/login']);
+                authService.logout();
             }
             return throwError(() => error);
         })

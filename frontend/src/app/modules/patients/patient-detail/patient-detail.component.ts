@@ -1,18 +1,24 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { PatientsService } from '../patients.service';
+import { ClinicalService } from '../../clinical/clinical.service';
 import { Patient } from '../patients.models';
 import { OdontogramComponent } from '../../clinical/components/odontogram/odontogram.component';
 import { OdontogramSidebarComponent } from '../../clinical/components/odontogram/sidebar/odontogram-sidebar.component';
 import { ClinicalHistoryComponent } from '../../clinical/components/clinical-history/clinical-history.component';
+import { InvoiceListComponent } from '../../invoices/invoice-list/invoice-list';
+import { PaymentListComponent } from '../../payments/payment-list/payment-list';
+import { PatientFilesComponent } from '../components/patient-files/patient-files.component';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 
 @Component({
     selector: 'app-patient-detail',
     standalone: true,
-    imports: [CommonModule, RouterModule, ReactiveFormsModule, MatSnackBarModule, OdontogramComponent, OdontogramSidebarComponent, ClinicalHistoryComponent],
+    imports: [CommonModule, RouterModule, ReactiveFormsModule, MatSnackBarModule,
+        OdontogramComponent, OdontogramSidebarComponent, ClinicalHistoryComponent,
+        InvoiceListComponent, PaymentListComponent, PatientFilesComponent],
     templateUrl: './patient-detail.html',
     styles: [`
         /* Custom scrollbar */
@@ -37,9 +43,11 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
     `]
 })
 export class PatientDetailComponent implements OnInit {
+    // Services
     private route = inject(ActivatedRoute);
     private router = inject(Router);
     private patientsService = inject(PatientsService);
+    private clinicalService = inject(ClinicalService); // Inject ClinicalService
     private snackBar = inject(MatSnackBar);
     private fb = inject(FormBuilder);
 
@@ -48,9 +56,12 @@ export class PatientDetailComponent implements OnInit {
     isLoading = true;
     activeTab: 'summary' | 'odontogram' | 'history' | 'financial' | 'files' = 'summary';
 
+    @ViewChild(OdontogramComponent) odontogramComponent!: OdontogramComponent;
+
     selectedTooth: number | null = null;
     clinicalRecords: any[] = [];
     selectedToothTreatments: any[] = [];
+    currentTeethStatus: { [key: number]: any } = {};
 
     onToothSelected(tooth: number) {
         this.selectedTooth = tooth;
@@ -60,6 +71,29 @@ export class PatientDetailComponent implements OnInit {
     onRecordsChange(records: any[]) {
         this.clinicalRecords = records;
         this.filterTreatments();
+    }
+
+    onTeethStatusChange(status: { [key: number]: any }) {
+        this.currentTeethStatus = status;
+    }
+
+    onDeleteRecord(record: any) {
+        this.isLoading = true;
+        this.clinicalService.deleteRecord(record.id).subscribe({
+            next: () => {
+                this.snackBar.open('Registro eliminado correctamente', 'Cerrar', { duration: 3000 });
+                // Refresh Odontogram data
+                if (this.odontogramComponent) {
+                    this.odontogramComponent.loadClinicalData();
+                }
+                this.isLoading = false;
+            },
+            error: (err) => {
+                console.error(err);
+                this.snackBar.open('Error al eliminar el registro', 'Cerrar', { duration: 3000 });
+                this.isLoading = false;
+            }
+        });
     }
 
     private filterTreatments() {
@@ -150,18 +184,22 @@ export class PatientDetailComponent implements OnInit {
         if (this.patientForm.invalid) return;
 
         const formValue = this.patientForm.getRawValue();
-        // Here we would call the service to update.
-        // For now, we simulate update in UI.
+        this.isLoading = true; // Show loading state
 
-        // Merge form values back into local patient object to reflect changes immediately
-        this.patient = { ...this.patient!, ...formValue };
-
-        this.isEditing = false;
-        this.patientForm.disable();
-        this.snackBar.open('Ficha actualizada correctamente', 'Cerrar', { duration: 3000 });
-
-        // TODO: Call actual update endpoint
-        // this.patientsService.updatePatient(this.patientId!, formValue).subscribe(...)
+        this.patientsService.updatePatient(this.patientId!, formValue).subscribe({
+            next: (updatedPatient) => {
+                this.patient = updatedPatient;
+                this.isEditing = false;
+                this.patientForm.disable();
+                this.snackBar.open('Ficha actualizada correctamente', 'Cerrar', { duration: 3000 });
+                this.isLoading = false;
+            },
+            error: (err) => {
+                console.error(err);
+                this.snackBar.open('Error al actualizar la ficha', 'Cerrar', { duration: 3000 });
+                this.isLoading = false;
+            }
+        });
     }
 
     editPatient() {

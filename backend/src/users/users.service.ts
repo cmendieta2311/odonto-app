@@ -1,4 +1,4 @@
-import { Injectable, ConflictException } from '@nestjs/common';
+import { Injectable, ConflictException, BadRequestException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from '../prisma/prisma.service';
@@ -70,6 +70,15 @@ export class UsersService {
   }
 
   async remove(id: string) {
+    const user = await this.prisma.user.findUnique({ where: { id } });
+
+    if (user && user.role === 'ADMIN') {
+      const adminCount = await this.prisma.user.count({ where: { role: 'ADMIN' } });
+      if (adminCount <= 1) {
+        throw new BadRequestException('No se puede eliminar el último administrador del sistema.');
+      }
+    }
+
     return this.prisma.user.delete({
       where: { id },
     });

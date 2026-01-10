@@ -1,7 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormArray, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { Quote, QuoteStatus } from '../quotes.models';
@@ -21,7 +21,7 @@ import { PdfService } from '../../../shared/services/pdf.service';
     CommonModule,
     ReactiveFormsModule,
     MatSnackBarModule,
-    MatSnackBarModule
+    RouterModule
   ],
   templateUrl: './quote-form.html',
   styleUrl: './quote-form.css'
@@ -51,10 +51,12 @@ export class QuoteFormComponent implements OnInit {
   calculateInterest = false;
   interestRate = 0;
   expirationDays = 15;
-
   searchControl = this.fb.control('');
   showPatientDropdown = false;
   isSearching = false;
+
+  clinicInfo: any = {};
+  isReadOnly = false;
 
   // new properties for service search
   serviceSearchControl = this.fb.control('');
@@ -105,6 +107,12 @@ export class QuoteFormComponent implements OnInit {
           // Recalculate in case config loads after form changes (though unlikely to matter initially)
           this.calculateTotal();
         }
+        if (configs['clinic_info']) {
+          this.clinicInfo = configs['clinic_info'];
+        }
+        if (configs['clinicLogoUrl']) {
+          this.clinicInfo = { ...this.clinicInfo, logoUrl: configs['clinicLogoUrl'] };
+        }
       }
     });
   }
@@ -142,7 +150,8 @@ export class QuoteFormComponent implements OnInit {
         patientId: q.patientId,
         financingEnabled: q.financingEnabled,
         initialPayment: q.initialPayment,
-        installments: q.installments
+        installments: q.installments,
+        observations: q.observations
       });
       this.selectedPatient = q.patient || null;
       if (this.selectedPatient) {
@@ -153,6 +162,13 @@ export class QuoteFormComponent implements OnInit {
       this.items.clear();
       q.items.forEach(item => this.addItem(item));
       this.calculateTotal();
+
+      if ([QuoteStatus.APPROVED, QuoteStatus.CONVERTED].includes(q.status)) {
+        this.isReadOnly = true;
+        this.form.disable();
+        this.searchControl.disable();
+        this.serviceSearchControl.disable();
+      }
     });
   }
 
@@ -333,7 +349,8 @@ export class QuoteFormComponent implements OnInit {
       // Include financing data
       financingEnabled: rawValue.financingEnabled ?? false,
       initialPayment: Number(rawValue.initialPayment ?? 0),
-      installments: Number(rawValue.installments ?? 1)
+      installments: Number(rawValue.installments ?? 1),
+      observations: rawValue.observations ?? undefined
     };
 
     const action = this.isEditMode && this.quoteId
@@ -364,7 +381,11 @@ export class QuoteFormComponent implements OnInit {
   downloadPdf() {
     if (!this.quote) return;
     this.configService.getConfigs().subscribe(configs => {
-      this.pdfService.generateQuotePdf(this.quote!, configs['clinic_info']);
+      const clinicInfo = {
+        ...configs['clinic_info'],
+        logoUrl: configs['clinicLogoUrl']
+      };
+      this.pdfService.generateQuotePdf(this.quote!, clinicInfo);
     });
   }
 }

@@ -114,12 +114,22 @@
                             </div>
                         </div>
                     </nav>
+
+                    <!-- Logout Button -->
+                    <div class="px-3 py-2 mt-auto">
+                        <button
+                            class="flex items-center gap-3 text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 transition-colors w-full"
+                            (click)="logout()">
+                            <span class="material-symbols-outlined">logout</span>
+                            <span class="text-sm font-medium">Cerrar Sesión</span>
+                        </button>
+                    </div>
                 </div>
             </aside>
         </div>
 
-        <div class="flex-1 overflow-y-auto p-4 md:p-8">
-            <div class="max-w-7xl mx-auto flex flex-col gap-6">
+        <div class="flex-1 overflow-y-auto p-4 md:p-8 flex flex-col">
+            <div class="max-w-7xl mx-auto flex flex-col gap-6 flex-1 w-full">
                 <router-outlet></router-outlet>
             </div>
             <div class="h-20"></div> <!-- Spacer for scrolling breathing room -->

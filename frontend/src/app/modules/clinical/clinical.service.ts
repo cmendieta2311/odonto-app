@@ -40,4 +40,8 @@ export class ClinicalService {
     createRecord(data: CreateClinicalDto): Observable<ServicePerformed> {
         return this.http.post<ServicePerformed>(this.apiUrl, data);
     }
+
+    deleteRecord(id: string): Observable<void> {
+        return this.http.delete<void>(`${this.apiUrl}/${id}`);
+    }
 }

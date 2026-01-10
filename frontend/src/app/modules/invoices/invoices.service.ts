@@ -14,7 +14,7 @@ export class InvoicesService {
 
     constructor(private http: HttpClient) { }
 
-    findAll(page: number = 1, limit: number = 10, search: string = '', status: string = '', startDate: string = '', endDate: string = ''): Observable<PaginatedResult<Invoice>> {
+    findAll(page: number = 1, limit: number = 10, search: string = '', status: string = '', startDate: string = '', endDate: string = '', patientId: string = ''): Observable<PaginatedResult<Invoice>> {
         let params = new HttpParams()
             .set('page', page.toString())
             .set('limit', limit.toString());
@@ -23,6 +23,7 @@ export class InvoicesService {
         if (status && status !== 'Todos') params = params.set('status', status);
         if (startDate) params = params.set('startDate', startDate);
         if (endDate) params = params.set('endDate', endDate);
+        if (patientId) params = params.set('patientId', patientId);
 
         return this.http.get<PaginatedResult<Invoice>>(this.apiUrl, { params });
     }
@@ -33,6 +34,10 @@ export class InvoicesService {
 
     create(createInvoiceDto: CreateInvoiceDto): Observable<Invoice> {
         return this.http.post<Invoice>(this.apiUrl, createInvoiceDto);
+    }
+
+    update(id: string, data: any): Observable<Invoice> {
+        return this.http.put<Invoice>(`${this.apiUrl}/${id}`, data);
     }
 
     // Helper to calculate total

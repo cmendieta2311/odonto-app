@@ -14,14 +14,14 @@
         <div class="flex flex-col gap-1">
             <label class="text-xs font-bold uppercase tracking-wider text-text-secondary-light">Nombre Completo</label>
             <input type="text" formControlName="name"
-                class="form-input rounded-lg border-[#dbe4e6] dark:border-[#2a3e42] bg-background-light dark:bg-background-dark text-sm focus:ring-primary focus:border-primary shadow-sm"
+                class="w-full h-10 px-3 rounded-lg border border-[#dbe4e6] dark:border-[#2a3e42] bg-background-light dark:bg-background-dark text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all shadow-sm placeholder-gray-400"
                 placeholder="Ej: Juan Pérez">
         </div>
 
         <div class="flex flex-col gap-1">
             <label class="text-xs font-bold uppercase tracking-wider text-text-secondary-light">Email</label>
             <input type="email" formControlName="email"
-                class="form-input rounded-lg border-[#dbe4e6] dark:border-[#2a3e42] bg-background-light dark:bg-background-dark text-sm focus:ring-primary focus:border-primary shadow-sm"
+                class="w-full h-10 px-3 rounded-lg border border-[#dbe4e6] dark:border-[#2a3e42] bg-background-light dark:bg-background-dark text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all shadow-sm placeholder-gray-400"
                 placeholder="ejemplo@correo.com">
         </div>
 
@@ -29,7 +29,7 @@
             <label class="text-xs font-bold uppercase tracking-wider text-text-secondary-light">Rol</label>
             <div class="relative">
                 <select formControlName="role"
-                    class="form-input w-full appearance-none rounded-lg border-[#dbe4e6] dark:border-[#2a3e42] bg-background-light dark:bg-background-dark text-sm focus:ring-primary focus:border-primary shadow-sm pr-8 cursor-pointer disabled:opacity-50 disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:cursor-not-allowed">
+                    class="w-full h-10 px-3 appearance-none rounded-lg border border-[#dbe4e6] dark:border-[#2a3e42] bg-background-light dark:bg-background-dark text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all shadow-sm pr-8 cursor-pointer disabled:opacity-50 disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:cursor-not-allowed">
                     <option value="ADMIN">Administrador</option>
                     <option value="ODONTOLOGO">Odontólogo</option>
                     <option value="RECEPCION">Recepcionista</option>
@@ -41,14 +41,28 @@
             </div>
         </div>
 
-        <div class="flex flex-col gap-1">
-            <label class="text-xs font-bold uppercase tracking-wider text-text-secondary-light">
-                Contraseña {{ data.user ? '(Opcional)' : '(Requerida)' }}
-            </label>
-            <input type="password" formControlName="password"
-                class="form-input rounded-lg border-[#dbe4e6] dark:border-[#2a3e42] bg-background-light dark:bg-background-dark text-sm focus:ring-primary focus:border-primary shadow-sm"
-                placeholder="••••••••">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="flex flex-col gap-1">
+                <label class="text-xs font-bold uppercase tracking-wider text-text-secondary-light">
+                    Contraseña {{ data.user ? '(Opcional)' : '(Requerida)' }}
+                </label>
+                <input type="password" formControlName="password"
+                    class="w-full h-10 px-3 rounded-lg border border-[#dbe4e6] dark:border-[#2a3e42] bg-background-light dark:bg-background-dark text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all shadow-sm placeholder-gray-400"
+                    placeholder="••••••••">
+            </div>
+            <div class="flex flex-col gap-1">
+                <label class="text-xs font-bold uppercase tracking-wider text-text-secondary-light">
+                    Confirmar Contraseña
+                </label>
+                <input type="password" formControlName="confirmPassword"
+                    class="w-full h-10 px-3 rounded-lg border border-[#dbe4e6] dark:border-[#2a3e42] bg-background-light dark:bg-background-dark text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all shadow-sm placeholder-gray-400"
+                    [class.border-red-500]="form.get('confirmPassword')?.hasError('mismatch')" placeholder="••••••••">
+                <span *ngIf="form.get('confirmPassword')?.hasError('mismatch')" class="text-xs text-red-500">
+                    Las contraseñas no coinciden
+                </span>
+            </div>
         </div>
+
 
         <div class="flex justify-end gap-3 pt-4 border-t border-[#dbe4e6] dark:border-[#2a3e42]">
             <button type="button"

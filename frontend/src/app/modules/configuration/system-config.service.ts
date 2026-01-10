@@ -8,13 +8,19 @@ import { Observable } from 'rxjs';
 })
 export class SystemConfigService {
     private http = inject(HttpClient);
-    private apiUrl = `${environment.apiUrl}/configuration/system`;
+    private apiUrl = environment.apiUrl;
 
     getConfigs(): Observable<{ [key: string]: any }> {
-        return this.http.get<{ [key: string]: any }>(this.apiUrl);
+        return this.http.get<{ [key: string]: any }>(`${this.apiUrl}/configuration/system`);
     }
 
-    saveConfigs(configs: { [key: string]: any }): Observable<any> {
-        return this.http.post(this.apiUrl, configs);
+    saveConfigs(configs: any): Observable<any> {
+        return this.http.post<any>(`${this.apiUrl}/configuration/system`, configs);
+    }
+
+    uploadLogo(file: File): Observable<{ url: string }> {
+        const formData = new FormData();
+        formData.append('file', file);
+        return this.http.post<{ url: string }>(`${this.apiUrl}/upload/logo`, formData);
     }
 }

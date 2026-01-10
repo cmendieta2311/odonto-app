@@ -5,21 +5,22 @@ import { PrismaService } from '../../prisma/prisma.service';
 export class SystemConfigService {
     constructor(private prisma: PrismaService) { }
 
-    async findAll() {
-        // Return key-value map for easier frontend consumption
-        const configs = await this.prisma.systemConfig.findMany();
+    async findAll(tenantId: string = 'default') {
+        const configs = await this.prisma.systemConfig.findMany({
+            where: { tenantId }
+        });
         return configs.reduce((acc, curr) => {
             acc[curr.key] = curr.value;
             return acc;
         }, {});
     }
 
-    async upsertMany(data: { [key: string]: any }) {
+    async upsertMany(data: { [key: string]: any }, tenantId: string = 'default') {
         const promises = Object.keys(data).map((key) => {
             return this.prisma.systemConfig.upsert({
                 where: {
                     tenantId_key: {
-                        tenantId: 'default', // Using default tenant for now as per schema logic
+                        tenantId: tenantId,
                         key: key,
                     },
                 },
@@ -27,7 +28,7 @@ export class SystemConfigService {
                     value: data[key],
                 },
                 create: {
-                    tenantId: 'default',
+                    tenantId: tenantId,
                     key: key,
                     value: data[key],
                 },
@@ -35,6 +36,6 @@ export class SystemConfigService {
         });
 
         await Promise.all(promises);
-        return this.findAll();
+        return this.findAll(tenantId);
     }
 }

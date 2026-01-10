@@ -19,7 +19,13 @@ import { PaymentsService } from '../payments.service';
 export class PaymentDialogComponent {
   fb = inject(FormBuilder);
   paymentsService = inject(PaymentsService);
-  paymentMethods = Object.values(PaymentMethod);
+  paymentOpts = [
+    { label: 'Efectivo', value: PaymentMethod.CASH },
+    { label: 'Tarjeta', value: PaymentMethod.CREDIT_CARD },
+    { label: 'Transferencia', value: PaymentMethod.TRANSFER }
+  ];
+
+  formattedAmount = '';
   isSaving = false;
 
   form = this.fb.group({
@@ -33,6 +39,27 @@ export class PaymentDialogComponent {
   ) {
     this.form.patchValue({ amount: data.balance });
     this.form.get('amount')?.addValidators(Validators.max(data.balance));
+    this.formatAmount(data.balance.toString());
+  }
+
+  onAmountInput(event: Event) {
+    const input = event.target as HTMLInputElement;
+    this.formatAmount(input.value);
+  }
+
+  formatAmount(value: string) {
+    // Remove all non-numeric characters
+    const numericValue = value.replace(/\D/g, '');
+
+    if (!numericValue) {
+      this.formattedAmount = '';
+      this.form.patchValue({ amount: 0 });
+      return;
+    }
+
+    const number = parseInt(numericValue, 10);
+    this.formattedAmount = new Intl.NumberFormat('es-PY').format(number);
+    this.form.patchValue({ amount: number });
   }
 
   save() {

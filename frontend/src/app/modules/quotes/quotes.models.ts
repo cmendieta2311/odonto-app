@@ -19,6 +19,7 @@ export interface QuoteItem {
 
 export interface Quote {
     id: string;
+    number: number;
     patientId: string;
     patient?: Patient;
     items: QuoteItem[];
@@ -28,4 +29,5 @@ export interface Quote {
     financingEnabled?: boolean;
     initialPayment?: number;
     installments?: number;
+    observations?: string;
 }
