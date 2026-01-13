@@ -2,14 +2,14 @@ import { Component, Input, OnInit, inject, Output, EventEmitter, OnChanges } fro
 import { CommonModule } from '@angular/common';
 import { ToothComponent, ToothSurfaceStatus } from './tooth/tooth.component';
 import { ClinicalService, CreateClinicalDto, ServicePerformed } from '../../clinical.service';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { NotificationService } from '../../../../shared/services/notification.service';
 
 type ToolType = 'select' | 'caries' | 'restoration' | 'extraction';
 
 @Component({
     selector: 'app-odontogram',
     standalone: true,
-    imports: [CommonModule, ToothComponent, MatSnackBarModule],
+    imports: [CommonModule, ToothComponent],
     templateUrl: './odontogram.html',
     styles: [`
         .tool-btn {
@@ -32,7 +32,7 @@ export class OdontogramComponent implements OnInit, OnChanges {
 
     // Services
     private clinicalService = inject(ClinicalService);
-    private snackBar = inject(MatSnackBar);
+    private notificationService = inject(NotificationService);
 
     // State
     activeTool: ToolType = 'select';
@@ -167,7 +167,7 @@ export class OdontogramComponent implements OnInit, OnChanges {
 
         this.clinicalService.createRecord(payload).subscribe({
             next: (newRecord) => {
-                this.snackBar.open('Registro guardado', 'Ok', { duration: 1000 });
+                this.notificationService.showSuccess('Registro guardado');
                 // Optimistic update confirmation
                 // If backend returns the record, ensure we handle its casing too if needed, 
                 // but usually create returns strictly typed DTO
@@ -176,7 +176,7 @@ export class OdontogramComponent implements OnInit, OnChanges {
             },
             error: (err) => {
                 console.error(err);
-                this.snackBar.open('Error al guardar', 'Reintentar', { duration: 3000 });
+                this.notificationService.showError('Error al guardar');
                 // Revert on error
                 if (previousStatus) {
                     this.updateLocalState(tooth, surface, previousStatus);

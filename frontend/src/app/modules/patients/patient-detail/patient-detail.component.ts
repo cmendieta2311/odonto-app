@@ -1,7 +1,6 @@
 import { Component, OnInit, inject, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { PatientsService } from '../patients.service';
 import { ClinicalService } from '../../clinical/clinical.service';
 import { Patient } from '../patients.models';
@@ -12,11 +11,12 @@ import { InvoiceListComponent } from '../../invoices/invoice-list/invoice-list';
 import { PaymentListComponent } from '../../payments/payment-list/payment-list';
 import { PatientFilesComponent } from '../components/patient-files/patient-files.component';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { NotificationService } from '../../../shared/services/notification.service';
 
 @Component({
     selector: 'app-patient-detail',
     standalone: true,
-    imports: [CommonModule, RouterModule, ReactiveFormsModule, MatSnackBarModule,
+    imports: [CommonModule, RouterModule, ReactiveFormsModule,
         OdontogramComponent, OdontogramSidebarComponent, ClinicalHistoryComponent,
         InvoiceListComponent, PaymentListComponent, PatientFilesComponent],
     templateUrl: './patient-detail.html',
@@ -48,7 +48,7 @@ export class PatientDetailComponent implements OnInit {
     private router = inject(Router);
     private patientsService = inject(PatientsService);
     private clinicalService = inject(ClinicalService); // Inject ClinicalService
-    private snackBar = inject(MatSnackBar);
+    private notificationService = inject(NotificationService);
     private fb = inject(FormBuilder);
 
     patientId: string | null = null;
@@ -81,7 +81,7 @@ export class PatientDetailComponent implements OnInit {
         this.isLoading = true;
         this.clinicalService.deleteRecord(record.id).subscribe({
             next: () => {
-                this.snackBar.open('Registro eliminado correctamente', 'Cerrar', { duration: 3000 });
+                this.notificationService.showSuccess('Registro eliminado correctamente');
                 // Refresh Odontogram data
                 if (this.odontogramComponent) {
                     this.odontogramComponent.loadClinicalData();
@@ -90,7 +90,7 @@ export class PatientDetailComponent implements OnInit {
             },
             error: (err) => {
                 console.error(err);
-                this.snackBar.open('Error al eliminar el registro', 'Cerrar', { duration: 3000 });
+                this.notificationService.showError('Error al eliminar el registro');
                 this.isLoading = false;
             }
         });
@@ -144,7 +144,7 @@ export class PatientDetailComponent implements OnInit {
             },
             error: (err) => {
                 console.error(err);
-                this.snackBar.open('Error al cargar datos del paciente', 'Cerrar', { duration: 3000 });
+                this.notificationService.showError('Error al cargar datos del paciente');
                 this.router.navigate(['/reception/patients']);
             }
         });
@@ -191,12 +191,12 @@ export class PatientDetailComponent implements OnInit {
                 this.patient = updatedPatient;
                 this.isEditing = false;
                 this.patientForm.disable();
-                this.snackBar.open('Ficha actualizada correctamente', 'Cerrar', { duration: 3000 });
+                this.notificationService.showSuccess('Ficha actualizada correctamente');
                 this.isLoading = false;
             },
             error: (err) => {
                 console.error(err);
-                this.snackBar.open('Error al actualizar la ficha', 'Cerrar', { duration: 3000 });
+                this.notificationService.showError('Error al actualizar la ficha');
                 this.isLoading = false;
             }
         });

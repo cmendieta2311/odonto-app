@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Output, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, AbstractControl } from '@angular/forms';
 import { CashService, CashMovementType } from '../../cash.service';
 import { PaymentMethodsService, PaymentMethod as PaymentMethodConfig } from '../../../configuration/payment-methods/payment-methods.service';
 
@@ -58,10 +58,10 @@ import { PaymentMethodsService, PaymentMethod as PaymentMethodConfig } from '../
                  <label class="flex flex-col gap-2">
                     <span class="text-slate-700 dark:text-slate-300 text-sm font-bold">Monto</span>
                     <div class="relative">
-                       <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                          <span class="text-slate-500 font-bold">$</span>
-                       </div>
-                       <input formControlName="amount" class="w-full pl-8 pr-4 py-3 bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-shadow text-sm font-medium" placeholder="0.00" type="number"/>
+                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <span class="text-slate-500 font-bold">₲</span>
+                     </div>
+                     <input formControlName="amount" (input)="formatAmount($event)" class="w-full pl-8 pr-4 py-3 bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-shadow text-sm font-medium" placeholder="0" type="text"/>
                     </div>
                  </label>
 
@@ -115,10 +115,25 @@ export class CashMovementFormComponent implements OnInit {
    ) {
       this.form = this.fb.group({
          type: [CashMovementType.EXPENSE, Validators.required],
-         amount: [null, [Validators.required, Validators.min(0.01)]],
+         amount: [null, [Validators.required, this.amountValidator]],
          description: ['', Validators.required],
          paymentMethod: ['CASH', Validators.required]
       });
+   }
+
+   amountValidator(control: AbstractControl) {
+      if (!control.value) return null;
+      const amount = parseInt(control.value.toString().replace(/\./g, ''), 10);
+      return amount > 0 ? null : { min: true };
+   }
+
+   formatAmount(event: any) {
+      const input = event.target;
+      let value = input.value.replace(/\D/g, '');
+      if (value) {
+         value = parseInt(value, 10).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+      }
+      this.form.get('amount')?.setValue(value);
    }
 
    ngOnInit() {
@@ -134,7 +149,11 @@ export class CashMovementFormComponent implements OnInit {
    onSubmit() {
       if (this.form.valid) {
          this.loading = true;
-         this.cashService.create(this.form.value).subscribe({
+         const formValue = {
+            ...this.form.value,
+            amount: parseInt(this.form.value.amount.toString().replace(/\./g, ''), 10)
+         };
+         this.cashService.create(formValue).subscribe({
             next: () => {
                this.loading = false;
                this.saved.emit();

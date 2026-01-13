@@ -3,17 +3,17 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { BaseListComponent } from '../../../../shared/classes/base-list.component';
 import { FormsModule } from '@angular/forms';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { ModalService } from '../../../../shared/components/modal/modal.service';
+import { ConfirmationDialogComponent, ConfirmationDialogData } from '../../../../shared/components/confirmation-dialog/confirmation-dialog';
+import { UserDialogComponent } from '../user-dialog/user-dialog';
 import { UsersService } from '../users.service';
 import { User, Role } from '../users.models';
 import { CustomTableComponent, TableColumn } from '../../../../shared/components/custom-table/custom-table';
-import { ConfirmationDialogComponent, ConfirmationDialogData } from '../../../../shared/components/confirmation-dialog/confirmation-dialog';
-import { UserDialogComponent } from '../user-dialog/user-dialog';
 
 @Component({
     selector: 'app-user-list',
     standalone: true,
-    imports: [CommonModule, CustomTableComponent, MatDialogModule, FormsModule, RouterLink],
+    imports: [CommonModule, CustomTableComponent, FormsModule, RouterLink],
     templateUrl: './user-list.html'
 })
 export class UserListComponent extends BaseListComponent<User> implements OnInit {
@@ -26,7 +26,10 @@ export class UserListComponent extends BaseListComponent<User> implements OnInit
     ];
 
     private usersService = inject(UsersService);
-    // dialog is inherited from BaseListComponent
+    private modalService = inject(ModalService);
+    // dialog is inherited from BaseListComponent but we are overriding its usage or ignoring it.
+    // Ideally BaseListComponent should also be migrated if it uses dialog.
+    // Checking BaseListComponent later. 
 
     override ngOnInit() {
         super.ngOnInit();
@@ -84,19 +87,19 @@ export class UserListComponent extends BaseListComponent<User> implements OnInit
     }
 
     openDialog(user?: User) {
-        const dialogRef = this.dialog.open(UserDialogComponent, {
+        const modalRef = this.modalService.open(UserDialogComponent, {
             data: { user },
             width: '500px',
             panelClass: ['custom-dialog-container']
         });
 
-        dialogRef.afterClosed().subscribe(result => {
+        modalRef.afterClosed().subscribe((result: any) => {
             if (result) this.loadData();
         });
     }
 
     deleteUser(user: User) {
-        const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+        const modalRef = this.modalService.open(ConfirmationDialogComponent, {
             data: {
                 title: 'Eliminar Usuario',
                 message: `¿Estás seguro de que deseas eliminar al usuario ${user.name}? Esta acción no se puede deshacer.`,
@@ -106,18 +109,19 @@ export class UserListComponent extends BaseListComponent<User> implements OnInit
             } as ConfirmationDialogData
         });
 
-        dialogRef.afterClosed().subscribe(result => {
+        // ModalRef.afterClosed() returns Observable
+        modalRef.afterClosed().subscribe((result: boolean) => {
             if (result) {
                 this.usersService.delete(user.id).subscribe({
                     next: () => {
-                        this.snackBar.open('Usuario eliminado correctamente', 'Cerrar', { duration: 3000 });
+                        this.notificationService.showSuccess('Usuario eliminado correctamente');
                         this.loadData();
                     },
                     error: (err) => {
                         if (err.status === 400 && err.error?.message) {
-                            this.snackBar.open(err.error.message, 'Cerrar', { duration: 5000 });
+                            this.notificationService.showError(err.error.message);
                         } else {
-                            this.handleError(err, 'Error al eliminar usuario');
+                            this.handleError(err);
                         }
                     }
                 });

@@ -1,9 +1,9 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { BaseListComponent } from '../../../shared/classes/base-list.component';
 import { CommonModule } from '@angular/common';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { RouterLink, Router } from '@angular/router';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormControl } from '@angular/forms';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 import { PatientsService } from '../patients.service';
 import { Patient } from '../patients.models';
@@ -16,9 +16,9 @@ import { CustomTableComponent, TableColumn } from '../../../shared/components/cu
   imports: [
     CommonModule,
     RouterLink,
-    MatSnackBarModule,
     CustomTableComponent,
-    FormsModule
+    FormsModule,
+    ReactiveFormsModule
   ],
   templateUrl: './patient-list.html',
   styleUrl: './patient-list.css'
@@ -26,6 +26,7 @@ import { CustomTableComponent, TableColumn } from '../../../shared/components/cu
 export class PatientListComponent extends BaseListComponent<Patient> implements OnInit {
   private patientsService = inject(PatientsService);
   private router = inject(Router);
+  searchControl = new FormControl('');
 
   columns: TableColumn[] = [
     { key: 'patient', label: 'Paciente' },
@@ -38,6 +39,13 @@ export class PatientListComponent extends BaseListComponent<Patient> implements 
     super.ngOnInit();
     this.calculateColumns();
     window.addEventListener('resize', () => this.calculateColumns());
+
+    this.searchControl.valueChanges.pipe(
+      debounceTime(600),
+      distinctUntilChanged()
+    ).subscribe(value => {
+      this.onSearch(value || '');
+    });
   }
 
   calculateColumns() {
@@ -73,7 +81,7 @@ export class PatientListComponent extends BaseListComponent<Patient> implements 
     if (confirm(`¿Eliminar paciente ${patient.firstName} ${patient.lastName}?`)) {
       this.patientsService.deletePatient(patient.id).subscribe(() => {
         this.loadData();
-        this.snackBar.open('Paciente eliminado', 'Cerrar', { duration: 3000 });
+        this.notificationService.showSuccess('Paciente eliminado');
       });
     }
   }

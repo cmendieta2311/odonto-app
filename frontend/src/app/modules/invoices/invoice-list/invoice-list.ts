@@ -1,12 +1,14 @@
 import { Component, OnInit, inject, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormsModule, FormControl } from '@angular/forms';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { InvoicesService } from '../invoices.service';
 import { Invoice, InvoiceStatus } from '../invoices.models';
 import { PaymentsService } from '../../contracts/payments.service';
 import { BaseListComponent } from '../../../shared/classes/base-list.component';
 import { CustomTableComponent, TableColumn } from '../../../shared/components/custom-table/custom-table';
+import { NotificationService } from '../../../shared/services/notification.service';
 
 @Component({
     selector: 'app-invoice-list',
@@ -21,11 +23,13 @@ export class InvoiceListComponent extends BaseListComponent<any> implements OnIn
     selectedInvoice: any = null;
     paymentForm: FormGroup;
     isProcessingPayment = false;
+    displayAmount: string = '';
 
     // Filters (managed via BaseList logic + extra filters)
     statusFilter = 'Todos';
     startDate = '';
     endDate = '';
+    searchControl = new FormControl('');
 
     // We can keep 'filterForm' if we want detailed date range picker binding, or simplify.
     // BaseList has 'searchQuery'.
@@ -45,6 +49,7 @@ export class InvoiceListComponent extends BaseListComponent<any> implements OnIn
     private paymentsService = inject(PaymentsService);
     private router = inject(Router);
     private fb = inject(FormBuilder);
+    protected override notificationService = inject(NotificationService);
 
     constructor() {
         super();
@@ -56,6 +61,13 @@ export class InvoiceListComponent extends BaseListComponent<any> implements OnIn
 
     override ngOnInit(): void {
         super.ngOnInit();
+
+        this.searchControl.valueChanges.pipe(
+            debounceTime(600),
+            distinctUntilChanged()
+        ).subscribe(value => {
+            this.onSearch(value || '');
+        });
     }
 
     loadData() {
@@ -160,15 +172,38 @@ export class InvoiceListComponent extends BaseListComponent<any> implements OnIn
 
     openPaymentModal(invoice: any) {
         this.selectedInvoice = invoice;
+        const balance = invoice.balance;
         this.paymentForm.patchValue({
-            amount: invoice.balance,
+            amount: balance,
             method: 'CASH'
         });
+        this.formatPaymentAmount(balance);
     }
 
     closePaymentModal() {
         this.selectedInvoice = null;
         this.paymentForm.reset();
+        this.displayAmount = '';
+    }
+
+    onPaymentAmountInput(value: string) {
+        // Remove non-numeric chars
+        const numericValue = value.replace(/[^0-9]/g, '');
+        const amount = numericValue ? Number(numericValue) : 0;
+
+        // Update form control
+        this.paymentForm.patchValue({ amount: amount });
+
+        // Update display
+        this.formatPaymentAmount(amount);
+    }
+
+    formatPaymentAmount(value: number) {
+        if (!value) {
+            this.displayAmount = '';
+            return;
+        }
+        this.displayAmount = value.toLocaleString('es-PY');
     }
 
     registerPayment() {
@@ -186,12 +221,12 @@ export class InvoiceListComponent extends BaseListComponent<any> implements OnIn
                 this.isProcessingPayment = false;
                 this.closePaymentModal();
                 this.loadData(); // Refresh list to show updated status
-                alert('Pago registrado correctamente');
+                this.notificationService.showSuccess('Pago registrado correctamente');
             },
             error: (err) => {
                 this.isProcessingPayment = false;
                 console.error(err);
-                alert('Error al registrar pago');
+                this.notificationService.showError('Error al registrar pago');
             }
         });
     }

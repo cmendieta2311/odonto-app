@@ -1,7 +1,7 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Input, Optional, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
-import { MatButtonModule } from '@angular/material/button';
+import { ModalRef } from '../modal/modal.types';
+import { ModalComponent } from '../modal/modal.component';
 
 export interface ConfirmationDialogData {
     title: string;
@@ -14,20 +14,19 @@ export interface ConfirmationDialogData {
 @Component({
     selector: 'app-confirmation-dialog',
     standalone: true,
-    imports: [CommonModule, MatDialogModule, MatButtonModule],
+    imports: [CommonModule, ModalComponent],
     templateUrl: './confirmation-dialog.html'
 })
 export class ConfirmationDialogComponent {
-    constructor(
-        public dialogRef: MatDialogRef<ConfirmationDialogComponent>,
-        @Inject(MAT_DIALOG_DATA) public data: ConfirmationDialogData
-    ) { }
+    @Input() data!: ConfirmationDialogData;
+    @Input() activeModal: any;
 
     onConfirm(): void {
-        this.dialogRef.close(true);
+        this.activeModal.close(true);
     }
 
     onCancel(): void {
-        this.dialogRef.close(false);
+        this.activeModal.close(false);
     }
 }
+

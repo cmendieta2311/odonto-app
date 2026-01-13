@@ -158,6 +158,24 @@ export class InvoiceFormComponent implements OnInit {
         this.items.removeAt(index);
     }
 
+    getFormattedPrice(index: number): string {
+        const control = this.items.at(index).get('unitPrice');
+        if (!control || control.value == null || control.value === 0) return '';
+        return control.value.toLocaleString('es-PY');
+    }
+
+    onPriceInput(value: string, index: number) {
+        const numericValue = value.replace(/[^0-9]/g, '');
+        const price = numericValue ? Number(numericValue) : 0;
+
+        const control = this.items.at(index).get('unitPrice');
+        if (control) {
+            control.setValue(price, { emitEvent: false }); // Avoid loop if valueChanges subscribed
+            // We don't have valueChanges relevant here, and updateValueAndValidity is implicitly called by setValue
+            control.updateValueAndValidity();
+        }
+    }
+
     calculateTotal(): number {
         return this.items.controls.reduce((sum, control) => {
             const qty = control.get('quantity')?.value || 0;

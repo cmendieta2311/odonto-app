@@ -38,6 +38,22 @@ export class ServicesService {
     });
   }
 
+  async getTopServices(limit: number = 5) {
+    const services = await this.prisma.service.findMany({
+      where: { active: true },
+      include: {
+        _count: {
+          select: { quoteItems: true }
+        }
+      }
+    });
+
+    // Sort by usage count descending
+    return services
+      .sort((a, b) => b._count.quoteItems - a._count.quoteItems)
+      .slice(0, limit);
+  }
+
   findOne(id: string) {
     return this.prisma.service.findUnique({
       where: { id },

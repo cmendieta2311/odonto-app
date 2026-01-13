@@ -1,26 +1,27 @@
-import { Component, Inject, inject, OnInit } from '@angular/core';
+import { Component, Inject, inject, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { OfficesService } from '../offices.service';
 import { Office } from '../office.model';
 
 @Component({
   selector: 'app-office-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, MatDialogModule],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './office-form.html',
   styleUrl: './office-form.css'
 })
 export class OfficeForm implements OnInit {
   private fb = inject(FormBuilder);
   private officesService = inject(OfficesService);
-  private dialogRef = inject(MatDialogRef<OfficeForm>);
+
+  @Input() data: Office | undefined;
+  @Input() activeModal: any;
 
   form: FormGroup;
   isEdit = false;
 
-  constructor(@Inject(MAT_DIALOG_DATA) public data: any) {
+  constructor() {
     this.form = this.fb.group({
       name: ['', Validators.required],
       location: [''],
@@ -42,16 +43,16 @@ export class OfficeForm implements OnInit {
 
     if (this.isEdit && this.data) {
       this.officesService.update(this.data.id, officeData).subscribe(() => {
-        this.dialogRef.close(true);
+        this.activeModal.close(true);
       });
     } else {
       this.officesService.create(officeData).subscribe(() => {
-        this.dialogRef.close(true);
+        this.activeModal.close(true);
       });
     }
   }
 
   close() {
-    this.dialogRef.close(false);
+    this.activeModal.close(false);
   }
 }

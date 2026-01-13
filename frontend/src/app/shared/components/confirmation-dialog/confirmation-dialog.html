@@ -1,16 +1,22 @@
-<h2 mat-dialog-title class="!font-bold !text-xl text-[#111418] dark:text-white">
-    {{data.title}}
-</h2>
-<mat-dialog-content>
-    <p class="text-text-secondary-light dark:text-text-secondary-dark text-base">
-        {{data.message}}
-    </p>
-</mat-dialog-content>
-<mat-dialog-actions align="end" class="!gap-2 !pb-6 !px-6">
-    <button mat-button (click)="onCancel()" class="!text-text-secondary-light !font-bold">
-        {{data.cancelText || 'Cancelar'}}
-    </button>
-    <button mat-flat-button [color]="data.color || 'primary'" (click)="onConfirm()" class="!font-bold !rounded-lg">
-        {{data.confirmText || 'Confirmar'}}
-    </button>
-</mat-dialog-actions>
+<app-modal [title]="data.title || 'Confirmación'" (close)="onCancel()">
+    <div class="space-y-4">
+        <p class="text-text-secondary-light dark:text-text-secondary-dark text-base">
+            {{data.message}}
+        </p>
+    </div>
+
+    <div actions class="flex justify-end gap-2 w-full">
+        <button (click)="onCancel()"
+            class="px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+            {{data.cancelText || 'Cancelar'}}
+        </button>
+
+        <button (click)="onConfirm()" [class.bg-red-600]="data.color === 'warn'"
+            [class.hover:bg-red-700]="data.color === 'warn'"
+            [class.bg-primary]="!data.color || data.color === 'primary'"
+            [class.hover:bg-primary-hover]="!data.color || data.color === 'primary'"
+            class="px-4 py-2 text-sm font-bold text-white rounded-lg shadow-sm transition-colors">
+            {{data.confirmText || 'Confirmar'}}
+        </button>
+    </div>
+</app-modal>

@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { IsArray, IsBoolean, IsEnum, IsInt, IsNotEmpty, IsNumber, IsOptional, IsUUID, Min, Max, ValidateNested } from 'class-validator';
+import { IsArray, IsBoolean, IsEnum, IsInt, IsNotEmpty, IsNumber, IsOptional, IsUUID, Min, Max, ValidateNested, IsDateString } from 'class-validator';
 import { QuoteStatus } from '@prisma/client';
 
 class CreateQuoteItemDto {
@@ -48,4 +48,8 @@ export class CreateQuoteDto {
 
     @IsOptional()
     observations?: string;
+
+    @IsDateString()
+    @IsOptional()
+    firstPaymentDate?: string;
 }

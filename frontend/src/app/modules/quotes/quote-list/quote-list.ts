@@ -1,28 +1,27 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { BaseListComponent } from '../../../shared/classes/base-list.component';
 import { CommonModule } from '@angular/common';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormControl } from '@angular/forms';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 import { QuotesService } from '../quotes.service';
 import { ContractsService } from '../../contracts/contracts.service';
 import { Quote, QuoteStatus } from '../quotes.models';
 import { CustomTableComponent, TableColumn } from '../../../shared/components/custom-table/custom-table';
-import { ConfirmationDialogComponent } from '../../../shared/components/confirmation-dialog/confirmation-dialog';
+import { ConfirmationDialogComponent, ConfirmationDialogData } from '../../../shared/components/confirmation-dialog/confirmation-dialog';
 import { PdfService } from '../../../shared/services/pdf.service';
 import { SystemConfigService } from '../../configuration/system-config.service';
+import { ModalService } from '../../../shared/components/modal/modal.service';
 
 @Component({
   selector: 'app-quote-list',
   standalone: true,
   imports: [
     CommonModule,
-    MatSnackBarModule,
-    MatDialogModule,
     CustomTableComponent,
-    FormsModule
+    FormsModule,
+    ReactiveFormsModule
   ],
   templateUrl: './quote-list.html',
   styleUrl: './quote-list.css'
@@ -32,10 +31,13 @@ export class QuoteListComponent extends BaseListComponent<Quote> implements OnIn
   contractsService = inject(ContractsService);
   pdfService = inject(PdfService);
   configService = inject(SystemConfigService);
+  modalService = inject(ModalService);
   router = inject(Router);
   QuoteStatus = QuoteStatus;
 
   statusFilter = '';
+
+  searchControl = new FormControl('');
 
   columns: TableColumn[] = [
     { key: 'number', label: 'N°' },
@@ -47,13 +49,25 @@ export class QuoteListComponent extends BaseListComponent<Quote> implements OnIn
 
   override ngOnInit() {
     super.ngOnInit();
+
+    this.searchControl.valueChanges.pipe(
+      debounceTime(600),
+      distinctUntilChanged()
+    ).subscribe(value => {
+      this.onSearch(value || '');
+    });
   }
 
   downloadPdf(quote: Quote) {
     this.quotesService.getQuote(quote.id).subscribe(fullQuote => {
       if (!fullQuote) return;
       this.configService.getConfigs().subscribe(configs => {
-        this.pdfService.generateQuotePdf(fullQuote, configs['clinic_info']);
+        const clinicInfo = {
+          ...configs['clinic_info'],
+          logoUrl: configs['clinicLogoUrl']
+        };
+        const validityDays = configs['billing_config']?.quoteValidityDays ?? 15;
+        this.pdfService.generateQuotePdf(fullQuote, clinicInfo, validityDays);
       });
     });
   }
@@ -85,27 +99,27 @@ export class QuoteListComponent extends BaseListComponent<Quote> implements OnIn
   }
 
   deleteQuote(quote: Quote) {
-    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+    const modalRef = this.modalService.open(ConfirmationDialogComponent, {
       width: '400px',
       data: {
         title: 'Eliminar Presupuesto',
         message: '¿Estás seguro de querer eliminar este presupuesto? Esta acción no se puede deshacer.',
         confirmText: 'Eliminar',
         color: 'warn'
-      }
+      } as ConfirmationDialogData
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    modalRef.afterClosed().subscribe((result: boolean) => {
       if (result) {
         this.quotesService.deleteQuote(quote.id).subscribe({
           next: () => {
             this.loadData();
-            this.snackBar.open('Presupuesto eliminado', 'Cerrar', { duration: 3000 });
+            this.notificationService.showSuccess('Presupuesto eliminado');
           },
           error: (err) => {
             console.error(err);
             const msg = err.error?.message || 'Error al eliminar presupuesto';
-            this.snackBar.open(msg, 'Cerrar', { duration: 5000, panelClass: ['error-snackbar'] });
+            this.notificationService.showError(msg);
           }
         });
       }
@@ -113,17 +127,17 @@ export class QuoteListComponent extends BaseListComponent<Quote> implements OnIn
   }
 
   convertToContract(quote: Quote) {
-    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+    const modalRef = this.modalService.open(ConfirmationDialogComponent, {
       width: '400px',
       data: {
         title: 'Generar Contrato',
         message: '¿Deseas generar un contrato basado en este presupuesto?',
         confirmText: 'Generar',
         color: 'primary'
-      }
+      } as ConfirmationDialogData
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    modalRef.afterClosed().subscribe((result: boolean) => {
       if (result) {
         this.router.navigate(['/commercial/contracts/generate', quote.id]);
       }
@@ -134,7 +148,7 @@ export class QuoteListComponent extends BaseListComponent<Quote> implements OnIn
     const status = newStatus as QuoteStatus;
     const isApprove = status === QuoteStatus.APPROVED;
 
-    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+    const modalRef = this.modalService.open(ConfirmationDialogComponent, {
       width: '400px',
       data: {
         title: isApprove ? 'Aceptar Presupuesto' : 'Rechazar Presupuesto',
@@ -143,17 +157,17 @@ export class QuoteListComponent extends BaseListComponent<Quote> implements OnIn
           : '¿Confirmas el rechazo de este presupuesto?',
         confirmText: isApprove ? 'Aceptar' : 'Rechazar',
         color: isApprove ? 'primary' : 'warn'
-      }
+      } as ConfirmationDialogData
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    modalRef.afterClosed().subscribe((result: boolean) => {
       if (result) {
         this.quotesService.updateQuote(quote.id, { status: status }).subscribe({
           next: () => {
             this.loadData();
-            this.snackBar.open(`Presupuesto ${isApprove ? 'aceptado' : 'rechazado'}`, 'Cerrar', { duration: 3000 });
+            this.notificationService.showSuccess(`Presupuesto ${isApprove ? 'aceptado' : 'rechazado'}`);
           },
-          error: () => this.snackBar.open('Error al actualizar estado', 'Cerrar', { duration: 3000 })
+          error: () => this.notificationService.showError('Error al actualizar estado')
         });
       }
     });

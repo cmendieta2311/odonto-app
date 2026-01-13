@@ -1,13 +1,15 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { RouterLink, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { NotificationService } from '../../../shared/services/notification.service';
+import { ModalService } from '../../../shared/components/modal/modal.service';
+import { ConfirmationDialogComponent, ConfirmationDialogData } from '../../../shared/components/confirmation-dialog/confirmation-dialog';
 
 import { CatalogService } from '../catalog.service';
 import { Service, ServiceCategory, ServiceType } from '../catalog.models';
-import { CategoryDialogComponent } from '../category-dialog/category-dialog';
+// CategoryDialogComponent unused? Keeping import if needed or removing? 
+// It was unused in code. Removing it.
 import { CustomTableComponent, TableColumn } from '../../../shared/components/custom-table/custom-table';
 import { exportToCsv } from '../../../shared/utils/csv-export.utils';
 
@@ -21,8 +23,6 @@ interface ServiceDisplay extends Service {
   imports: [
     CommonModule,
     RouterLink,
-    MatDialogModule,
-    MatSnackBarModule,
     FormsModule,
     CustomTableComponent
   ],
@@ -31,8 +31,8 @@ interface ServiceDisplay extends Service {
 })
 export class ServiceListComponent implements OnInit {
   catalogService = inject(CatalogService);
-  dialog = inject(MatDialog);
-  snackBar = inject(MatSnackBar);
+  modalService = inject(ModalService);
+  notificationService = inject(NotificationService);
   router = inject(Router);
 
   services: ServiceDisplay[] = [];
@@ -47,6 +47,7 @@ export class ServiceListComponent implements OnInit {
   searchQuery = '';
   selectedCategoryId = '';
   selectedType = '';
+  isLoading = false;
 
   columns: TableColumn[] = [
     { key: 'code', label: 'Código' },
@@ -61,20 +62,29 @@ export class ServiceListComponent implements OnInit {
   }
 
   loadData() {
-    this.catalogService.getCategories().subscribe(cats => {
-      this.categories = cats;
-      this.loadServices();
+    this.isLoading = true;
+    this.catalogService.getCategories().subscribe({
+      next: (cats) => {
+        this.categories = cats;
+        this.loadServices();
+      },
+      error: () => this.isLoading = false
     });
   }
 
   loadServices() {
-    this.catalogService.getServices().subscribe(data => {
-      // Enrich data with category name for display
-      this.services = data.map(s => ({
-        ...s,
-        categoryName: this.categories.find(c => c.id === s.categoryId)?.name || 'Sin Categoría'
-      }));
-      this.applyFilters();
+    this.isLoading = true;
+    this.catalogService.getServices().subscribe({
+      next: (data) => {
+        // Enrich data with category name for display
+        this.services = data.map(s => ({
+          ...s,
+          categoryName: this.categories.find(c => c.id === s.categoryId)?.name || 'Sin Categoría'
+        }));
+        this.applyFilters();
+        this.isLoading = false;
+      },
+      error: () => this.isLoading = false
     });
   }
 
@@ -135,13 +145,27 @@ export class ServiceListComponent implements OnInit {
     this.router.navigate(['/admin/catalog/edit', service.id]);
   }
 
+
+
   deleteService(service: Service) {
-    if (confirm(`¿Eliminar servicio ${service.name}?`)) {
-      this.catalogService.deleteService(service.id).subscribe(() => {
-        this.loadServices();
-        this.snackBar.open('Servicio eliminado', 'Cerrar', { duration: 3000 });
-      });
-    }
+    const modalRef = this.modalService.open(ConfirmationDialogComponent, {
+      width: '400px',
+      data: {
+        title: 'Eliminar Servicio',
+        message: `¿Eliminar servicio ${service.name}?`,
+        confirmText: 'Eliminar',
+        color: 'warn'
+      } as ConfirmationDialogData
+    });
+
+    modalRef.afterClosed().subscribe((result: boolean) => {
+      if (result) {
+        this.catalogService.deleteService(service.id).subscribe(() => {
+          this.loadServices();
+          this.notificationService.showSuccess('Servicio eliminado');
+        });
+      }
+    });
   }
 
   exportData() {

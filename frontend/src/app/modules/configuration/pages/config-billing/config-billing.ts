@@ -1,19 +1,19 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { SystemConfigService } from '../../system-config.service';
+import { NotificationService } from '../../../../shared/services/notification.service';
 
 @Component({
     selector: 'app-config-billing',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, FormsModule, MatSnackBarModule],
+    imports: [CommonModule, ReactiveFormsModule, FormsModule],
     templateUrl: './config-billing.html'
 })
 export class ConfigBillingComponent implements OnInit {
     private fb = inject(FormBuilder);
     private configService = inject(SystemConfigService);
-    private snackBar = inject(MatSnackBar);
+    private notificationService = inject(NotificationService);
 
     billingForm: FormGroup;
     isSaving = false;
@@ -71,22 +71,12 @@ export class ConfigBillingComponent implements OnInit {
         this.configService.saveConfigs(payload).subscribe({
             next: () => {
                 this.isSaving = false;
-                this.snackBar.open('Configuración guardada correctamente', 'Cerrar', {
-                    duration: 3000,
-                    horizontalPosition: 'end',
-                    verticalPosition: 'bottom',
-                    panelClass: ['bg-green-500', 'text-white'] // Optional custom styling
-                });
+                this.notificationService.showSuccess('Configuración guardada correctamente');
             },
             error: (err) => {
                 console.error('Error saving configs', err);
                 this.isSaving = false;
-                this.snackBar.open('Error al guardar la configuración', 'Cerrar', {
-                    duration: 3000,
-                    horizontalPosition: 'end',
-                    verticalPosition: 'bottom',
-                    panelClass: ['bg-red-500', 'text-white']
-                });
+                this.notificationService.showError('Error al guardar la configuración');
             }
         });
     }

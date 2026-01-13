@@ -1,19 +1,21 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PaymentMethodsService, PaymentMethod } from '../payment-methods.service';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { PaymentMethodDialogComponent } from '../payment-method-dialog/payment-method-dialog.component';
+import { ModalService } from '../../../../shared/components/modal/modal.service';
+import { ConfirmationDialogComponent, ConfirmationDialogData } from '../../../../shared/components/confirmation-dialog/confirmation-dialog';
 
 @Component({
     selector: 'app-payment-methods-list',
     standalone: true,
-    imports: [CommonModule, MatDialogModule],
+    imports: [CommonModule],
     templateUrl: './payment-methods-list.component.html'
 })
 export class PaymentMethodsListComponent implements OnInit {
     methods: PaymentMethod[] = [];
 
-    constructor(private service: PaymentMethodsService, private dialog: MatDialog) { }
+    private service = inject(PaymentMethodsService);
+    private modalService = inject(ModalService);
 
     ngOnInit() {
         this.loadMethods();
@@ -24,11 +26,11 @@ export class PaymentMethodsListComponent implements OnInit {
     }
 
     addMethod() {
-        const dialogRef = this.dialog.open(PaymentMethodDialogComponent, {
+        const modalRef = this.modalService.open(PaymentMethodDialogComponent, {
             width: '500px'
         });
 
-        dialogRef.afterClosed().subscribe(result => {
+        modalRef.afterClosed().subscribe((result: any) => {
             if (result) {
                 this.service.create(result).subscribe(() => this.loadMethods());
             }
@@ -36,12 +38,12 @@ export class PaymentMethodsListComponent implements OnInit {
     }
 
     editMethod(method: PaymentMethod) {
-        const dialogRef = this.dialog.open(PaymentMethodDialogComponent, {
+        const modalRef = this.modalService.open(PaymentMethodDialogComponent, {
             width: '500px',
             data: method
         });
 
-        dialogRef.afterClosed().subscribe(result => {
+        modalRef.afterClosed().subscribe((result: any) => {
             if (result) {
                 this.service.update(method.id, result).subscribe(() => this.loadMethods());
             }
@@ -49,9 +51,21 @@ export class PaymentMethodsListComponent implements OnInit {
     }
 
     deleteMethod(method: PaymentMethod) {
-        if (confirm(`¿Está seguro de eliminar ${method.name}?`)) {
-            this.service.remove(method.id).subscribe(() => this.loadMethods());
-        }
+        const modalRef = this.modalService.open(ConfirmationDialogComponent, {
+            width: '400px',
+            data: {
+                title: 'Eliminar Método de Pago',
+                message: `¿Está seguro de eliminar ${method.name}?`,
+                confirmText: 'Eliminar',
+                color: 'warn'
+            } as ConfirmationDialogData
+        });
+
+        modalRef.afterClosed().subscribe((result: boolean) => {
+            if (result) {
+                this.service.remove(method.id).subscribe(() => this.loadMethods());
+            }
+        });
     }
 
     getPaymentTypeLabel(code: string): string {

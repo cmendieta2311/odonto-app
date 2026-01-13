@@ -32,6 +32,10 @@ export class CatalogService {
         return this.http.get<Service[]>(`${this.apiUrl}/services`);
     }
 
+    getTopServices() {
+        return this.http.get<Service[]>(`${this.apiUrl}/services/top`);
+    }
+
     createService(service: Partial<Service>) {
         return this.http.post<Service>(`${this.apiUrl}/services`, service);
     }

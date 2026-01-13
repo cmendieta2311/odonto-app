@@ -1,35 +1,22 @@
 import { Injectable, inject } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { ToastService } from '../components/toast/toast.service';
 
 @Injectable({
     providedIn: 'root'
 })
 export class NotificationService {
-    private snackBar = inject(MatSnackBar);
+    private toastService = inject(ToastService);
 
     showSuccess(message: string) {
-        this.snackBar.open(message, 'Cerrar', {
-            duration: 3000,
-            panelClass: ['success-snackbar'],
-            horizontalPosition: 'end',
-            verticalPosition: 'top'
-        });
+        this.toastService.show(message, 'success');
     }
 
     showError(message: string) {
-        this.snackBar.open(message, 'Cerrar', {
-            duration: 5000,
-            panelClass: ['error-snackbar'],
-            horizontalPosition: 'end',
-            verticalPosition: 'top'
-        });
+        // Longer duration for errors
+        this.toastService.show(message, 'error', 5000);
     }
 
     showMessage(message: string) {
-        this.snackBar.open(message, 'Close', {
-            duration: 3000,
-            horizontalPosition: 'end',
-            verticalPosition: 'top'
-        });
+        this.toastService.show(message, 'info');
     }
 }

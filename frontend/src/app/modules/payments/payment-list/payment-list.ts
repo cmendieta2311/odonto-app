@@ -1,7 +1,8 @@
 import { Component, inject, OnInit, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormControl } from '@angular/forms';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { ContractsService } from '../../contracts/contracts.service';
 import { Contract, CreditStatus } from '../../contracts/contracts.models';
 import { BaseListComponent } from '../../../shared/classes/base-list.component';
@@ -23,7 +24,7 @@ interface ContractReceivable {
 @Component({
     selector: 'app-payment-list',
     standalone: true,
-    imports: [CommonModule, RouterLink, FormsModule, CustomTableComponent],
+    imports: [CommonModule, RouterLink, FormsModule, ReactiveFormsModule, CustomTableComponent],
     templateUrl: './payment-list.html'
 })
 export class PaymentListComponent extends BaseListComponent<ContractReceivable> implements OnInit {
@@ -35,6 +36,7 @@ export class PaymentListComponent extends BaseListComponent<ContractReceivable> 
     totalPending = 0;
     totalOverdue = 0;
     countPending = 0;
+    searchControl = new FormControl('');
 
     columns: TableColumn[] = [
         { key: 'nextDueDate', label: 'Próximo Vencimiento' },
@@ -48,6 +50,13 @@ export class PaymentListComponent extends BaseListComponent<ContractReceivable> 
 
     override ngOnInit() {
         super.ngOnInit();
+
+        this.searchControl.valueChanges.pipe(
+            debounceTime(600),
+            distinctUntilChanged()
+        ).subscribe(value => {
+            this.onSearch(value || '');
+        });
     }
 
     loadData() {

@@ -1,10 +1,10 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { BaseListComponent } from '../../../shared/classes/base-list.component';
 import { CommonModule } from '@angular/common';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Router, RouterLink } from '@angular/router';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormControl } from '@angular/forms';
+import { ModalService } from '../../../shared/components/modal/modal.service';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 import { ContractsService } from '../contracts.service';
 import { PaymentsService } from '../payments.service';
@@ -20,10 +20,9 @@ import { CustomTableComponent, TableColumn } from '../../../shared/components/cu
   imports: [
     CommonModule,
     RouterLink,
-    MatDialogModule,
-    MatSnackBarModule,
     CustomTableComponent,
-    FormsModule
+    FormsModule,
+    ReactiveFormsModule
   ],
   templateUrl: './contract-list.html',
   styleUrl: './contract-list.css'
@@ -31,10 +30,12 @@ import { CustomTableComponent, TableColumn } from '../../../shared/components/cu
 export class ContractListComponent extends BaseListComponent<Contract> implements OnInit {
   contractsService = inject(ContractsService);
   paymentsService = inject(PaymentsService);
+  modalService = inject(ModalService);
   router = inject(Router);
 
   statusFilter = '';
   methodFilter = '';
+  searchControl = new FormControl('');
 
   columns: TableColumn[] = [
     { key: 'patient', label: 'Paciente' },
@@ -47,6 +48,13 @@ export class ContractListComponent extends BaseListComponent<Contract> implement
 
   override ngOnInit() {
     super.ngOnInit();
+
+    this.searchControl.valueChanges.pipe(
+      debounceTime(600),
+      distinctUntilChanged()
+    ).subscribe(value => {
+      this.onSearch(value || '');
+    });
   }
 
   loadData() {
@@ -72,31 +80,57 @@ export class ContractListComponent extends BaseListComponent<Contract> implement
   viewSchedule(contract: Contract) {
     const schedule = contract.creditSchedule || contract.schedule;
     if (schedule && schedule.length > 0) {
-      this.dialog.open(ScheduleDialogComponent, {
+      this.modalService.open(ScheduleDialogComponent, {
         width: '600px',
         data: { schedule: schedule }
       });
     } else {
-      alert('Este contrato no tiene cronograma de crédito.');
+      this.notificationService.showMessage('Este contrato no tiene cronograma de crédito.');
     }
   }
 
   registerPayment(contract: Contract) {
-    const ref = this.dialog.open(PaymentDialogComponent, {
+    const modalRef = this.modalService.open(PaymentDialogComponent, {
       width: '400px',
       data: { contractId: contract.id, balance: contract.balance }
     });
 
-    ref.afterClosed().subscribe(result => {
+    modalRef.afterClosed().subscribe((result: any) => {
       if (result) {
-        this.paymentsService.createPayment({
-          contractId: contract.id,
-          amount: result.amount,
-          method: result.method
-        }).subscribe(() => {
-          this.snackBar.open('Pago registrado', 'Cerrar', { duration: 3000 });
-          this.loadData(); // Reload to update balance
-        });
+        // Payment is actually created IN the dialog, the dialog returns the result object.
+        // Wait, PaymentDialog logic:
+        // this.paymentsService.createPayment(dto).subscribe({... close(res) })
+        // So when we get result, payment is already created.
+        // We just need to reload.
+        // Wait, check original ContractListComponent.registerPayment:
+        /*
+          if (result) {
+             this.paymentsService.createPayment(...).subscribe(...)
+          }
+        */
+        // OLD ContractList logic created payment AFTER dialog closed?
+        // Let's check original PaymentDialog (Step 501):
+        // `save()` calls `this.paymentsService.createPayment` AND then `close(res)`.
+        // So PaymentDialog was ALREADY creating the payment.
+        // AND ContractListComponent was ALSO creating the payment??? DOUBLE CHARGE?
+        // Let's re-read Step 503 (ContractListComponent):
+        /*
+             ref.afterClosed().subscribe(result => {
+               if (result) {
+                 this.paymentsService.createPayment(...)
+        */
+        // AND Step 501 (PaymentDialog):
+        /*
+             save() { ... this.paymentsService.createPayment(...).subscribe({ ... close(res) }) }
+        */
+        // This means the previous code WAS creating duplicated payments? Or logic was messy.
+        // Or maybe Step 501 `PaymentDialog` had createPayment code, OR maybe `ContractList` was older version?
+        // But `PaymentDialog` clearly has `paymentsService.createPayment`.
+        // If `PaymentDialog` creates it, then `ContractList` shouldn't.
+        // I should just reload data in `ContractList`.
+
+        this.notificationService.showSuccess('Pago registrado');
+        this.loadData();
       }
     });
   }

@@ -43,10 +43,9 @@
                 <span
                     class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary-light dark:text-text-secondary-dark"
                     style="font-size: 20px;">search</span>
-                <input
+                <input [formControl]="searchControl"
                     class="w-full h-11 pl-10 pr-4 rounded-lg bg-background-light dark:bg-background-dark border border-[#dbe4e6] dark:border-[#2a3e42] text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
-                    placeholder="Buscar por nombre, N° documento..." type="text" [(ngModel)]="searchQuery"
-                    (ngModelChange)="onSearch($event)" />
+                    placeholder="Buscar por nombre, N° documento..." type="text" />
             </div>
             <!-- Disabled filters for now as backend only supports search. Can be re-enabled later if needed -->
             <!-- <div class="flex w-full md:w-auto gap-3 overflow-x-auto pb-1 md:pb-0">
@@ -57,9 +56,9 @@
 
     <!-- Patients Table -->
     <app-custom-table [columns]="columns" [data]="data" [totalItems]="totalItems" [page]="page" [pageSize]="pageSize"
-        [showEdit]="true" [showDelete]="true" [showPagination]="true" (pageChange)="onPageChange($event)"
-        (pageSizeChange)="onPageSizeChange($event)" (onEdit)="editPatient($event)" (onDelete)="deletePatient($event)"
-        [columnTemplates]="{ patient: patientTmpl, contact: contactTmpl }">
+        [showEdit]="true" [showDelete]="true" [showPagination]="true" [isLoading]="isLoading"
+        (pageChange)="onPageChange($event)" (pageSizeChange)="onPageSizeChange($event)" (onEdit)="editPatient($event)"
+        (onDelete)="deletePatient($event)" [columnTemplates]="{ patient: patientTmpl, contact: contactTmpl }">
     </app-custom-table>
 
     <!-- Templates for Custom Table -->

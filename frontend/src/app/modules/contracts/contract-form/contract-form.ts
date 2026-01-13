@@ -2,13 +2,13 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { ContractsService } from '../contracts.service';
 import { QuotesService } from '../../quotes/quotes.service';
 import { Quote } from '../../quotes/quotes.models';
 import { PaymentMethod } from '../contracts.models';
 import { SystemConfigService } from '../../configuration/system-config.service';
+import { NotificationService } from '../../../shared/services/notification.service';
 
 @Component({
     selector: 'app-contract-form',
@@ -16,7 +16,6 @@ import { SystemConfigService } from '../../configuration/system-config.service';
     imports: [
         CommonModule,
         ReactiveFormsModule,
-        MatSnackBarModule,
         RouterLink
     ],
     templateUrl: './contract-form.html',
@@ -28,7 +27,7 @@ export class ContractFormComponent implements OnInit {
     private router = inject(Router);
     private quotesService = inject(QuotesService);
     private contractsService = inject(ContractsService);
-    private snackBar = inject(MatSnackBar);
+    private notificationService = inject(NotificationService);
     private configService = inject(SystemConfigService);
 
     quoteId: string | null = null;
@@ -238,10 +237,10 @@ export class ContractFormComponent implements OnInit {
 
         this.contractsService.createContract(payload).subscribe({
             next: () => {
-                this.snackBar.open('Contrato generado exitosamente', 'Cerrar', { duration: 3000 });
+                this.notificationService.showSuccess('Contrato generado exitosamente');
                 this.router.navigate(['/commercial/contracts']);
             },
-            error: () => this.snackBar.open('Error al generar contrato', 'Cerrar', { duration: 3000 })
+            error: () => this.notificationService.showError('Error al generar contrato')
         });
     }
 

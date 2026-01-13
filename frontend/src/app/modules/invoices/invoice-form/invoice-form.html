@@ -118,7 +118,7 @@
                     </div>
                     <div class="col-span-8 md:col-span-2 flex flex-col gap-1">
                         <label *ngIf="i===0" class="text-xs font-bold text-[#618389]">Precio</label>
-                        <input type="number" formControlName="unitPrice" min="0"
+                        <input type="text" [value]="getFormattedPrice(i)" (input)="onPriceInput($event.target.value, i)"
                             class="w-full p-2 bg-white dark:bg-[#1a2c30] border border-gray-200 dark:border-gray-700 rounded-md outline-none text-right text-sm">
                     </div>
                     <div class="col-span-6 md:col-span-2 flex flex-col gap-1">

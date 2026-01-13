@@ -2,19 +2,20 @@ import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { OfficesService } from '../offices.service';
 import { Office } from '../office.model';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { OfficeForm } from '../office-form/office-form'; // check filename later
+import { ModalService } from '../../../../shared/components/modal/modal.service';
+import { ConfirmationDialogComponent, ConfirmationDialogData } from '../../../../shared/components/confirmation-dialog/confirmation-dialog';
 
 @Component({
   selector: 'app-office-list',
   standalone: true,
-  imports: [CommonModule, MatDialogModule],
+  imports: [CommonModule],
   templateUrl: './office-list.html',
   styleUrl: './office-list.css'
 })
 export class OfficeList implements OnInit {
   private officesService = inject(OfficesService);
-  private dialog = inject(MatDialog);
+  private modalService = inject(ModalService);
 
   offices: Office[] = [];
 
@@ -29,12 +30,12 @@ export class OfficeList implements OnInit {
   }
 
   openOfficeForm(office?: Office) {
-    const dialogRef = this.dialog.open(OfficeForm, {
+    const modalRef = this.modalService.open(OfficeForm, {
       width: '500px',
       data: office
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    modalRef.afterClosed().subscribe((result: any) => {
       if (result) {
         this.loadOffices();
       }
@@ -42,10 +43,22 @@ export class OfficeList implements OnInit {
   }
 
   deleteOffice(office: Office) {
-    if (confirm(`¿Estás seguro de eliminar el consultorio ${office.name}?`)) {
-      this.officesService.delete(office.id).subscribe(() => {
-        this.loadOffices();
-      });
-    }
+    const modalRef = this.modalService.open(ConfirmationDialogComponent, {
+      width: '400px',
+      data: {
+        title: 'Eliminar Consultorio',
+        message: `¿Estás seguro de eliminar el consultorio ${office.name}?`,
+        confirmText: 'Eliminar',
+        color: 'warn'
+      } as ConfirmationDialogData
+    });
+
+    modalRef.afterClosed().subscribe((result: boolean) => {
+      if (result) {
+        this.officesService.delete(office.id).subscribe(() => {
+          this.loadOffices();
+        });
+      }
+    });
   }
 }

@@ -65,7 +65,7 @@
     <!-- Data Table -->
     <div class="flex-1 min-h-0 flex flex-col">
         <app-custom-table [columns]="columns" [data]="filteredServices" [totalItems]="totalItems" [page]="page"
-            [pageSize]="pageSize" [showEdit]="true" [showDelete]="true" [showPagination]="true"
+            [pageSize]="pageSize" [showEdit]="true" [showDelete]="true" [showPagination]="true" [isLoading]="isLoading"
             (pageChange)="onPageChange($event)" (pageSizeChange)="onPageSizeChange($event)"
             (onEdit)="editService($event)" (onDelete)="deleteService($event)" [columnTemplates]="{ price: priceTmpl }">
         </app-custom-table>

@@ -1,8 +1,7 @@
-import { Component, Inject, OnInit, inject } from '@angular/core';
+import { Component, Inject, OnInit, inject, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FormBuilder } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { ServiceType, ServiceCategory, Service } from '../catalog.models';
 import { CatalogService } from '../catalog.service';
 
@@ -12,8 +11,7 @@ import { CatalogService } from '../catalog.service';
   imports: [
     CommonModule,
     FormsModule,
-    ReactiveFormsModule,
-    MatDialogModule
+    ReactiveFormsModule
   ],
   templateUrl: './service-dialog.html',
   styleUrl: './service-dialog.css'
@@ -21,6 +19,9 @@ import { CatalogService } from '../catalog.service';
 export class ServiceDialogComponent implements OnInit {
   fb = inject(FormBuilder);
   catalogService = inject(CatalogService);
+
+  @Input() data: { service?: Service } = {};
+  @Input() activeModal: any;
 
   categories: ServiceCategory[] = [];
   filteredCategories: ServiceCategory[] = [];
@@ -36,11 +37,6 @@ export class ServiceDialogComponent implements OnInit {
     price: [0, [Validators.required, Validators.min(0)]],
     type: [ServiceType.CONSULTORIO, Validators.required]
   });
-
-  constructor(
-    public dialogRef: MatDialogRef<ServiceDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { service?: Service }
-  ) { }
 
   ngOnInit() {
     this.catalogService.getCategories().subscribe(cats => {
@@ -84,11 +80,11 @@ export class ServiceDialogComponent implements OnInit {
 
   save() {
     if (this.form.valid) {
-      this.dialogRef.close(this.form.value);
+      this.activeModal.close(this.form.value);
     }
   }
 
   close() {
-    this.dialogRef.close();
+    this.activeModal.close();
   }
 }

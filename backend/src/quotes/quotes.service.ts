@@ -2,7 +2,7 @@ import { Injectable, NotFoundException, BadRequestException } from '@nestjs/comm
 import { CreateQuoteDto } from './dto/create-quote.dto';
 import { UpdateQuoteDto } from './dto/update-quote.dto';
 import { PrismaService } from '../prisma/prisma.service';
-import { QuoteStatus } from '@prisma/client';
+import { QuoteStatus, CreditStatus } from '@prisma/client';
 import { GetQuotesDto } from './dto/get-quotes.dto';
 
 @Injectable()
@@ -58,6 +58,7 @@ export class QuotesService {
         financingEnabled: financingEnabled || false,
         initialPayment: initialPayment || 0,
         installments: installments || 1,
+        observations: createQuoteDto.observations,
         items: {
           create: quoteItemsData,
         },
@@ -82,18 +83,26 @@ export class QuotesService {
     }
 
     if (search) {
+      const searchTerms = search.trim().split(/\s+/);
+
       where.OR = [
+        // DNI Search (exact or partial)
         {
           patient: {
-            OR: [
-              { firstName: { contains: search, mode: 'insensitive' } },
-              { lastName: { contains: search, mode: 'insensitive' } }
-            ]
+            dni: { contains: search, mode: 'insensitive' }
           }
         },
-        // Only if id is avalid uuid or simple string search? Prisma uuid search failing if not valid uuid. 
-        // For simplicity assuming search is text. If ID search is needed, handle carefully.
-        // Let's stick to patient Name for now to avoid uuid errors.
+        // Name Search (handle multiple terms)
+        {
+          AND: searchTerms.map(term => ({
+            patient: {
+              OR: [
+                { firstName: { contains: term, mode: 'insensitive' } },
+                { lastName: { contains: term, mode: 'insensitive' } }
+              ]
+            }
+          }))
+        }
       ];
     }
 
@@ -135,12 +144,75 @@ export class QuotesService {
 
   async update(id: string, updateQuoteDto: UpdateQuoteDto) {
     console.log('Updating Quote:', id, JSON.stringify(updateQuoteDto));
-    const { items, status, ...otherData } = updateQuoteDto;
+    const { items, status, patientId, ...otherData } = updateQuoteDto;
 
-    const quote = await this.prisma.quote.findUnique({ where: { id }, include: { items: true } });
+    const quote = await this.prisma.quote.findUnique({ where: { id }, include: { items: true, contract: true } });
     if (!quote) throw new NotFoundException('Quote not found');
 
     let total = Number(quote.total);
+
+    let finalStatus = status;
+    const additionalOps: any[] = [];
+
+    // Check if we need to auto-generate contract (Status APPROVED + No existing contract)
+    if (status === QuoteStatus.APPROVED && !quote.contract) {
+      finalStatus = QuoteStatus.CONVERTED;
+
+      const finalFinancing = otherData.financingEnabled ?? quote.financingEnabled;
+      const finalInitialPayment = Number(otherData.initialPayment ?? quote.initialPayment);
+      const finalInstallments = Number(otherData.installments ?? quote.installments);
+
+      // Calculate final total
+      let finalTotal = Number(quote.total);
+      if (items) {
+        // Re-calculate total from new items
+        finalTotal = 0;
+        for (const item of items) {
+          const service = await this.prisma.service.findUnique({ where: { id: item.serviceId } });
+          if (service) {
+            const price = Number(service.price);
+            const discount = item.discount || 0;
+            finalTotal += (price * (1 - discount / 100)) * item.quantity;
+          }
+        }
+      }
+
+      const paymentMethod = finalFinancing ? 'CREDIT' : 'CASH';
+      const contractId = crypto.randomUUID(); // We need ID for credit schedule relations
+
+      // Contract Creation Op
+      additionalOps.push(this.prisma.contract.create({
+        data: {
+          id: contractId,
+          quoteId: id,
+          totalAmount: finalTotal,
+          balance: finalTotal,
+          paymentMethod: paymentMethod,
+          installments: finalInstallments,
+          status: 'ACTIVE'
+        }
+      }));
+
+      // Credit Schedule Creation Op
+      if (paymentMethod === 'CREDIT' && finalInstallments > 1) {
+        const installmentAmount = (finalTotal - finalInitialPayment) / finalInstallments;
+        const today = new Date();
+
+        for (let i = 1; i <= finalInstallments; i++) {
+          const dueDate = new Date(today);
+          dueDate.setMonth(dueDate.getMonth() + i);
+
+          additionalOps.push(this.prisma.creditSchedule.create({
+            data: {
+              contractId: contractId,
+              amount: installmentAmount,
+              dueDate: dueDate,
+              status: CreditStatus.PENDING
+            }
+          }));
+        }
+      }
+    }
 
     // If items are being updated, we need to recalculate total and replace items
     if (items) {
@@ -173,7 +245,7 @@ export class QuotesService {
           where: { id },
           data: {
             ...otherData,
-            status: status !== undefined ? status : undefined, // Explicitly set status
+            status: finalStatus !== undefined ? finalStatus : undefined,
             total,
             items: {
               create: newItemsData
@@ -184,23 +256,43 @@ export class QuotesService {
             items: { include: { service: true } },
             contract: true
           }
-        })
-      ]).then(results => results[1]); // Return the updated quote
+        }),
+        ...additionalOps
+      ]).then(results => results[1]);
 
     } else {
       // Just update other fields
-      return this.prisma.quote.update({
-        where: { id },
-        data: {
-          ...otherData,
-          status: status !== undefined ? status : undefined
-        },
-        include: {
-          patient: true,
-          items: { include: { service: true } },
-          contract: true
-        }
-      });
+      // Use transaction if we have additional ops (contract creation)
+      if (additionalOps.length > 0) {
+        return this.prisma.$transaction([
+          this.prisma.quote.update({
+            where: { id },
+            data: {
+              ...otherData,
+              status: finalStatus !== undefined ? finalStatus : undefined
+            },
+            include: {
+              patient: true,
+              items: { include: { service: true } },
+              contract: true
+            }
+          }),
+          ...additionalOps
+        ]).then(results => results[0]);
+      } else {
+        return this.prisma.quote.update({
+          where: { id },
+          data: {
+            ...otherData,
+            status: finalStatus !== undefined ? finalStatus : undefined
+          },
+          include: {
+            patient: true,
+            items: { include: { service: true } },
+            contract: true
+          }
+        });
+      }
     }
   }
 

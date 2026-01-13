@@ -76,7 +76,7 @@
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#618389]">
                         <span class="material-symbols-outlined text-[20px]">search</span>
                     </div>
-                    <input [(ngModel)]="searchQuery" (ngModelChange)="onSearch($event)"
+                    <input [formControl]="searchControl"
                         class="block w-full pl-10 pr-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg leading-5 bg-white dark:bg-[#101f22] dark:text-white placeholder-[#618389] focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary sm:text-sm"
                         placeholder="Buscar por paciente, N° factura..." type="text" />
                 </div>
@@ -120,7 +120,7 @@
         class="bg-white dark:bg-[#1a2c30] rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden flex flex-col flex-1">
         <app-custom-table [columns]="columns" [data]="data" [totalItems]="totalItems" [page]="page"
             [pageSize]="pageSize" [showEdit]="false" [showDelete]="false" [showPagination]="true"
-            (pageChange)="onPageChange($event)" (pageSizeChange)="onPageSizeChange($event)"
+            [isLoading]="isLoading" (pageChange)="onPageChange($event)" (pageSizeChange)="onPageSizeChange($event)"
             [extraActionsTemplate]="extraActions"
             [columnTemplates]="{ number: numberTmpl, date: dateTmpl, patient: patientTmpl, concept: conceptTmpl, status: statusTmpl, amount: amountTmpl }">
         </app-custom-table>
@@ -224,7 +224,7 @@
                     <label class="text-sm font-bold text-[#618389]">Monto a Cobrar</label>
                     <div class="relative">
                         <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">₲</span>
-                        <input type="number" formControlName="amount" [max]="selectedInvoice.balance"
+                        <input type="text" [value]="displayAmount" (input)="onPaymentAmountInput($event.target.value)"
                             class="w-full pl-7 p-3 bg-gray-50 dark:bg-[#101f22] border border-gray-200 dark:border-gray-700 rounded-lg outline-none focus:border-primary font-bold text-lg text-right">
                     </div>
                 </div>

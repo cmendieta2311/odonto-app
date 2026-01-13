@@ -1,121 +1,152 @@
 <div class="contract-details-dialog">
     <div class="dialog-header">
-        <h2 mat-dialog-title class="text-2xl font-bold text-text-primary-light dark:text-white flex items-center gap-2">
+        <h2 class="text-2xl font-bold text-text-primary-light dark:text-white flex items-center gap-2">
             <span class="material-symbols-outlined text-primary">description</span>
             Detalles del Contrato
         </h2>
-        <button mat-icon-button (click)="close()" class="close-button">
+        <button (click)="close()"
+            class="close-button flex items-center justify-center p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
             <span class="material-symbols-outlined">close</span>
         </button>
     </div>
 
-    <mat-dialog-content class="dialog-content">
+    <div class="dialog-content flex-1 overflow-y-auto px-6 py-4" *ngIf="contract">
         <!-- Contract ID -->
-        <div class="detail-section">
-            <div class="detail-row">
-                <span class="detail-label">ID del Contrato</span>
-                <span class="detail-value font-mono">{{ contract.id.slice(0, 12) }}</span>
+        <div class="detail-section mb-6">
+            <div class="detail-row flex justify-between py-2 border-b border-gray-100 dark:border-gray-800"
+                *ngIf="contract.id">
+                <span class="detail-label text-sm text-gray-500 dark:text-gray-400">ID del Contrato</span>
+                <span class="detail-value font-mono text-sm font-medium text-gray-900 dark:text-gray-100">{{
+                    contract.id.slice(0, 12) }}</span>
             </div>
-            <div class="detail-row">
-                <span class="detail-label">Presupuesto Relacionado</span>
-                <span class="detail-value font-mono">{{ contract.quoteId.slice(0, 12) }}</span>
+            <div class="detail-row flex justify-between py-2 border-b border-gray-100 dark:border-gray-800"
+                *ngIf="contract.quoteId">
+                <span class="detail-label text-sm text-gray-500 dark:text-gray-400">Presupuesto Relacionado</span>
+                <span class="detail-value font-mono text-sm font-medium text-gray-900 dark:text-gray-100">{{
+                    contract.quoteId.slice(0, 12) }}</span>
             </div>
         </div>
 
         <!-- Patient Information -->
-        <div class="detail-section">
-            <h3 class="section-title">Información del Paciente</h3>
-            <div class="detail-row">
-                <span class="detail-label">Nombre Completo</span>
-                <span class="detail-value">{{ contract.quote?.patient?.firstName }} {{ contract.quote?.patient?.lastName
-                    }}</span>
+        <div class="detail-section mb-6">
+            <h3 class="section-title text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider mb-2">
+                Información del Paciente</h3>
+            <div class="detail-row flex justify-between py-2 border-b border-gray-100 dark:border-gray-800">
+                <span class="detail-label text-sm text-gray-500 dark:text-gray-400">Nombre Completo</span>
+                <span class="detail-value text-sm font-medium text-gray-900 dark:text-gray-100">{{
+                    contract.quote?.patient?.firstName }} {{ contract.quote?.patient?.lastName }}</span>
             </div>
-            <div class="detail-row">
-                <span class="detail-label">DNI</span>
-                <span class="detail-value">{{ contract.quote?.patient?.dni }}</span>
+            <div class="detail-row flex justify-between py-2 border-b border-gray-100 dark:border-gray-800">
+                <span class="detail-label text-sm text-gray-500 dark:text-gray-400">DNI</span>
+                <span class="detail-value text-sm font-medium text-gray-900 dark:text-gray-100">{{
+                    contract.quote?.patient?.dni }}</span>
             </div>
-            <div class="detail-row" *ngIf="contract.quote?.patient?.email">
-                <span class="detail-label">Email</span>
-                <span class="detail-value">{{ contract.quote?.patient?.email }}</span>
+            <div class="detail-row flex justify-between py-2 border-b border-gray-100 dark:border-gray-800"
+                *ngIf="contract.quote?.patient?.email">
+                <span class="detail-label text-sm text-gray-500 dark:text-gray-400">Email</span>
+                <span class="detail-value text-sm font-medium text-gray-900 dark:text-gray-100">{{
+                    contract.quote?.patient?.email }}</span>
             </div>
-            <div class="detail-row" *ngIf="contract.quote?.patient?.phone">
-                <span class="detail-label">Teléfono</span>
-                <span class="detail-value">{{ contract.quote?.patient?.phone }}</span>
+            <div class="detail-row flex justify-between py-2 border-b border-gray-100 dark:border-gray-800"
+                *ngIf="contract.quote?.patient?.phone">
+                <span class="detail-label text-sm text-gray-500 dark:text-gray-400">Teléfono</span>
+                <span class="detail-value text-sm font-medium text-gray-900 dark:text-gray-100">{{
+                    contract.quote?.patient?.phone }}</span>
             </div>
         </div>
 
         <!-- Financial Information -->
-        <div class="detail-section">
-            <h3 class="section-title">Información Financiera</h3>
-            <div class="detail-row">
-                <span class="detail-label">Total del Contrato</span>
-                <span class="detail-value font-bold text-lg">{{ contract.total | currency }}</span>
+        <div class="detail-section mb-6">
+            <h3 class="section-title text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider mb-2">
+                Información Financiera</h3>
+            <div class="detail-row flex justify-between py-2 border-b border-gray-100 dark:border-gray-800">
+                <span class="detail-label text-sm text-gray-500 dark:text-gray-400">Total del Contrato</span>
+                <span class="detail-value font-bold text-lg text-gray-900 dark:text-white">{{ contract.total | currency
+                    }}</span>
             </div>
-            <div class="detail-row">
-                <span class="detail-label">Saldo Pendiente</span>
+            <div class="detail-row flex justify-between py-2 border-b border-gray-100 dark:border-gray-800">
+                <span class="detail-label text-sm text-gray-500 dark:text-gray-400">Saldo Pendiente</span>
+                <!-- Use *ngIf or check undefined for contract.balance to avoid strict check errors, although it should be defined on contract object. Adding safe navigation just in case. -->
                 <span class="detail-value font-bold" [ngClass]="{
                     'text-green-600': contract.balance === 0,
-                    'text-orange-600': contract.balance > 0 && contract.balance < contract.total,
+                    'text-orange-600': contract.balance !== undefined && contract.balance > 0 && contract.balance < (contract.total || 0),
                     'text-red-600': contract.balance === contract.total
                 }">{{ contract.balance | currency }}</span>
             </div>
-            <div class="detail-row">
-                <span class="detail-label">Método de Pago</span>
-                <span class="detail-value">{{ getPaymentMethodLabel(contract.paymentMethod) }}</span>
+            <div class="detail-row flex justify-between py-2 border-b border-gray-100 dark:border-gray-800">
+                <span class="detail-label text-sm text-gray-500 dark:text-gray-400">Método de Pago</span>
+                <span class="detail-value text-sm font-medium text-gray-900 dark:text-gray-100">{{
+                    getPaymentMethodLabel(contract.paymentMethod) }}</span>
             </div>
-            <div class="detail-row" *ngIf="contract.paymentMethod === 'CREDIT'">
-                <span class="detail-label">Número de Cuotas</span>
-                <span class="detail-value">{{ contract.installments }} cuotas</span>
+            <div class="detail-row flex justify-between py-2 border-b border-gray-100 dark:border-gray-800"
+                *ngIf="contract.paymentMethod === 'CREDIT'">
+                <span class="detail-label text-sm text-gray-500 dark:text-gray-400">Número de Cuotas</span>
+                <span class="detail-value text-sm font-medium text-gray-900 dark:text-gray-100">{{ contract.installments
+                    }} cuotas</span>
             </div>
         </div>
 
         <!-- Status Information -->
-        <div class="detail-section">
-            <h3 class="section-title">Estado del Contrato</h3>
-            <div class="detail-row">
-                <span class="detail-label">Estado Actual</span>
-                <span class="status-badge" [ngClass]="{
-                    'status-active': contract.status === 'ACTIVE',
-                    'status-completed': contract.status === 'COMPLETED',
-                    'status-cancelled': contract.status === 'CANCELLED'
+        <div class="detail-section mb-6">
+            <h3 class="section-title text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider mb-2">
+                Estado del Contrato</h3>
+            <div class="detail-row flex justify-between py-2 border-b border-gray-100 dark:border-gray-800">
+                <span class="detail-label text-sm text-gray-500 dark:text-gray-400">Estado Actual</span>
+                <span class="status-badge px-2 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider"
+                    [ngClass]="{
+                    'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400': contract.status === 'ACTIVE',
+                    'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400': contract.status === 'COMPLETED',
+                    'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400': contract.status === 'CANCELLED'
                 }">
                     {{ getStatusLabel(contract.status) }}
                 </span>
             </div>
-            <div class="detail-row">
-                <span class="detail-label">Fecha de Creación</span>
-                <span class="detail-value">{{ contract.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+            <div class="detail-row flex justify-between py-2 border-b border-gray-100 dark:border-gray-800">
+                <span class="detail-label text-sm text-gray-500 dark:text-gray-400">Fecha de Creación</span>
+                <span class="detail-value text-sm font-medium text-gray-900 dark:text-gray-100">{{ contract.createdAt |
+                    date:'dd/MM/yyyy HH:mm' }}</span>
             </div>
-            <div class="detail-row" *ngIf="contract.updatedAt">
-                <span class="detail-label">Última Actualización</span>
-                <span class="detail-value">{{ contract.updatedAt | date:'dd/MM/yyyy HH:mm' }}</span>
+            <div class="detail-row flex justify-between py-2 border-b border-gray-100 dark:border-gray-800"
+                *ngIf="contract.updatedAt">
+                <span class="detail-label text-sm text-gray-500 dark:text-gray-400">Última Actualización</span>
+                <span class="detail-value text-sm font-medium text-gray-900 dark:text-gray-100">{{ contract.updatedAt |
+                    date:'dd/MM/yyyy HH:mm' }}</span>
             </div>
         </div>
 
         <!-- Treatment Details -->
-        <div class="detail-section" *ngIf="contract.quote?.items && contract.quote.items.length > 0">
-            <h3 class="section-title">Detalles del Tratamiento</h3>
-            <div class="treatment-list">
-                <div class="treatment-item" *ngFor="let item of contract.quote.items">
+        <div class="detail-section" *ngIf="contract.quote?.items && (contract.quote?.items?.length || 0) > 0">
+            <h3 class="section-title text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider mb-2">
+                Detalles del Tratamiento</h3>
+            <div class="treatment-list bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3">
+                <!-- Safe navigation for items loop -->
+                <div class="treatment-item py-2 border-b border-gray-200 dark:border-gray-700 last:border-0"
+                    *ngFor="let item of contract.quote?.items || []">
                     <div class="flex justify-between items-start">
                         <div>
-                            <span class="treatment-name">{{ item.service?.name }}</span>
-                            <span class="treatment-quantity">x{{ item.quantity }}</span>
+                            <span class="treatment-name block text-sm font-medium text-gray-900 dark:text-gray-100">{{
+                                item.service?.name }}</span>
+                            <span class="treatment-quantity text-xs text-gray-500 dark:text-gray-400">x{{ item.quantity
+                                }}</span>
                         </div>
-                        <span class="treatment-price">{{ item.price | currency }}</span>
+                        <span class="treatment-price text-sm font-bold text-gray-700 dark:text-gray-300">{{ item.price |
+                            currency }}</span>
                     </div>
                 </div>
             </div>
         </div>
-    </mat-dialog-content>
+    </div>
 
-    <mat-dialog-actions class="dialog-actions">
-        <button mat-button (click)="close()" class="cancel-button">
+    <div
+        class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 flex justify-end gap-3">
+        <button (click)="close()"
+            class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">
             Cerrar
         </button>
-        <button mat-raised-button color="primary" (click)="close()" class="primary-button">
-            <span class="material-symbols-outlined">print</span>
+        <button (click)="close()"
+            class="px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 shadow transition-colors flex items-center gap-2">
+            <span class="material-symbols-outlined text-[18px]">print</span>
             Imprimir
         </button>
-    </mat-dialog-actions>
+    </div>
 </div>

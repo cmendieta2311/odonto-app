@@ -20,6 +20,34 @@
     background: rgba(19, 200, 236, 0.2);
 }
 
+/* Hide number input spinners */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type=number] {
+    -moz-appearance: textfield;
+}
+
+/* Composite Input Focus Styles */
+.composite-focus-container {
+    transition: all 0.2s ease;
+}
+
+/* Removed box-shadow override to allow Tailwind ring to show */
+
+.composite-inner-input,
+.composite-inner-input:focus {
+    box-shadow: none !important;
+    border: none !important;
+    outline: none !important;
+    background-color: transparent !important;
+    /* Ensure no focus ring from Tailwind forms plugin */
+    --tw-ring-shadow: 0 0 transparent !important;
+}
+
 /* Animations */
 @keyframes fadeIn {
     from {

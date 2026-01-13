@@ -2,7 +2,6 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormArray, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { Quote, QuoteStatus } from '../quotes.models';
 import { QuotesService } from '../quotes.service';
@@ -13,6 +12,9 @@ import { Service } from '../../catalog/catalog.models';
 
 import { SystemConfigService } from '../../configuration/system-config.service';
 import { PdfService } from '../../../shared/services/pdf.service';
+import { NotificationService } from '../../../shared/services/notification.service';
+import { Dialog, DialogModule } from '@angular/cdk/dialog';
+import { ServiceCatalogDialogComponent } from './service-catalog-dialog.component';
 
 @Component({
   selector: 'app-quote-form',
@@ -20,8 +22,8 @@ import { PdfService } from '../../../shared/services/pdf.service';
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    MatSnackBarModule,
-    RouterModule
+    RouterModule,
+    DialogModule
   ],
   templateUrl: './quote-form.html',
   styleUrl: './quote-form.css'
@@ -33,9 +35,25 @@ export class QuoteFormComponent implements OnInit {
   private quotesService = inject(QuotesService);
   private patientsService = inject(PatientsService);
   private catalogService = inject(CatalogService);
-  private snackBar = inject(MatSnackBar);
+  private notificationService = inject(NotificationService);
   private configService = inject(SystemConfigService);
   private pdfService = inject(PdfService);
+  private dialog = inject(Dialog);
+
+  // ... (existing properties)
+
+  openCatalog() {
+    this.dialog.open<Service>(ServiceCatalogDialogComponent, {
+      minWidth: '300px',
+      data: {
+        services: this.services
+      }
+    }).closed.subscribe(service => {
+      if (service) {
+        this.addService(service);
+      }
+    });
+  }
 
   patients: Patient[] = [];
   services: Service[] = [];
@@ -47,7 +65,9 @@ export class QuoteFormComponent implements OnInit {
   quote: Quote | null = null;
   QuoteStatus = QuoteStatus;
 
-  installmentOptions: number[] = [1, 3, 6, 12]; // Default fallback
+  installmentOptions: number[] = []; // Deprecated but kept for compatibility logic if needed
+  minInstallments = 1;
+  maxInstallments = 38;
   calculateInterest = false;
   interestRate = 0;
   expirationDays = 15;
@@ -69,8 +89,11 @@ export class QuoteFormComponent implements OnInit {
     observations: [''],
     financingEnabled: [false],
     initialPayment: [0],
-    installments: [1]
+    installments: [1, [Validators.required, Validators.min(1), Validators.max(38)]],
+    firstPaymentDate: [null as string | null]
   });
+
+  formattedInitialPayment = '';
 
   total = 0;
   subtotal = 0;
@@ -93,14 +116,42 @@ export class QuoteFormComponent implements OnInit {
     }
   }
 
+  onInitialPaymentInput(event: Event) {
+    const input = event.target as HTMLInputElement;
+    this.formatInitialPayment(input.value);
+  }
+
+  formatInitialPayment(value: string) {
+    // Remove all non-numeric characters
+    const numericValue = value.replace(/\D/g, '');
+
+    if (!numericValue) {
+      this.formattedInitialPayment = '';
+      this.form.patchValue({ initialPayment: 0 }, { emitEvent: true });
+      return;
+    }
+
+    const number = parseInt(numericValue, 10);
+    this.formattedInitialPayment = new Intl.NumberFormat('es-PY').format(number);
+    this.form.patchValue({ initialPayment: number }, { emitEvent: true });
+  }
+
   private loadSystemConfig() {
     this.configService.getConfigs().subscribe({
       next: (configs) => {
         if (configs['billing_config']) {
           const billing = configs['billing_config'];
-          if (Array.isArray(billing.allowedInstallments)) {
-            this.installmentOptions = billing.allowedInstallments;
-          }
+
+          this.minInstallments = billing.minInstallments ?? 1;
+          this.maxInstallments = billing.maxInstallments ?? 38;
+
+          this.form.get('installments')?.setValidators([
+            Validators.required,
+            Validators.min(this.minInstallments),
+            Validators.max(this.maxInstallments)
+          ]);
+          this.form.get('installments')?.updateValueAndValidity();
+
           this.calculateInterest = billing.calculateInterest ?? false;
           this.interestRate = billing.interestRate ?? 0;
           this.expirationDays = billing.quoteValidityDays ?? 15;
@@ -118,10 +169,19 @@ export class QuoteFormComponent implements OnInit {
   }
 
   private loadInitialData() {
+    this.catalogService.getTopServices().subscribe(top => {
+      if (top && top.length > 0) {
+        this.suggestedServices = top;
+      }
+    });
+
     // Start with empty patients or recently used
     this.catalogService.getServices().subscribe(s => {
       this.services = s;
-      this.suggestedServices = s.slice(0, 4);
+      // Fallback suggestions
+      if (this.suggestedServices.length === 0) {
+        this.suggestedServices = s.slice(0, 4);
+      }
 
       // Group services by Area > Category
       const groups = new Map<string, Service[]>();
@@ -151,8 +211,15 @@ export class QuoteFormComponent implements OnInit {
         financingEnabled: q.financingEnabled,
         initialPayment: q.initialPayment,
         installments: q.installments,
-        observations: q.observations
+        observations: q.observations,
+        firstPaymentDate: q.firstPaymentDate ? new Date(q.firstPaymentDate).toISOString().split('T')[0] : null
       });
+
+      // Initialize formatted payment
+      if (q.initialPayment) {
+        this.formatInitialPayment(q.initialPayment.toString());
+      }
+
       this.selectedPatient = q.patient || null;
       if (this.selectedPatient) {
         this.searchControl.setValue(`${this.selectedPatient.firstName} ${this.selectedPatient.lastName}`, { emitEvent: false });
@@ -191,6 +258,8 @@ export class QuoteFormComponent implements OnInit {
       }
       this.filterServices(value);
     });
+
+    this.form.get('firstPaymentDate')?.valueChanges.subscribe(() => this.calculateSchedule());
 
     this.form.valueChanges.subscribe(() => this.calculateTotal());
   }
@@ -245,7 +314,7 @@ export class QuoteFormComponent implements OnInit {
     const group = this.fb.group({
       serviceId: [item?.serviceId || '', Validators.required],
       quantity: [item?.quantity || 1, [Validators.required, Validators.min(1)]],
-      discount: [item?.discount || 0],
+      discount: [item?.discount || 0, [Validators.min(0), Validators.max(100)]],
       price: [{ value: item?.price || 0, disabled: true }]
     });
 
@@ -271,17 +340,26 @@ export class QuoteFormComponent implements OnInit {
 
   calculateTotal() {
     let sum = 0;
+    let totalDiscount = 0;
+
     this.items.controls.forEach(control => {
       const formGroup = control as FormGroup;
       const serviceId = formGroup.get('serviceId')?.value;
       const quantity = formGroup.get('quantity')?.value || 0;
+      const discountPercent = formGroup.get('discount')?.value || 0;
+
       const service = this.services.find(s => s.id === serviceId);
       const price = service ? Number(service.price) : 0;
-      sum += price * quantity;
+
+      const itemTotal = price * quantity;
+      const itemDiscount = itemTotal * (discountPercent / 100);
+
+      sum += itemTotal;
+      totalDiscount += itemDiscount;
     });
 
     this.subtotal = sum;
-    this.discounts = 0;
+    this.discounts = totalDiscount;
 
     const financingEnabled = this.form.get('financingEnabled')?.value;
     if (financingEnabled && this.calculateInterest) {
@@ -315,9 +393,25 @@ export class QuoteFormComponent implements OnInit {
     const installmentAmount = financedAmount / installments;
     const today = new Date();
 
+    // Determine start date: use firstPaymentDate if set, otherwise default to next month
+    let startDate = new Date();
+    const firstPaymentDateVal = this.form.get('firstPaymentDate')?.value;
+
+    if (firstPaymentDateVal) {
+      // If user selected a date, that's the first payment date
+      startDate = new Date(firstPaymentDateVal);
+      // Adjust startDate to be "0th" payment so loop adds months correctly? 
+      // Actually loop adds 'i' months. If i=1, date + 1 month.
+      // If user sets specific date X, they usually mean "First payment is on X".
+      // So ensuring the loop produces X for i=1 requires backing up 1 month or handling logic differently.
+      // Let's adjust logic:
+      // Base date = (Selected Date) - 1 month
+      startDate.setMonth(startDate.getMonth() - 1);
+    }
+
     for (let i = 1; i <= installments; i++) {
-      const dueDate = new Date(today);
-      dueDate.setMonth(dueDate.getMonth() + i); // Assuming monthly payments
+      const dueDate = new Date(startDate);
+      dueDate.setMonth(dueDate.getMonth() + i); // monthly payments
 
       this.paymentSchedule.push({
         installment: i,
@@ -350,7 +444,8 @@ export class QuoteFormComponent implements OnInit {
       financingEnabled: rawValue.financingEnabled ?? false,
       initialPayment: Number(rawValue.initialPayment ?? 0),
       installments: Number(rawValue.installments ?? 1),
-      observations: rawValue.observations ?? undefined
+      observations: rawValue.observations ?? undefined,
+      firstPaymentDate: rawValue.firstPaymentDate ?? undefined
     };
 
     const action = this.isEditMode && this.quoteId
@@ -359,12 +454,12 @@ export class QuoteFormComponent implements OnInit {
 
     action.subscribe({
       next: () => {
-        this.snackBar.open('Presupuesto guardado exitosamente', 'Cerrar', { duration: 3000 });
+        this.notificationService.showSuccess('Presupuesto guardado exitosamente');
         this.router.navigate(['/commercial/quotes']);
         this.isSaving = false;
       },
       error: () => {
-        this.snackBar.open('Error al guardar presupuesto', 'Cerrar', { duration: 3000 });
+        this.notificationService.showError('Error al guardar presupuesto');
         this.isSaving = false;
       }
     });
@@ -385,7 +480,7 @@ export class QuoteFormComponent implements OnInit {
         ...configs['clinic_info'],
         logoUrl: configs['clinicLogoUrl']
       };
-      this.pdfService.generateQuotePdf(this.quote!, clinicInfo);
+      this.pdfService.generateQuotePdf(this.quote!, clinicInfo, this.expirationDays);
     });
   }
 }

@@ -10,7 +10,7 @@ export class PdfService {
 
     constructor() { }
 
-    async generateQuotePdf(quote: Quote, clinicInfo: any) {
+    async generateQuotePdf(quote: Quote, clinicInfo: any, validityDays?: number) {
         const doc = new jsPDF();
         const pageWidth = doc.internal.pageSize.width;
         const pageHeight = doc.internal.pageSize.height;
@@ -155,6 +155,11 @@ export class PdfService {
 
         // --- Summary Totals ---
         const subtotal = quote.items.reduce((acc, item) => acc + (Number(item.price) * item.quantity), 0);
+        const totalDiscount = quote.items.reduce((acc, item) => {
+            const gross = Number(item.price) * item.quantity;
+            const discountAmount = gross * ((item.discount || 0) / 100);
+            return acc + discountAmount;
+        }, 0);
         const total = Number(quote.total);
 
         // Render simple totals below services
@@ -171,12 +176,29 @@ export class PdfService {
         doc.setFont('helvetica', 'normal');
         this.printSummaryLine(doc, 'Subtotal:', `Gs. ${subtotal.toLocaleString('es-PY')}`, currentY, rightMargin);
 
+        let totalYOffset = 8;
+        if (totalDiscount > 0) {
+            this.printSummaryLine(doc, 'Descuentos:', `- Gs. ${totalDiscount.toLocaleString('es-PY')}`, currentY + 6, rightMargin);
+            totalYOffset = 14;
+        }
+
         doc.setFontSize(14);
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(30);
-        this.printSummaryLine(doc, 'TOTAL:', `Gs. ${total.toLocaleString('es-PY')}`, currentY + 8, rightMargin);
+        this.printSummaryLine(doc, 'TOTAL:', `Gs. ${total.toLocaleString('es-PY')}`, currentY + totalYOffset, rightMargin);
 
-        currentY += 20;
+        currentY += totalYOffset + 10;
+
+        // --- Validity Note ---
+        if (validityDays) {
+            doc.setFontSize(9);
+            doc.setFont('helvetica', 'italic');
+            doc.setTextColor(100);
+            doc.text(`* El presupuesto tiene validez por ${validityDays} días.`, 14, currentY);
+            currentY += 10;
+        } else {
+            currentY += 5;
+        }
 
         // --- Payment Schedule (Image 1 style) ---
         if (quote.financingEnabled) {
@@ -223,11 +245,18 @@ export class PdfService {
 
                 // Schedule Table
                 const installmentAmount = financedAmount / installments;
-                const today = new Date();
+
+                let startDate = new Date();
+                if (quote.firstPaymentDate) {
+                    startDate = new Date(quote.firstPaymentDate);
+                    // Adjust logic to ensure loop i=1 results in startDate
+                    startDate.setMonth(startDate.getMonth() - 1);
+                }
+
                 const scheduleRows = [];
 
                 for (let i = 1; i <= installments; i++) {
-                    const dueDate = new Date(today);
+                    const dueDate = new Date(startDate);
                     dueDate.setMonth(dueDate.getMonth() + i);
                     scheduleRows.push([
                         i.toString(),
@@ -412,9 +441,8 @@ export class PdfService {
         }
 
         if (data.openUser) {
-            doc.setFontSize(9);
-            doc.setTextColor(50);
-            doc.text(`Cajero: ${data.openUser}`, 14, 38);
+            // Deleted as per request
+            // doc.text(`Cajero: ${data.openUser}`, 14, 38);
         }
 
 
@@ -461,12 +489,22 @@ export class PdfService {
 
         // Calculate totals by method
         const methodTotals: Record<string, number> = {};
+        let totalIncome = 0;
+        let totalExpense = 0;
+
         data.movements.forEach(m => {
             const amount = Number(m.amount);
-            if (m.type === 'INCOME') { // Using string literal as seen in previous logic
+            if (m.type === 'INCOME') {
                 methodTotals[m.paymentMethod] = (methodTotals[m.paymentMethod] || 0) + amount;
             } else if (m.type === 'EXPENSE') {
                 methodTotals[m.paymentMethod] = (methodTotals[m.paymentMethod] || 0) - amount;
+            }
+
+            // Calculate totals for footer
+            if (m.type === 'INCOME' || m.type === 'OPENING') {
+                totalIncome += amount;
+            } else if (m.type === 'EXPENSE' || m.type === 'CLOSING') {
+                totalExpense += amount;
             }
         });
 
@@ -524,11 +562,25 @@ export class PdfService {
             startY: currentY + 5,
             head: [['Hora', 'Descripción', 'Ref', 'Método', 'Ingreso', 'Egreso']],
             body: movementsData,
+            foot: [[
+                '',
+                'TOTALES',
+                '',
+                '',
+                totalIncome.toLocaleString('es-PY', { style: 'currency', currency: 'PYG' }),
+                totalExpense.toLocaleString('es-PY', { style: 'currency', currency: 'PYG' })
+            ]],
             theme: 'striped',
             headStyles: {
                 fillColor: [22, 163, 74], // Emerald color
                 textColor: 255,
                 fontStyle: 'bold'
+            },
+            footStyles: {
+                fillColor: [241, 245, 249],
+                textColor: [30, 41, 59],
+                fontStyle: 'bold',
+                halign: 'right'
             },
             styles: { fontSize: 8, cellPadding: 2, valign: 'middle' }, // Slightly smaller font
             columnStyles: {

@@ -1,21 +1,22 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { UsersService } from '../../admin/users/users.service';
 import { User, Role } from '../../admin/users/users.models';
 import { CustomTableComponent, TableColumn } from '../../../shared/components/custom-table/custom-table';
 import { UserDialogComponent } from '../../admin/users/user-dialog/user-dialog';
+import { ModalService } from '../../../shared/components/modal/modal.service';
 
 @Component({
     selector: 'app-professionals',
     standalone: true,
-    imports: [CommonModule, CustomTableComponent, MatDialogModule, FormsModule],
+    imports: [CommonModule, CustomTableComponent, FormsModule],
     templateUrl: './professionals.html'
 })
 export class ProfessionalsComponent implements OnInit {
     users: User[] = [];
     searchTerm = '';
+    isLoading = false;
 
     columns: TableColumn[] = [
         { key: 'name', label: 'Nombre' },
@@ -24,7 +25,7 @@ export class ProfessionalsComponent implements OnInit {
     ];
 
     private usersService = inject(UsersService);
-    private dialog = inject(MatDialog);
+    private modalService = inject(ModalService);
 
     ngOnInit() {
         this.loadUsers();
@@ -40,11 +41,18 @@ export class ProfessionalsComponent implements OnInit {
     }
 
     loadUsers() {
-        this.usersService.getUsers(Role.ODONTOLOGO).subscribe(data => this.users = data);
+        this.isLoading = true;
+        this.usersService.getUsers(Role.ODONTOLOGO).subscribe({
+            next: (data) => {
+                this.users = data;
+                this.isLoading = false;
+            },
+            error: () => this.isLoading = false
+        });
     }
 
     openDialog(user?: User) {
-        const dialogRef = this.dialog.open(UserDialogComponent, {
+        const modalRef = this.modalService.open(UserDialogComponent, {
             data: {
                 user: user,
                 fixedRole: Role.ODONTOLOGO
@@ -57,7 +65,7 @@ export class ProfessionalsComponent implements OnInit {
         // Ideally we pass a "fixedRole" or "defaultRole" to UserDialog to ensure it's set correctly.
         // For now relying on UserDialog default.
 
-        dialogRef.afterClosed().subscribe(result => {
+        modalRef.afterClosed().subscribe((result: any) => {
             if (result) this.loadUsers();
         });
     }

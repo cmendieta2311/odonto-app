@@ -7,6 +7,18 @@ import { CommonModule } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { filter } from 'rxjs/operators';
 
+export interface MenuItem {
+  label: string;
+  icon?: string;
+  route?: string;
+  children?: MenuItem[];
+}
+
+export interface MenuGroup {
+  title: string;
+  items: MenuItem[];
+}
+
 @Component({
   selector: 'app-main-layout',
   standalone: true,
@@ -38,7 +50,7 @@ export class MainLayoutComponent {
     this.mobileMenuOpen = false;
   }
 
-  mainMenu = [
+  mainMenu: MenuGroup[] = [
     {
       title: 'CLÍNICA',
       items: [
@@ -67,7 +79,7 @@ export class MainLayoutComponent {
     }
   ];
 
-  configMenu = [
+  configMenu: MenuGroup[] = [
     {
       title: 'CONFIGURACIÓN',
       items: [
@@ -95,7 +107,7 @@ export class MainLayoutComponent {
     }
   ];
 
-  get menuGroups() {
+  get menuGroups(): MenuGroup[] {
     return this.router.url.startsWith('/configuration') ? this.configMenu : this.mainMenu;
   }
 

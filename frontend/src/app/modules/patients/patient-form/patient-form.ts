@@ -2,16 +2,16 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { PatientsService } from '../patients.service';
 import { DocumentTypesService, DocumentType } from '../../configuration/document-types.service';
 import { Patient } from '../patients.models';
+import { NotificationService } from '../../../shared/services/notification.service';
 
 @Component({
     selector: 'app-patient-form',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, MatSnackBarModule],
+    imports: [CommonModule, ReactiveFormsModule],
     templateUrl: './patient-form.html',
     styleUrl: './patient-form.css'
 })
@@ -21,7 +21,7 @@ export class PatientFormComponent implements OnInit {
     private router = inject(Router);
     private patientsService = inject(PatientsService);
     private docTypesService = inject(DocumentTypesService);
-    private snackBar = inject(MatSnackBar);
+    private notificationService = inject(NotificationService);
 
     isEditMode = false;
     patientId: string | null = null;
@@ -59,7 +59,7 @@ export class PatientFormComponent implements OnInit {
     loadDocumentTypes() {
         this.docTypesService.getDocumentTypes().subscribe({
             next: (types) => this.documentTypes = types,
-            error: () => this.snackBar.open('Error al cargar tipos de documento', 'Cerrar', { duration: 3000 })
+            error: () => this.notificationService.showError('Error al cargar tipos de documento')
         });
     }
 
@@ -76,7 +76,7 @@ export class PatientFormComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Error loading patient:', err);
-                this.snackBar.open('Error al cargar paciente', 'Cerrar', { duration: 3000 });
+                this.notificationService.showError('Error al cargar paciente');
                 this.router.navigate(['/reception/patients']);
             }
         });
@@ -106,12 +106,12 @@ export class PatientFormComponent implements OnInit {
 
         action.subscribe({
             next: () => {
-                this.snackBar.open('Paciente guardado exitosamente', 'Cerrar', { duration: 3000 });
+                this.notificationService.showSuccess('Paciente guardado exitosamente');
                 this.router.navigate(['/reception/patients']);
             },
             error: (err) => {
                 console.error(err);
-                this.snackBar.open('Error al guardar paciente', 'Cerrar', { duration: 3000 });
+                this.notificationService.showError('Error al guardar paciente');
                 this.isSaving = false;
             }
         });

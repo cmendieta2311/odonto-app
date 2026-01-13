@@ -1,15 +1,13 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatDialog } from '@angular/material/dialog';
 import { Subject } from 'rxjs';
+import { NotificationService } from '../services/notification.service';
 
 @Component({
     template: ''
 })
 export abstract class BaseListComponent<T> implements OnInit {
     // Dependencies common to all lists
-    protected snackBar = inject(MatSnackBar);
-    protected dialog = inject(MatDialog);
+    protected notificationService = inject(NotificationService);
 
     // State
     data: T[] = [];
@@ -52,6 +50,6 @@ export abstract class BaseListComponent<T> implements OnInit {
     protected handleError(err: any, message: string = 'Error al cargar datos') {
         console.error(err);
         this.isLoading = false;
-        this.snackBar.open(message, 'Cerrar', { duration: 3000 });
+        this.notificationService.showError(message);
     }
 }

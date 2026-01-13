@@ -1,11 +1,6 @@
-import { Component, Inject, inject } from '@angular/core';
+import { Component, Inject, inject, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
 import { PaymentMethod } from '../contracts.models';
 
 @Component({
@@ -13,19 +8,17 @@ import { PaymentMethod } from '../contracts.models';
   standalone: true,
   imports: [
     CommonModule,
-    ReactiveFormsModule,
-    MatDialogModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule
+    ReactiveFormsModule
   ],
   templateUrl: './contract-dialog.html',
   styleUrl: './contract-dialog.css'
 })
-export class ContractDialogComponent {
+export class ContractDialogComponent implements OnInit {
   fb = inject(FormBuilder);
   paymentMethods = Object.values(PaymentMethod);
+
+  @Input() data: { quoteId: string } = { quoteId: '' };
+  @Input() activeModal: any;
 
   form = this.fb.group({
     paymentMethod: [PaymentMethod.CASH, Validators.required],
@@ -34,10 +27,7 @@ export class ContractDialogComponent {
 
   showInstallments = false;
 
-  constructor(
-    public dialogRef: MatDialogRef<ContractDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { quoteId: string }
-  ) {
+  ngOnInit() {
     this.form.get('paymentMethod')?.valueChanges.subscribe(val => {
       this.showInstallments = val === PaymentMethod.CREDIT;
       if (this.showInstallments) {
@@ -52,7 +42,7 @@ export class ContractDialogComponent {
 
   save() {
     if (this.form.valid) {
-      this.dialogRef.close({
+      this.activeModal.close({
         quoteId: this.data.quoteId,
         ...this.form.value
       });
@@ -60,6 +50,6 @@ export class ContractDialogComponent {
   }
 
   close() {
-    this.dialogRef.close();
+    this.activeModal.close();
   }
 }

@@ -3,28 +3,27 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormControl } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { debounceTime, distinctUntilChanged, switchMap, tap, finalize, filter, map } from 'rxjs/operators';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { PatientsService } from '../../patients/patients.service';
 import { ContractsService } from '../../contracts/contracts.service';
 import { PaymentsService } from '../../contracts/payments.service';
 import { PaymentMethodsService, PaymentMethod } from '../../configuration/payment-methods/payment-methods.service';
+import { NotificationService } from '../../../shared/services/notification.service';
 
 @Component({
     selector: 'app-payment-registration',
     standalone: true,
-    imports: [CommonModule, FormsModule, ReactiveFormsModule, MatSnackBarModule],
+    imports: [CommonModule, FormsModule, ReactiveFormsModule],
     templateUrl: './payment-registration.html',
     styleUrl: './payment-registration.css'
 })
 export class PaymentRegistrationComponent implements OnInit {
-    privatepatientsService = inject(PatientsService); // Fix potential typo from original if exists, but stick to replacement
     private patientsService = inject(PatientsService);
     private contractsService = inject(ContractsService);
     private paymentsService = inject(PaymentsService);
     private paymentMethodsService = inject(PaymentMethodsService);
     private router = inject(Router);
     private route = inject(ActivatedRoute);
-    private snackBar = inject(MatSnackBar);
+    private notificationService = inject(NotificationService);
 
     // Search State
     searchControl = new FormControl('');
@@ -195,7 +194,7 @@ export class PaymentRegistrationComponent implements OnInit {
         if (!this.activeContract || this.amount <= 0 || this.isSaving || !this.selectedPaymentMethod) {
             // Optional: Add visual feedback for validation error
             if (this.amount <= 0) {
-                this.snackBar.open('El monto debe ser mayor a 0', 'Cerrar', { duration: 3000, panelClass: ['warning-snackbar'] });
+                this.notificationService.showError('El monto debe ser mayor a 0');
             }
             return;
         }
@@ -212,14 +211,14 @@ export class PaymentRegistrationComponent implements OnInit {
         this.paymentsService.createPayment(dto).subscribe({
             next: () => {
                 this.isSaving = false;
-                this.snackBar.open('Pago registrado exitosamente', 'Cerrar', { duration: 3000 });
+                this.notificationService.showSuccess('Pago registrado exitosamente');
                 this.router.navigate(['/payments']); // Navigate to list after success
             },
             error: (err) => {
                 this.isSaving = false;
                 console.error(err);
                 const msg = err.error?.message || 'Error al registrar pago';
-                this.snackBar.open(msg, 'Cerrar', { duration: 5000, panelClass: ['error-snackbar'] });
+                this.notificationService.showError(msg);
             }
         });
     }

@@ -30,4 +30,5 @@ export interface Quote {
     initialPayment?: number;
     installments?: number;
     observations?: string;
+    firstPaymentDate?: string;
 }

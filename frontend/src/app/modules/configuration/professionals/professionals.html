@@ -31,8 +31,8 @@
         </div>
 
         <div class="p-0">
-            <app-custom-table [columns]="columns" [data]="filteredUsers" (onEdit)="openDialog($event)"
-                (onDelete)="deleteUser($event)">
+            <app-custom-table [columns]="columns" [data]="filteredUsers" [isLoading]="isLoading"
+                (onEdit)="openDialog($event)" (onDelete)="deleteUser($event)">
             </app-custom-table>
         </div>
     </section>

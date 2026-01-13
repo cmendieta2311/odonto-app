@@ -1,7 +1,6 @@
-import { Component, Inject, inject } from '@angular/core';
+import { Component, Inject, inject, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { PaymentMethod } from '../contracts.models';
 import { PaymentsService } from '../payments.service';
 
@@ -10,15 +9,18 @@ import { PaymentsService } from '../payments.service';
   standalone: true,
   imports: [
     CommonModule,
-    ReactiveFormsModule,
-    MatDialogModule
+    ReactiveFormsModule
   ],
   templateUrl: './payment-dialog.html',
   styleUrl: './payment-dialog.css'
 })
-export class PaymentDialogComponent {
+export class PaymentDialogComponent implements OnInit {
   fb = inject(FormBuilder);
   paymentsService = inject(PaymentsService);
+
+  @Input() data: { contractId: string; balance: number } = { contractId: '', balance: 0 };
+  @Input() activeModal: any;
+
   paymentOpts = [
     { label: 'Efectivo', value: PaymentMethod.CASH },
     { label: 'Tarjeta', value: PaymentMethod.CREDIT_CARD },
@@ -33,13 +35,12 @@ export class PaymentDialogComponent {
     method: [PaymentMethod.CASH, Validators.required]
   });
 
-  constructor(
-    public dialogRef: MatDialogRef<PaymentDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { contractId: string; balance: number }
-  ) {
-    this.form.patchValue({ amount: data.balance });
-    this.form.get('amount')?.addValidators(Validators.max(data.balance));
-    this.formatAmount(data.balance.toString());
+  ngOnInit() {
+    if (this.data) {
+      this.form.patchValue({ amount: this.data.balance });
+      this.form.get('amount')?.addValidators(Validators.max(this.data.balance));
+      this.formatAmount(this.data.balance.toString());
+    }
   }
 
   onAmountInput(event: Event) {
@@ -77,7 +78,7 @@ export class PaymentDialogComponent {
     this.paymentsService.createPayment(dto).subscribe({
       next: (res) => {
         this.isSaving = false;
-        this.dialogRef.close(res);
+        this.activeModal.close(res);
       },
       error: (err) => {
         console.error(err);
@@ -88,6 +89,6 @@ export class PaymentDialogComponent {
   }
 
   close() {
-    this.dialogRef.close();
+    this.activeModal.close();
   }
 }

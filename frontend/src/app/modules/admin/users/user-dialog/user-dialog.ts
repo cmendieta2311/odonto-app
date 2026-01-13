@@ -1,32 +1,31 @@
-import { Component, Inject, inject, OnInit } from '@angular/core';
+import { Component, Inject, inject, OnInit, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { UsersService } from '../users.service';
 import { User, Role } from '../users.models';
 
 @Component({
     selector: 'app-user-dialog',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, MatDialogModule],
+    imports: [CommonModule, ReactiveFormsModule],
     templateUrl: './user-dialog.html'
 })
 export class UserDialogComponent {
-    form: FormGroup;
+    form!: FormGroup;
     isSaving = false;
 
     private fb = inject(FormBuilder);
     private usersService = inject(UsersService);
 
-    constructor(
-        public dialogRef: MatDialogRef<UserDialogComponent>,
-        @Inject(MAT_DIALOG_DATA) public data: { user?: User; fixedRole?: Role }
-    ) {
+    @Input() data: { user?: User; fixedRole?: Role } = {};
+    @Input() activeModal: any;
+
+    ngOnInit() {
         this.form = this.fb.group({
-            name: [data.user?.name || '', Validators.required],
-            email: [data.user?.email || '', [Validators.required, Validators.email]],
-            role: [{ value: data.fixedRole || data.user?.role || Role.ODONTOLOGO, disabled: !!data.fixedRole }, Validators.required],
-            password: ['', data.user ? [] : [Validators.required, Validators.minLength(6)]],
+            name: [this.data.user?.name || '', Validators.required],
+            email: [this.data.user?.email || '', [Validators.required, Validators.email]],
+            role: [{ value: this.data.fixedRole || this.data.user?.role || Role.ODONTOLOGO, disabled: !!this.data.fixedRole }, Validators.required],
+            password: ['', this.data.user ? [] : [Validators.required, Validators.minLength(6)]],
             confirmPassword: ['']
         }, { validators: this.passwordMatchValidator });
     }
@@ -64,8 +63,8 @@ export class UserDialogComponent {
             const updateDto: any = { ...formValue };
             if (!updateDto.password) delete updateDto.password;
 
-            this.usersService.update(this.data.user.id, updateDto).subscribe({
-                next: () => this.dialogRef.close(true),
+            this.usersService.update(this.data.user!.id, updateDto).subscribe({
+                next: () => this.activeModal.close(true),
                 error: (err) => {
                     console.error(err);
                     this.isSaving = false;
@@ -74,7 +73,7 @@ export class UserDialogComponent {
         } else {
             // Create
             this.usersService.create(formValue).subscribe({
-                next: () => this.dialogRef.close(true),
+                next: () => this.activeModal.close(true),
                 error: (err) => {
                     console.error(err);
                     this.isSaving = false;
@@ -84,6 +83,6 @@ export class UserDialogComponent {
     }
 
     close() {
-        this.dialogRef.close();
+        this.activeModal.close();
     }
 }

@@ -4,7 +4,6 @@ import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { registerLocaleData } from '@angular/common';
 import localeEsPy from '@angular/common/locales/es-PY';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { routes } from './app.routes';
 import { jwtInterceptor } from './auth/jwt.interceptor';
@@ -17,7 +16,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideHttpClient(withFetch(), withInterceptors([jwtInterceptor])),
     provideAnimationsAsync(),
-    importProvidersFrom(MatSnackBarModule),
+    provideAnimationsAsync(),
     { provide: LOCALE_ID, useValue: 'es-PY' },
     { provide: DEFAULT_CURRENCY_CODE, useValue: 'PYG' }
   ]

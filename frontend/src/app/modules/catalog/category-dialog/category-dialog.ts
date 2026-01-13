@@ -1,7 +1,6 @@
-import { Component, Inject, inject } from '@angular/core';
+import { Component, Inject, inject, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { ServiceCategory } from '../catalog.models';
 
 @Component({
@@ -9,35 +8,34 @@ import { ServiceCategory } from '../catalog.models';
   standalone: true,
   imports: [
     CommonModule,
-    ReactiveFormsModule,
-    MatDialogModule
+    ReactiveFormsModule
   ],
   templateUrl: './category-dialog.html',
   styleUrl: './category-dialog.css'
 })
-export class CategoryDialogComponent {
+export class CategoryDialogComponent implements OnInit {
   fb = inject(FormBuilder);
+
+  @Input() data: { category?: ServiceCategory } = {};
+  @Input() activeModal: any;
 
   form = this.fb.group({
     name: ['', Validators.required]
   });
 
-  constructor(
-    public dialogRef: MatDialogRef<CategoryDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { category?: ServiceCategory }
-  ) {
-    if (data.category) {
-      this.form.patchValue({ name: data.category.name });
+  ngOnInit() {
+    if (this.data.category) {
+      this.form.patchValue({ name: this.data.category.name });
     }
   }
 
   save() {
     if (this.form.valid) {
-      this.dialogRef.close(this.form.value);
+      this.activeModal.close(this.form.value);
     }
   }
 
   close() {
-    this.dialogRef.close();
+    this.activeModal.close();
   }
 }
