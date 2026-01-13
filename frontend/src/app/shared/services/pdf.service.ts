@@ -73,7 +73,7 @@ export class PdfService {
         doc.setFont('helvetica', 'normal');
         doc.setTextColor(100);
         doc.text(`Nro: #${quote.id.substring(0, 8).toUpperCase()}`, pageWidth - 14, 28, { align: 'right' });
-        doc.text(`Fecha: ${new Date(quote.createdAt).toLocaleDateString()}`, pageWidth - 14, 33, { align: 'right' });
+        doc.text(`Fecha: ${this.formatDate(quote.createdAt)}`, pageWidth - 14, 33, { align: 'right' });
 
         // --- Patient Info ---
         doc.setDrawColor(230);
@@ -111,9 +111,9 @@ export class PdfService {
         const tableBody = quote.items.map(item => [
             `${item.service?.name || 'Servicio'}\n${item.service?.code || ''}`,
             item.quantity,
-            `Gs. ${Number(item.price).toLocaleString('es-PY')}`,
+            `Gs. ${this.formatCurrency(Number(item.price) || 0)}`,
             `${(item.discount || 0) > 0 ? (item.discount || 0) + '%' : '0%'}`,
-            `Gs. ${this.calculateItemTotal(item).toLocaleString('es-PY')}`
+            `Gs. ${this.formatCurrency(this.calculateItemTotal(item))}`
         ]);
 
         autoTable(doc, {
@@ -174,18 +174,18 @@ export class PdfService {
 
         doc.setFontSize(10);
         doc.setFont('helvetica', 'normal');
-        this.printSummaryLine(doc, 'Subtotal:', `Gs. ${subtotal.toLocaleString('es-PY')}`, currentY, rightMargin);
+        this.printSummaryLine(doc, 'Subtotal:', `Gs. ${this.formatCurrency(subtotal)}`, currentY, rightMargin);
 
         let totalYOffset = 8;
         if (totalDiscount > 0) {
-            this.printSummaryLine(doc, 'Descuentos:', `- Gs. ${totalDiscount.toLocaleString('es-PY')}`, currentY + 6, rightMargin);
+            this.printSummaryLine(doc, 'Descuentos:', `- Gs. ${this.formatCurrency(totalDiscount)}`, currentY + 6, rightMargin);
             totalYOffset = 14;
         }
 
         doc.setFontSize(14);
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(30);
-        this.printSummaryLine(doc, 'TOTAL:', `Gs. ${total.toLocaleString('es-PY')}`, currentY + totalYOffset, rightMargin);
+        this.printSummaryLine(doc, 'TOTAL:', `Gs. ${this.formatCurrency(total)}`, currentY + totalYOffset, rightMargin);
 
         currentY += totalYOffset + 10;
 
@@ -229,10 +229,10 @@ export class PdfService {
                 const cardY = currentY;
 
                 // Card 1: Initial Payment
-                this.drawSummaryCard(doc, 14, cardY, cardWidth, cardHeight, 'CUOTA INICIAL', `Gs. ${initialPayment.toLocaleString('es-PY')}`, 'Pagada al firmar');
+                this.drawSummaryCard(doc, 14, cardY, cardWidth, cardHeight, 'CUOTA INICIAL', `Gs. ${this.formatCurrency(initialPayment)}`, 'Pagada al firmar');
 
                 // Card 2: Total Financed
-                this.drawSummaryCard(doc, 14 + cardWidth + 5, cardY, cardWidth, cardHeight, 'TOTAL A FINANCIAR', `Gs. ${financedAmount.toLocaleString('es-PY')}`, `En ${installments} cuotas`);
+                this.drawSummaryCard(doc, 14 + cardWidth + 5, cardY, cardWidth, cardHeight, 'TOTAL A FINANCIAR', `Gs. ${this.formatCurrency(financedAmount)}`, `En ${installments} cuotas`);
 
                 // Card 3: Due Day
                 // Calculate estimated day based on today + 30 days
@@ -261,8 +261,8 @@ export class PdfService {
                     scheduleRows.push([
                         i.toString(),
                         `Cuota Mensual ${i}/${installments}`,
-                        dueDate.toLocaleDateString('es-PY', { day: '2-digit', month: 'short', year: 'numeric' }),
-                        `Gs. ${installmentAmount.toLocaleString('es-PY')}`
+                        this.formatDate(dueDate),
+                        `Gs. ${this.formatCurrency(installmentAmount)}`
                     ]);
                 }
 
@@ -432,17 +432,31 @@ export class PdfService {
         doc.setFontSize(10);
         doc.setFont('helvetica', 'normal');
         doc.setTextColor(100);
-        doc.text(`Fecha: ${new Date(data.date).toLocaleDateString()}`, pageWidth - 14, 28, { align: 'right' });
+        doc.text(`Fecha: ${this.formatDate(data.date)}`, pageWidth - 14, 28, { align: 'right' });
         doc.text(`Generado: ${new Date().toLocaleTimeString()}`, pageWidth - 14, 33, { align: 'right' });
+
+        if (data.status?.id) {
+            doc.text(`ID Sesión: ${data.status.id.split('-')[0].toUpperCase()}`, pageWidth - 14, 38, { align: 'right' });
+        }
+
+        let extraInfoY = 38 + (data.status?.id ? 5 : 0);
 
         if (data.userName) {
             doc.setFontSize(8);
-            doc.text(`Por: ${data.userName}`, pageWidth - 14, 38, { align: 'right' });
+            doc.text(`Generado por: ${data.userName}`, pageWidth - 14, extraInfoY, { align: 'right' });
+            extraInfoY += 5;
         }
 
-        if (data.openUser) {
-            // Deleted as per request
-            // doc.text(`Cajero: ${data.openUser}`, 14, 38);
+        // Session Times
+        if (data.status?.openingTime) {
+            const openTime = new Date(data.status.openingTime).toLocaleString('es-PY');
+            doc.text(`Apertura: ${openTime}`, pageWidth - 14, extraInfoY, { align: 'right' });
+            extraInfoY += 5;
+        }
+
+        if (data.status?.closingTime) {
+            const closeTime = new Date(data.status.closingTime).toLocaleString('es-PY');
+            doc.text(`Cierre: ${closeTime}`, pageWidth - 14, extraInfoY, { align: 'right' });
         }
 
 
@@ -660,7 +674,7 @@ export class PdfService {
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(10);
         doc.setTextColor(100);
-        doc.text(`Fecha: ${new Date().toLocaleDateString('es-PY')}`, pageWidth - 14, 24, { align: 'right' });
+        doc.text(`Fecha: ${this.formatDate(new Date())}`, pageWidth - 14, 24, { align: 'right' });
 
 
         // --- PATIENT INFO Section ---
@@ -702,13 +716,12 @@ export class PdfService {
             doc.text(title, x + 5, currentY + 8);
 
             // Amount
-            const formattedAmount = new Intl.NumberFormat('es-PY', { style: 'currency', currency: 'PYG' }).format(amount || 0);
+            // Amount
+            const formattedAmount = new Intl.NumberFormat('es-PY', { style: 'currency', currency: 'PYG', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount || 0);
             doc.setFontSize(14); // Slightly smaller for compact
             doc.setFont('helvetica', 'bold');
             doc.setTextColor(colorVals[0], colorVals[1], colorVals[2]);
             doc.text(formattedAmount, x + 5, currentY + 19);
-
-            // Subtext hidden for compact mode
         };
 
         drawSummaryCard(14, 'SALDO PENDIENTE', summary.pendingBalance, [220, 38, 38]);
@@ -728,13 +741,7 @@ export class PdfService {
 
             // --- Group Card Header ---
             // Container styling
-            const cardStartY = currentY;
             doc.setDrawColor(220);
-            doc.setFillColor(255, 255, 255);
-            // We don't draw the rect yet, we need the height after the table. 
-            // Actually, usually easier to just draw a header bar and leave the table as open content or draw a rect around everything after.
-            // Let's draw a header bg for the contract info.
-
             doc.setFillColor(248, 250, 252); // Light Slate 50
             doc.roundedRect(14, currentY, pageWidth - 28, 20, 2, 2, 'F');
 
@@ -759,13 +766,13 @@ export class PdfService {
             doc.setFontSize(10);
             doc.setFont('helvetica', 'bold');
             doc.setTextColor(30);
-            doc.text(new Intl.NumberFormat('es-PY').format(group.totalAmount || 0), rightMargin - 40, currentY + 16, { align: 'right' });
+            doc.text(this.formatCurrency(group.totalAmount || 0), rightMargin - 40, currentY + 16, { align: 'right' });
 
             // Conditional Color for Pending
             if ((group.pendingBalance || 0) > 0) doc.setTextColor(220, 38, 38);
             else doc.setTextColor(22, 163, 74);
 
-            doc.text(new Intl.NumberFormat('es-PY').format(group.pendingBalance || 0), rightMargin, currentY + 16, { align: 'right' });
+            doc.text(this.formatCurrency(group.pendingBalance || 0), rightMargin, currentY + 16, { align: 'right' });
 
             currentY += 25;
 
@@ -775,10 +782,10 @@ export class PdfService {
                 head: [['NO. CUOTA', 'VENCIMIENTO', 'MONTO CUOTA', 'MONTO PAGADO', 'SALDO', 'ESTADO']],
                 body: group.installments.map((inst: any) => [
                     inst.number,
-                    new Date(inst.dueDate).toLocaleDateString('es-PY'),
-                    new Intl.NumberFormat('es-PY').format(inst.amount || 0),
-                    new Intl.NumberFormat('es-PY').format(inst.paid || 0),
-                    new Intl.NumberFormat('es-PY').format(inst.balance || 0),
+                    this.formatDate(inst.dueDate),
+                    this.formatCurrency(inst.amount || 0),
+                    this.formatCurrency(inst.paid || 0),
+                    this.formatCurrency(inst.balance || 0),
                     inst.status
                 ]),
                 theme: 'plain', // Minimalist as requested
@@ -845,28 +852,12 @@ export class PdfService {
                         doc.setFontSize(6);
                         doc.setFont('helvetica', 'bold');
                         doc.text(status, x + width / 2, y + height / 2 + 1, { align: 'center' });
-
-                        // Hide original text
-                        // We actually don't want to draw the text again if we just drew it, or rather suppress default text
-                        // autoTable doesn't easily suppress default text unless we return false/undefined in a specific hook or just overpaint
-                        // But since we are in didDrawCell, the text might have been drawn or not.
-                        // Actually didDrawCell is called AFTER text output usually unless we prevent it in willDrawCell. 
-                        // To keep it simple, we let it draw the text, but wait... 
-                        // Better approach: In `didParseCell`, set text color to transparent? 
-                        // Or just draw a white box over it first?
-                        // Let's rely on standard text rendering but position is tricky.
-                        // Actually, simpler: don't draw text manually, just set the styles in didParseCell maybe?
-                        // But autoTable doesn't support background color per cell easily for "Badges".
-                        // So correct way: Empty string in data, draw manually in didDrawCell.
                     }
                 },
                 willDrawCell: (data) => {
                     // Prevent default text drawing for Status column so we can draw badge manually
                     if (data.section === 'body' && data.column.index === 5) {
                         if (data.cell.raw) {
-                            // Store original value to use in didDrawCell if needed, but we have data.cell.raw
-                            // Just return false to skip drawing? willDrawCell doesn't support return false to skip.
-                            // We set opacity? or text color transparent?
                             doc.setTextColor(255, 255, 255); // White text effectively hides it if bg is white
                         }
                     }
@@ -874,27 +865,144 @@ export class PdfService {
             });
 
             currentY = (doc as any).lastAutoTable.finalY + 15;
-
-            // Removed outer border container to simplify design and support multi-page tables correctly.
-            // The Headers (filled rect) and the table rows (lines) provide sufficient structure.
-
         });
 
         // Footer with Page Numbers
-        const pageCount = doc.getNumberOfPages();
+        const pageCount = (doc as any).internal.getNumberOfPages();
         for (let i = 1; i <= pageCount; i++) {
             doc.setPage(i);
-            doc.setFont('helvetica', 'normal');
             doc.setFontSize(8);
             doc.setTextColor(150);
-            doc.text('Generado por DentalApp', 14, doc.internal.pageSize.height - 10);
-            doc.text(`Página ${i} de ${pageCount}`, pageWidth - 14, doc.internal.pageSize.height - 10, { align: 'right' });
+            doc.text(`Generado por DentalApp`, 14, doc.internal.pageSize.height - 10);
+            doc.text(`Página ${i} de ${pageCount}`, doc.internal.pageSize.width - 14, doc.internal.pageSize.height - 10, { align: 'right' });
         }
 
-        window.open(doc.output('bloburl'), '_blank');
+        doc.save(`Extracto_Cuenta_${patient.firstName}_${patient.lastName}.pdf`);
+    }
+
+    async generateReceiptPdf(invoice: any, clinicInfo: any) {
+        const doc = new jsPDF();
+        const pageWidth = doc.internal.pageSize.width;
+
+        // --- Header ---
+        if (clinicInfo?.logoUrl) {
+            try {
+                const imgData = await this.getBase64ImageFromURL(clinicInfo.logoUrl);
+                if (imgData) doc.addImage(imgData, 14, 10, 25, 25, undefined, 'FAST');
+            } catch (e) { console.error('Logo error', e); }
+        }
+
+        const infoX = 45;
+        let infoY = 18;
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(22);
+        doc.setTextColor(0, 169, 224);
+        doc.text((clinicInfo?.businessName || 'Dental App').toUpperCase(), infoX, infoY);
+
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(100);
+        infoY += 6;
+        if (clinicInfo?.ruc) { doc.text(`RUC: ${clinicInfo.ruc}`, infoX, infoY); infoY += 5; }
+        if (clinicInfo?.address) { doc.text(clinicInfo.address, infoX, infoY); infoY += 5; }
+        let contact = '';
+        if (clinicInfo?.phone) contact += `Tel: ${clinicInfo.phone}`;
+        if (clinicInfo?.email) contact += (contact ? ' | ' : '') + clinicInfo.email;
+        if (contact) doc.text(contact, infoX, infoY);
+
+        // Title: RECIBO
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(24);
+        doc.setTextColor(30);
+        doc.text('RECIBO DE DINERO', pageWidth - 14, 25, { align: 'right' });
+
+        // --- Receipt Body ---
+        let currentY = 50;
+
+        // Main Box
+        doc.setDrawColor(200);
+        doc.setFillColor(252, 252, 253);
+        doc.roundedRect(14, currentY, pageWidth - 28, 100, 3, 3, 'FD');
+
+        const labelX = 24;
+        const valueX = 70;
+        let lineY = currentY + 15;
+        const lineHeight = 12;
+
+        // No. Recibo
+        doc.setFontSize(12);
+        doc.setTextColor(80);
+        doc.text('No. Recibo:', labelX, lineY);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(0);
+        doc.text(invoice.number || invoice.id, valueX, lineY);
+
+        // Date
+        lineY += lineHeight;
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(80);
+        doc.text('Fecha:', labelX, lineY);
+        doc.setTextColor(0);
+        doc.text(this.formatDate(invoice.issuedAt), valueX, lineY);
+
+        // Amount
+        lineY += lineHeight;
+        doc.setTextColor(80);
+        doc.text('Monto:', labelX, lineY);
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(0);
+        doc.text(new Intl.NumberFormat('es-PY', { style: 'currency', currency: 'PYG', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(invoice.amount || 0), valueX, lineY);
+
+        // Received From
+        lineY += lineHeight;
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(80);
+        doc.text('Recibí de:', labelX, lineY);
+        doc.setTextColor(0);
+        const patientName = invoice.patient ? `${invoice.patient.firstName} ${invoice.patient.lastName}` : (invoice.patientName || 'Cliente');
+        const patientDni = invoice.patient?.dni ? ` - CI: ${invoice.patient.dni}` : '';
+        doc.text(`${patientName}${patientDni}`, valueX, lineY);
+
+        // Concept
+        lineY += lineHeight;
+        doc.setTextColor(80);
+        doc.text('En concepto de:', labelX, lineY);
+        doc.setTextColor(0);
+        doc.setFont('helvetica', 'italic');
+        // Concept text
+        let concept = 'Pago de servicios';
+        if (invoice.items && invoice.items.length > 0) {
+            concept = invoice.items.map((i: any) => i.description).join(', ');
+        }
+        // Multi-line concept if needed
+        const splitConcept = doc.splitTextToSize(concept, pageWidth - valueX - 20);
+        doc.text(splitConcept, valueX, lineY);
+
+        // --- Signature ---
+        const sigY = currentY + 100 + 40;
+        doc.setDrawColor(100);
+        doc.line(pageWidth / 2 - 40, sigY, pageWidth / 2 + 40, sigY);
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(100);
+        doc.text('Firma y Aclaración', pageWidth / 2, sigY + 5, { align: 'center' });
+        doc.text((clinicInfo?.businessName || 'Dental App'), pageWidth / 2, sigY + 10, { align: 'center' });
+
+        doc.save(`Recibo_${invoice.number}.pdf`);
     }
 
     private retrieveOriginalItem(data: any[], index: number) {
         return data[index];
+    }
+
+    private formatDate(date: Date | string): string {
+        const d = new Date(date);
+        return d.toLocaleDateString('es-PY', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    }
+
+    private formatCurrency(amount: number): string {
+        return Math.round(amount).toLocaleString('es-PY');
     }
 }

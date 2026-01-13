@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, OnInit } from '@angular/core';
+import { Component, EventEmitter, Output, OnInit, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, AbstractControl } from '@angular/forms';
 import { CashService, CashMovementType } from '../../cash.service';
@@ -100,6 +100,7 @@ import { PaymentMethodsService, PaymentMethod as PaymentMethodConfig } from '../
   `
 })
 export class CashMovementFormComponent implements OnInit {
+   @Input() cashRegisterId?: string;
    @Output() saved = new EventEmitter<void>();
    @Output() cancel = new EventEmitter<void>();
 
@@ -151,7 +152,8 @@ export class CashMovementFormComponent implements OnInit {
          this.loading = true;
          const formValue = {
             ...this.form.value,
-            amount: parseInt(this.form.value.amount.toString().replace(/\./g, ''), 10)
+            amount: parseInt(this.form.value.amount.toString().replace(/\./g, ''), 10),
+            cashRegisterId: this.cashRegisterId
          };
          this.cashService.create(formValue).subscribe({
             next: () => {

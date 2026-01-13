@@ -18,6 +18,8 @@ model User {
   tenant    Tenant   @relation(fields: [tenantId], references: [id])
   appointments Appointment[]
   cashMovements CashMovement[]
+  openedSessions CashSession[] @relation("SessionOpener")
+  closedSessions CashSession[] @relation("SessionCloser")
 }
 
 model Patient {
@@ -324,6 +326,12 @@ model CashMovement {
   userId        String?
   user          User?            @relation(fields: [userId], references: [id])
 
+  cashRegisterId String?
+  cashRegister   CashRegister? @relation(fields: [cashRegisterId], references: [id])
+
+  cashSessionId String?
+  cashSession   CashSession? @relation(fields: [cashSessionId], references: [id])
+
   createdAt     DateTime         @default(now())
   updatedAt     DateTime         @updatedAt
 }
@@ -413,6 +421,8 @@ model Tenant {
   personDocumentTypes PersonDocumentType[]
   appointments  Appointment[]
   cashMovements CashMovement[]
+  cashRegisters CashRegister[]
+  cashSessions  CashSession[]
 }
 
 model PersonDocumentType {
@@ -431,4 +441,45 @@ enum TenantStatus {
   ACTIVE
   INACTIVE
   SUSPENDED
+}
+
+model CashRegister {
+  id        String   @id @default(uuid())
+  name      String
+  isActive  Boolean  @default(true)
+  tenantId  String   @default("default")
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  movements CashMovement[]
+  sessions  CashSession[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CashSession {
+  id             String         @id @default(uuid())
+  cashRegisterId String
+  cashRegister   CashRegister   @relation(fields: [cashRegisterId], references: [id])
+  
+  openedById     String
+  openedBy       User           @relation("SessionOpener", fields: [openedById], references: [id])
+  
+  closedById     String?
+  closedBy       User?          @relation("SessionCloser", fields: [closedById], references: [id])
+  
+  startTime      DateTime       @default(now())
+  endTime        DateTime?
+  
+  startBalance   Decimal        @db.Decimal(10, 2)
+  currentBalance Decimal        @default(0) @db.Decimal(10, 2)
+  
+  status         String         @default("OPEN") // OPEN, CLOSED
+  
+  movements      CashMovement[]
+  
+  tenantId       String         @default("default")
+  tenant         Tenant         @relation(fields: [tenantId], references: [id])
+  
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
 }

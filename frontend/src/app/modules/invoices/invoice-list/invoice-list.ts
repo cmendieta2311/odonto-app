@@ -36,7 +36,7 @@ export class InvoiceListComponent extends BaseListComponent<any> implements OnIn
     // Let's keep a simplified filter binding like other lists.
 
     columns: TableColumn[] = [
-        { key: 'number', label: 'N° Factura' },
+        { key: 'number', label: 'N° Documento' },
         { key: 'date', label: 'Fecha' },
         { key: 'patient', label: 'Paciente' },
         { key: 'concept', label: 'Concepto / Contrato' },

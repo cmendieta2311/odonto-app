@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, OnInit, inject } from '@angular/core';
+import { Component, EventEmitter, Output, OnInit, inject, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CashService, CashStatus } from '../../cash.service';
 import { SystemConfigService } from '../../../configuration/system-config.service';
@@ -69,6 +69,7 @@ import { SystemConfigService } from '../../../configuration/system-config.servic
   `
 })
 export class CashCloseModalComponent implements OnInit {
+    @Input() cashRegisterId!: string;
     @Output() closed = new EventEmitter<void>();
     @Output() cancel = new EventEmitter<void>();
 
@@ -95,8 +96,8 @@ export class CashCloseModalComponent implements OnInit {
 
     loadStatus() {
         this.loadingStatus = true;
-        const today = new Date().toISOString();
-        this.cashService.getStatus(today).subscribe({
+        // Don't pass date to get CURRENT active status
+        this.cashService.getStatus(undefined, this.cashRegisterId).subscribe({
             next: (status) => {
                 this.status = status;
                 this.loadingStatus = false;
@@ -109,13 +110,13 @@ export class CashCloseModalComponent implements OnInit {
     }
 
     formatAmount(amount: number): string {
-        return amount.toLocaleString('es-PY');
+        return amount.toLocaleString('es-PY', { maximumFractionDigits: 0 });
     }
 
     onSubmit() {
         this.loading = true;
 
-        this.cashService.closeCash().subscribe({
+        this.cashService.closeCash(this.cashRegisterId).subscribe({
             next: () => {
                 this.loading = false;
                 this.closed.emit();
@@ -133,6 +134,7 @@ export class CashCloseModalComponent implements OnInit {
             }
         });
     }
+
 
     onCancel() {
         this.cancel.emit();

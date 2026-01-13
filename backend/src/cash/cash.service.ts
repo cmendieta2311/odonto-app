@@ -7,219 +7,297 @@ import { CashMovementType } from '@prisma/client';
 export class CashService {
     constructor(private prisma: PrismaService) { }
 
-    private getDateRange(dateStr: string) {
-        // Extract YYYY-MM-DD
-        const datePart = dateStr.includes('T') ? dateStr.split('T')[0] : dateStr;
+    async findAllRegisters() {
+        const registers = await this.prisma.cashRegister.findMany({
+            where: { tenantId: 'default', isActive: true }
+        });
 
-        // Construct UTC range
-        const startOfDay = new Date(`${datePart}T00:00:00.000Z`);
-        const endOfDay = new Date(`${datePart}T23:59:59.999Z`);
+        if (registers.length === 0) {
+            const def = await this.prisma.cashRegister.create({
+                data: {
+                    name: 'Caja General',
+                    tenantId: 'default'
+                }
+            });
+            return [def];
+        }
 
-        return { startOfDay, endOfDay };
+        return registers;
     }
 
-    async create(data: CreateCashMovementDto & { userId?: string }) {
-        return this.prisma.cashMovement.create({
+    private async resolveRegisterId(cashRegisterId?: string): Promise<string> {
+        if (cashRegisterId) return cashRegisterId;
+        const registers = await this.findAllRegisters();
+        return registers[0].id; // Default
+    }
+
+    async create(data: CreateCashMovementDto & { userId?: string, cashRegisterId?: string }) {
+        const registerId = await this.resolveRegisterId(data.cashRegisterId);
+
+        // Find Active Session
+        const session = await this.prisma.cashSession.findFirst({
+            where: {
+                cashRegisterId: registerId,
+                status: 'OPEN',
+                tenantId: 'default'
+            }
+        });
+
+        // Allow OPENING movement even if no session (it creates the session technically, but flow creates session first)
+        // Actually, preventing movement if no session is safer, except for OPENING.
+        if (!session && data.type !== CashMovementType.OPENING) {
+            throw new BadRequestException('No hay una caja abierta para registrar movimientos.');
+        }
+
+        // Create Movement
+        const movement = await this.prisma.cashMovement.create({
             data: {
                 ...data,
-                tenantId: 'default', // TODO: Get from context user
-            },
-        });
-    }
-
-    async findAll(date?: string) {
-        const where: any = {
-            tenantId: 'default',
-        };
-
-        if (date) {
-            const { startOfDay, endOfDay } = this.getDateRange(date);
-            where.date = {
-                gte: startOfDay,
-                lte: endOfDay,
-            };
-        }
-
-        return this.prisma.cashMovement.findMany({
-            where,
-            orderBy: {
-                date: 'desc',
-            },
-        });
-    }
-
-    async getDailySummary(date: string) {
-        const { startOfDay, endOfDay } = this.getDateRange(date);
-
-        const movements = await this.prisma.cashMovement.findMany({
-            where: {
+                cashRegisterId: registerId,
+                cashSessionId: session?.id,
                 tenantId: 'default',
-                date: {
-                    gte: startOfDay,
-                    lte: endOfDay,
-                },
             },
         });
 
-        const income = movements
-            .filter((m) => m.type === CashMovementType.INCOME)
-            .reduce((sum, m) => sum + Number(m.amount), 0);
+        // Update Session Balance
+        if (session) {
+            let balanceChange = 0;
+            if (data.type === CashMovementType.INCOME) balanceChange = Number(data.amount);
+            if (data.type === CashMovementType.EXPENSE) balanceChange = -Number(data.amount);
 
-        const expense = movements
-            .filter((m) => m.type === CashMovementType.EXPENSE)
-            .reduce((sum, m) => sum + Number(m.amount), 0);
-
-        return {
-            income,
-            expense,
-            balance: income - expense, // This balance is simplistic, for real cash mgmt we need opening balance
-        };
-    }
-
-    async getCashStatus(date: string) {
-        const { startOfDay, endOfDay } = this.getDateRange(date);
-
-        const movements = await this.prisma.cashMovement.findMany({
-            where: {
-                tenantId: 'default',
-                date: {
-                    gte: startOfDay,
-                    lte: endOfDay,
-                },
-            },
-            include: { user: true }, // Include user relation
-            orderBy: { date: 'asc' },
-        });
-
-        // Determine status based on the LAST structural movement (OPENING or CLOSING)
-        const structuralMovements = movements.filter(m =>
-            m.type === CashMovementType.OPENING || m.type === CashMovementType.CLOSING
-        );
-        const lastStructural = structuralMovements[structuralMovements.length - 1];
-
-        const isOpen = lastStructural?.type === CashMovementType.OPENING;
-        const isClosed = lastStructural?.type === CashMovementType.CLOSING;
-
-        // Get Opening User Name if open
-        let openedBy: string | undefined = undefined;
-        if (isOpen && lastStructural.user) {
-            openedBy = lastStructural.user.name;
-        }
-
-        // Daily totals (regardless of sessions)
-        const dailyIncome = movements
-            .filter((m) => m.type === CashMovementType.INCOME)
-            .reduce((sum, m) => sum + Number(m.amount), 0);
-
-        const dailyExpense = movements
-            .filter((m) => m.type === CashMovementType.EXPENSE)
-            .reduce((sum, m) => sum + Number(m.amount), 0);
-
-        // Session specific calculations
-        let startBalance = 0;
-        let currentBalance = 0;
-        let openingTime: Date | undefined = undefined;
-        let closingTime: Date | undefined = undefined;
-
-        if (isOpen) {
-            openingTime = lastStructural.date;
-            startBalance = Number(lastStructural.amount);
-
-            // Calculate balance for THIS session only
-            // Movements strictly AFTER the last opening
-            const sessionMovements = movements.filter(m => m.date > lastStructural.date);
-
-            const sessionIncome = sessionMovements
-                .filter(m => m.type === CashMovementType.INCOME)
-                .reduce((sum, m) => sum + Number(m.amount), 0);
-
-            const sessionExpense = sessionMovements
-                .filter(m => m.type === CashMovementType.EXPENSE)
-                .reduce((sum, m) => sum + Number(m.amount), 0);
-
-            currentBalance = startBalance + sessionIncome - sessionExpense;
-        } else if (isClosed) {
-            closingTime = lastStructural.date;
-            // If closed, current balance is effectively 0 in the drawer
-            currentBalance = 0;
-            startBalance = 0;
-        }
-
-        return {
-            isOpen,
-            isClosed,
-            openingTime,
-            closingTime,
-            startBalance,
-            income: dailyIncome,
-            expense: dailyExpense,
-            currentBalance,
-            openedBy
-        };
-    }
-
-    async openCash(initialAmount: number, userId?: string) {
-        // Check if currently open
-        const status = await this.getCashStatus(new Date().toISOString());
-        if (status.isOpen) throw new BadRequestException('Caja ya abierta');
-        // Allow opening if it is closed or not started (isClosed false and isOpen false)
-
-        return this.create({
-            type: CashMovementType.OPENING,
-            amount: initialAmount,
-            description: 'Apertura de Caja',
-            paymentMethod: 'CASH' as any,
-            userId
-        });
-    }
-
-    async closeCash() {
-        const status = await this.getCashStatus(new Date().toISOString());
-        if (!status.isOpen) throw new BadRequestException('No hay caja abierta para cerrar');
-
-        return this.create({
-            type: CashMovementType.CLOSING,
-            amount: status.currentBalance,
-            description: 'Cierre de Caja',
-            paymentMethod: 'CASH' as any
-        });
-    }
-
-    async getHistory(limit = 7) {
-        // Get last N days with activity
-        // This is a bit complex with raw Prisma.
-        // Simplified approach: Get distinct dates from movements, then calculate summary for each.
-        // Or just return `CashMovement` of type CLOSING which contains the final balance?
-        // But we want income/expense too.
-        // Let's iterate back N days.
-
-        const history: any[] = [];
-        const today = new Date();
-
-        for (let i = 0; i < limit; i++) {
-            const date = new Date(today);
-            date.setDate(date.getDate() - i);
-            const dateStr = date.toISOString().split('T')[0];
-
-            // Optimization: check if any movement exists first
-            // ... skipping optimization for simplicity now
-
-            const summary = await this.getDailySummary(dateStr);
-            const status = await this.getCashStatus(dateStr);
-
-            // Only add if there was activity (balance != 0 or movements > 0)
-            // But getDailySummary calculates from movements.
-            // If income=0, expense=0, likely no activity.
-            if (summary.income > 0 || summary.expense > 0 || status.isClosed) {
-                history.push({
-                    date: dateStr,
-                    ...summary,
-                    isClosed: status.isClosed,
-                    finalBalance: status.currentBalance
+            if (balanceChange !== 0) {
+                await this.prisma.cashSession.update({
+                    where: { id: session.id },
+                    data: {
+                        currentBalance: { increment: balanceChange }
+                    }
                 });
             }
         }
 
-        return history;
+        return movement;
+    }
+
+    async findAll(date?: string, cashRegisterId?: string, cashSessionId?: string) {
+        const registerId = await this.resolveRegisterId(cashRegisterId);
+        const where: any = {
+            tenantId: 'default',
+            cashRegisterId: registerId
+        };
+
+        if (cashSessionId) {
+            where.cashSessionId = cashSessionId;
+        } else if (date) {
+            const startOfDay = new Date(`${date}T00:00:00.000Z`);
+            const endOfDay = new Date(`${date}T23:59:59.999Z`);
+
+            where.date = { gte: startOfDay, lte: endOfDay };
+        } else {
+            // If no date and no sessionId, default to current open session OR today.
+            const session = await this.prisma.cashSession.findFirst({
+                where: { cashRegisterId: registerId, status: 'OPEN' }
+            });
+            if (session) {
+                where.cashSessionId = session.id;
+            } else {
+                const startToday = new Date();
+                startToday.setHours(0, 0, 0, 0);
+                where.date = { gte: startToday };
+            }
+        }
+
+        return this.prisma.cashMovement.findMany({
+            where,
+            orderBy: { date: 'desc' },
+            include: { user: true }
+        });
+    }
+
+    async getDailySummary(date: string, cashRegisterId?: string) {
+        // Aggregation across sessions for a specific day?
+        // Or just raw movements aggregation?
+        // Keeping it simple: Raw aggregation by Date
+        const registerId = await this.resolveRegisterId(cashRegisterId);
+        const startOfDay = new Date(`${date}T00:00:00.000Z`);
+        const endOfDay = new Date(`${date}T23:59:59.999Z`);
+
+        const where = {
+            tenantId: 'default',
+            cashRegisterId: registerId,
+            date: { gte: startOfDay, lte: endOfDay }
+        };
+
+        const movements = await this.prisma.cashMovement.findMany({ where });
+
+        const income = movements
+            .filter(m => m.type === CashMovementType.INCOME)
+            .reduce((sum, m) => sum + Number(m.amount), 0);
+
+        const expense = movements
+            .filter(m => m.type === CashMovementType.EXPENSE)
+            .reduce((sum, m) => sum + Number(m.amount), 0);
+
+        // Balance here is just income - expense for the day?
+        // Or should it include Openings?
+        // UI expects 'Day Balance', usually Net Flow.
+
+        return { income, expense, balance: income - expense };
+    }
+
+    async getCashStatus(date?: string, cashRegisterId?: string) {
+        const registerId = await this.resolveRegisterId(cashRegisterId);
+
+        let session;
+
+        if (date) {
+            // Find session covering this date? Or active on that date?
+            // "History" usually wants the summary of that day.
+            // But with Sessions, "Status" is ambiguous for a past date if multiple sessions exists.
+            // Let's return the LAST session of that day.
+            const startOfDay = new Date(`${date}T00:00:00.000Z`);
+            const endOfDay = new Date(`${date}T23:59:59.999Z`);
+
+            session = await this.prisma.cashSession.findFirst({
+                where: {
+                    cashRegisterId: registerId,
+                    startTime: { gte: startOfDay, lte: endOfDay }
+                },
+                orderBy: { startTime: 'desc' },
+                include: { openedBy: true, closedBy: true }
+            });
+        } else {
+            // Current Status: Active Session OR Last Closed Session
+            session = await this.prisma.cashSession.findFirst({
+                where: { cashRegisterId: registerId },
+                orderBy: { startTime: 'desc' },
+                include: { openedBy: true, closedBy: true }
+            });
+        }
+
+        if (!session) {
+            return {
+                isOpen: false, isClosed: false,
+                startBalance: 0, currentBalance: 0,
+                income: 0, expense: 0
+            };
+        }
+
+        // Calculate Income/Expense for this session
+        // We can aggreg in DB
+        const movements = await this.prisma.cashMovement.findMany({
+            where: { cashSessionId: session.id }
+        });
+
+        const income = movements.filter(m => m.type === CashMovementType.INCOME).reduce((s, m) => s + Number(m.amount), 0);
+        const expense = movements.filter(m => m.type === CashMovementType.EXPENSE).reduce((s, m) => s + Number(m.amount), 0);
+
+        return {
+            id: session.id,
+            isOpen: session.status === 'OPEN',
+            isClosed: session.status === 'CLOSED',
+            openingTime: session.startTime,
+            closingTime: session.endTime,
+            startBalance: Number(session.startBalance),
+            currentBalance: Number(session.currentBalance), // Live balance
+            income,
+            expense,
+            openedBy: session.openedBy?.name,
+            closedBy: session.closedBy?.name
+        };
+    }
+
+    async openCash(initialAmount: number, userId: string, cashRegisterId?: string) {
+        const registerId = await this.resolveRegisterId(cashRegisterId);
+
+        // Check if open
+        const existing = await this.prisma.cashSession.findFirst({
+            where: { cashRegisterId: registerId, status: 'OPEN' }
+        });
+        if (existing) throw new BadRequestException('Esta Caja ya está abierta');
+
+        // Create Session
+        const session = await this.prisma.cashSession.create({
+            data: {
+                cashRegisterId: registerId,
+                openedById: userId,
+                startBalance: initialAmount,
+                currentBalance: initialAmount,
+                status: 'OPEN',
+                tenantId: 'default'
+            }
+        });
+
+        // Create Movement
+        await this.create({
+            type: CashMovementType.OPENING,
+            amount: initialAmount,
+            description: 'Apertura de Caja',
+            paymentMethod: 'CASH' as any,
+            userId,
+            cashRegisterId: registerId,
+            // Link directly, create method handles session lookup but we just made it.
+            // Wait, create method looks up active session.
+            // Since we just created it, it should find it.
+        });
+
+        return session;
+    }
+
+    async closeCash(cashRegisterId?: string, userId?: string) {
+        const registerId = await this.resolveRegisterId(cashRegisterId);
+
+        const session = await this.prisma.cashSession.findFirst({
+            where: { cashRegisterId: registerId, status: 'OPEN' }
+        });
+
+        if (!session) throw new BadRequestException('Esta Caja no está abierta');
+
+        // Create Closing Movement
+        await this.create({
+            type: CashMovementType.CLOSING,
+            amount: Number(session.currentBalance), // Use current balance before closing
+            description: 'Cierre de Caja',
+            paymentMethod: 'CASH' as any,
+            userId,
+            cashRegisterId: registerId
+        });
+
+        const updated = await this.prisma.cashSession.update({
+            where: { id: session.id },
+            data: {
+                status: 'CLOSED',
+                endTime: new Date(),
+                closedById: userId
+            }
+        });
+
+        return updated;
+    }
+
+    async getHistory(limit = 10, cashRegisterId?: string) {
+        const registerId = await this.resolveRegisterId(cashRegisterId);
+
+        const sessions = await this.prisma.cashSession.findMany({
+            where: { cashRegisterId: registerId },
+            orderBy: { startTime: 'desc' },
+            take: limit,
+            include: { openedBy: true, closedBy: true }
+        });
+
+        // Map to format suitable for frontend history
+        return sessions.map(session => ({
+            id: session.id,
+            date: session.startTime, // For sorting/display
+            startTime: session.startTime,
+            endTime: session.endTime,
+            startBalance: Number(session.startBalance),
+            finalBalance: Number(session.currentBalance),
+            status: session.status, // OPEN, CLOSED
+            openedBy: session.openedBy?.name,
+            closedBy: session.closedBy?.name,
+            // We might want income/expense summary here too?
+            // It requires aggregations. For performance, maybe skip or aggreg on demand?
+            // Let's do simple query if limit is small.
+        }));
     }
 }

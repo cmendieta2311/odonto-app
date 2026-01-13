@@ -21,22 +21,32 @@ import { AuthService } from '../../../../auth/auth.service';
       <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
          <div>
             <h1 class="text-3xl font-bold text-slate-900 dark:text-white">Gestión de Caja</h1>
-            <div class="flex items-center gap-2 mt-1">
-               <span class="material-symbols-outlined text-slate-400 text-sm">calendar_today</span>
-               <span class="text-slate-500 dark:text-slate-400 text-sm font-medium">{{ currentDate | date: 'fullDate' }}</span>
+            <div class="flex flex-col gap-2 mt-2">
+               <div class="flex items-center gap-2">
+                  <span class="material-symbols-outlined text-slate-400 text-sm">calendar_today</span>
+                  <span class="text-slate-500 dark:text-slate-400 text-sm font-medium">{{ currentDate | date: 'fullDate' }}</span>
 
-               <span *ngIf="status.isOpen" class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold border border-emerald-200 flex items-center gap-1">
-                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                  Caja Abierta
-               </span>
-               <span *ngIf="status.isClosed" class="px-2 py-0.5 rounded-full bg-red-100 text-red-700 text-xs font-bold border border-red-200 flex items-center gap-1">
-                  <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>
-                  Caja Cerrada
-               </span>
-               <span *ngIf="!status.isOpen && !status.isClosed" class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 text-xs font-bold border border-slate-200 flex items-center gap-1">
-                  <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
-                  No Iniciada
-               </span>
+                  <span *ngIf="status.isOpen" class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold border border-emerald-200 flex items-center gap-1">
+                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                     Caja Abierta
+                  </span>
+                  <span *ngIf="status.isClosed" class="px-2 py-0.5 rounded-full bg-red-100 text-red-700 text-xs font-bold border border-red-200 flex items-center gap-1">
+                     <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>
+                     Caja Cerrada
+                  </span>
+                  <span *ngIf="!status.isOpen && !status.isClosed" class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 text-xs font-bold border border-slate-200 flex items-center gap-1">
+                     <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                     No Iniciada
+                  </span>
+               </div>
+               
+               <!-- Register Switcher -->
+               <div class="flex items-center gap-2">
+                  <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Caja:</span>
+                  <select [(ngModel)]="selectedRegisterId" (ngModelChange)="onRegisterChange()" class="text-sm font-bold bg-transparent border-none text-slate-700 dark:text-white cursor-pointer focus:ring-0 p-0 pr-6">
+                     <option *ngFor="let reg of registers" [value]="reg.id">{{ reg.name }}</option>
+                  </select>
+               </div>
             </div>
          </div>
 
@@ -207,11 +217,13 @@ import { AuthService } from '../../../../auth/auth.service';
 
       <!--Modals-->
       <app-cash-movement-form *ngIf="showModal"
+         [cashRegisterId]="selectedRegisterId"
          (saved)="onSaved()"
          (cancel)="showModal = false">
       </app-cash-movement-form>
 
       <app-cash-history-modal *ngIf="showHistory"
+         [cashRegisterId]="selectedRegisterId"
          (close)="showHistory = false">
       </app-cash-history-modal>
 
@@ -221,6 +233,7 @@ import { AuthService } from '../../../../auth/auth.service';
       </app-cash-open-modal>
 
       <app-cash-close-modal *ngIf="showCloseModal"
+         [cashRegisterId]="selectedRegisterId"
          (closed)="onCloseCashSaved()"
          (cancel)="showCloseModal = false">
       </app-cash-close-modal>
@@ -245,6 +258,9 @@ export class CashDashboardComponent implements OnInit {
    showOpenModal = false;
    showCloseModal = false;
 
+   registers: any[] = [];
+   selectedRegisterId: string = '';
+
    paymentMethodsMap: Record<string, string> = {
       'CASH': 'Efectivo',
       'CREDIT_CARD': 'Tarjeta de Crédito',
@@ -262,6 +278,20 @@ export class CashDashboardComponent implements OnInit {
    ) { }
 
    ngOnInit() {
+      this.loadRegisters();
+   }
+
+   loadRegisters() {
+      this.cashService.getRegisters().subscribe(registers => {
+         this.registers = registers;
+         if (registers.length > 0) {
+            this.selectedRegisterId = registers[0].id;
+            this.loadData();
+         }
+      });
+   }
+
+   onRegisterChange() {
       this.loadData();
    }
 
@@ -271,19 +301,41 @@ export class CashDashboardComponent implements OnInit {
    }
 
    loadData() {
+      if (!this.selectedRegisterId) return;
+
       const dateStr = this.currentDate.toISOString().split('T')[0];
+      const todayStr = new Date().toISOString().split('T')[0];
+      const isToday = dateStr === todayStr;
 
-      this.cashService.getDailySummary(dateStr).subscribe(summary => {
-         this.summary = summary;
-      });
-
-      this.cashService.findAll(dateStr).subscribe(movements => {
-         this.movements = movements;
-      });
-
-      this.cashService.getStatus(dateStr).subscribe(status => {
+      // Get actual status first
+      this.cashService.getStatus(undefined, this.selectedRegisterId).subscribe(status => {
          this.status = status;
+
+         if (isToday) {
+            // If viewing Today, prioritize Active Session values for Cards
+            this.summary = {
+               income: status.income,
+               expense: status.expense,
+               balance: status.currentBalance // active session balance
+            };
+         }
       });
+
+      if (isToday) {
+         // If viewing Today, get movements from Active Session only
+         this.cashService.findAll(undefined, this.selectedRegisterId).subscribe(movements => {
+            this.movements = movements;
+         });
+      } else {
+         // Historical View: Get Daily Summary and All Movements for that day
+         this.cashService.getDailySummary(dateStr, this.selectedRegisterId).subscribe(summary => {
+            this.summary = summary;
+         });
+
+         this.cashService.findAll(dateStr, this.selectedRegisterId).subscribe(movements => {
+            this.movements = movements;
+         });
+      }
    }
 
    openModal() {

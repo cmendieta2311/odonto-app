@@ -25,4 +25,8 @@ export class CreateCashMovementDto {
   @IsString()
   @IsOptional()
   source?: string;
+
+  @IsString()
+  @IsOptional()
+  cashRegisterId?: string;
 }

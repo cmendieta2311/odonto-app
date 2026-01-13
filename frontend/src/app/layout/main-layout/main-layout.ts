@@ -66,7 +66,7 @@ export class MainLayoutComponent {
         { label: 'Presupuestos', icon: 'receipt_long', route: '/commercial/quotes' },
         { label: 'Contratos', icon: 'description', route: '/commercial/contracts' },
         { label: 'Cobros', icon: 'payments', route: '/payments' },
-        { label: 'Facturación', icon: 'receipt_long', route: '/admin/invoices' },
+        { label: 'Documentos emitidos', icon: 'receipt_long', route: '/admin/invoices' },
         { label: 'Caja', icon: 'point_of_sale', route: '/admin/cash' }
       ]
     },

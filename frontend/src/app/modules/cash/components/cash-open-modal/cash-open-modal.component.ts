@@ -25,8 +25,16 @@ import { SystemConfigService } from '../../../configuration/system-config.servic
            <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col gap-6">
               
               <div class="flex flex-col gap-2">
-                 <p class="text-slate-500 dark:text-slate-400 text-sm">Ingrese el dinero efectivo inicial disponible en caja para comenzar el turno.</p>
+                 <p class="text-slate-500 dark:text-slate-400 text-sm">Seleccione la caja y el monto inicial para comenzar el turno.</p>
               </div>
+
+               <!-- Cash Register Selection -->
+               <div class="flex flex-col gap-2">
+                 <label class="text-slate-700 dark:text-slate-300 text-sm font-bold">Caja</label>
+                 <select formControlName="cashRegisterId" class="w-full px-4 py-3 bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-shadow text-sm font-medium appearance-none">
+                    <option *ngFor="let register of registers" [value]="register.id">{{ register.name }}</option>
+                 </select>
+               </div>
 
               <!-- Amount -->
               <label class="flex flex-col gap-2">
@@ -68,6 +76,7 @@ export class CashOpenModalComponent implements OnInit {
     form: FormGroup;
     loading = false;
     currency = 'Gs.'; // Default currency
+    registers: any[] = [];
 
     private configService = inject(SystemConfigService);
 
@@ -77,11 +86,14 @@ export class CashOpenModalComponent implements OnInit {
     ) {
         this.form = this.fb.group({
             amount: [0, [Validators.required, Validators.min(0)]],
-            amountDisplay: ['', Validators.required]
+            amountDisplay: ['', Validators.required],
+            cashRegisterId: ['', Validators.required]
         });
     }
 
     ngOnInit() {
+        this.loadRegisters();
+
         this.configService.getConfigs().subscribe(configs => {
             if (configs['billing_config'] && configs['billing_config'].currency) {
                 this.currency = configs['billing_config'].currency;
@@ -93,6 +105,15 @@ export class CashOpenModalComponent implements OnInit {
         this.form.get('amountDisplay')?.setValue('0');
     }
 
+    loadRegisters() {
+        this.cashService.getRegisters().subscribe(registers => {
+            this.registers = registers;
+            if (this.registers.length > 0) {
+                this.form.get('cashRegisterId')?.setValue(this.registers[0].id);
+            }
+        });
+    }
+
     onAmountInput(event: any) {
         let value = event.target.value.replace(/\D/g, '');
         if (value === '') value = '0';
@@ -101,7 +122,7 @@ export class CashOpenModalComponent implements OnInit {
         this.form.get('amount')?.setValue(numberValue);
 
         // Format with thousands separator
-        const formatted = numberValue.toLocaleString('es-PY'); // Using es-PY as default for Guarani like format or generic
+        const formatted = numberValue.toLocaleString('es-PY');
         this.form.get('amountDisplay')?.setValue(formatted, { emitEvent: false });
     }
 
@@ -109,8 +130,9 @@ export class CashOpenModalComponent implements OnInit {
         if (this.form.valid) {
             this.loading = true;
             const amount = this.form.get('amount')?.value;
+            const registerId = this.form.get('cashRegisterId')?.value;
 
-            this.cashService.openCash(amount).subscribe({
+            this.cashService.openCash(amount, registerId).subscribe({
                 next: () => {
                     this.loading = false;
                     this.saved.emit();
@@ -119,9 +141,11 @@ export class CashOpenModalComponent implements OnInit {
                     this.loading = false;
                     console.error('Error opening cash:', err);
 
-                    if (err.error && err.error.message === 'Caja ya abierta hoy') {
+                    if (err.error && err.error.message === 'Esta Caja ya está abierta') {
+                        alert('La caja seleccionada ya se encuentra abierta.');
+                    } else if (err.error && err.error.message === 'Caja ya abierta hoy') {
                         alert('La caja ya se encuentra abierta. Se actualizará el estado.');
-                        this.saved.emit(); // Emit saved to trigger reload in parent
+                        this.saved.emit();
                     } else {
                         alert('Error al abrir la caja. Por favor intente nuevamente.');
                     }

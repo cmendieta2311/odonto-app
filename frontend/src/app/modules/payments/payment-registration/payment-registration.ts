@@ -11,6 +11,7 @@ import { PaymentMethodsService, PaymentMethod } from '../../configuration/paymen
 import { NotificationService } from '../../../shared/services/notification.service';
 import { PdfService } from '../../../shared/services/pdf.service';
 import { SystemConfigService } from '../../configuration/system-config.service';
+import { CashService } from '../../cash/cash.service';
 
 @Component({
     selector: 'app-payment-registration',
@@ -29,6 +30,9 @@ export class PaymentRegistrationComponent implements OnInit {
     private notificationService = inject(NotificationService);
     private pdfService = inject(PdfService);
     private configService = inject(SystemConfigService);
+    private cashService = inject(CashService);
+
+    isCashOpen = false;
 
     // Search State
     searchControl = new FormControl('');
@@ -66,6 +70,18 @@ export class PaymentRegistrationComponent implements OnInit {
                     }
                 });
             }
+        });
+
+
+        this.verifyCashStatus();
+    }
+
+    verifyCashStatus() {
+        this.cashService.getStatus().subscribe(status => {
+            if (!status.isOpen) {
+                this.notificationService.showError('La caja está cerrada. Debe abrirla para registrar pagos.');
+            }
+            this.isCashOpen = status.isOpen;
         });
     }
 
@@ -231,7 +247,7 @@ export class PaymentRegistrationComponent implements OnInit {
 
     // Helper to format currency for display/input
     formatCurrency(value: number): string {
-        return new Intl.NumberFormat('es-PY').format(value);
+        return new Intl.NumberFormat('es-PY', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(value);
     }
 
     // Helper to handle input input event
@@ -258,6 +274,28 @@ export class PaymentRegistrationComponent implements OnInit {
     registerPayment() {
         if (this.totalSelectedAmount <= 0 || this.isSaving || !this.selectedPaymentMethod) return;
 
+        if (!this.isCashOpen) {
+            // Try to double check status before failing (in case user opened it in another tab)
+            this.cashService.getStatus().subscribe({
+                next: (status) => {
+                    this.isCashOpen = status.isOpen;
+                    if (this.isCashOpen) {
+                        this.processPayment();
+                    } else {
+                        this.notificationService.showError('La caja está cerrada. Debe abrirla para registrar pagos.');
+                    }
+                },
+                error: () => {
+                    this.notificationService.showError('Error al verificar estado de caja.');
+                }
+            });
+            return;
+        }
+
+        this.processPayment();
+    }
+
+    processPayment() {
         this.isSaving = true;
 
         const contractsInvolved = new Set<string>();
@@ -274,7 +312,6 @@ export class PaymentRegistrationComponent implements OnInit {
             // Calculate total based on user input for selected installments
             const amountForContract = contractInstallments.reduce((sum: number, i: any) => sum + Number(i.paymentAmount || 0), 0);
 
-            // Construct notes with installment details including partial amounts
             // Construct notes with installment details including partial amounts
             const installmentNotes = contractInstallments.map((i: any) => {
                 const isPartial = i.paymentAmount < (Number(i.amount) - (Number(i.paidAmount) || 0));

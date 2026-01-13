@@ -37,6 +37,7 @@ export interface DailySummary {
 }
 
 export interface CashStatus {
+    id?: string;
     isOpen: boolean;
     openingTime?: string;
     closingTime?: string;
@@ -48,6 +49,24 @@ export interface CashStatus {
     openedBy?: string;
 }
 
+export interface CashSession {
+    id: string;
+    startTime: string;
+    endTime?: string;
+    startBalance: number;
+    finalBalance: number;
+    status: 'OPEN' | 'CLOSED';
+    openedBy?: string;
+    closedBy?: string;
+}
+
+export interface CashRegister {
+    id: string;
+    name: string;
+    isActive: boolean;
+    tenantId: string;
+}
+
 @Injectable({
     providedIn: 'root'
 })
@@ -56,43 +75,50 @@ export class CashService {
 
     constructor(private http: HttpClient) { }
 
+    getRegisters(): Observable<CashRegister[]> {
+        return this.http.get<CashRegister[]>(`${this.apiUrl}/registers`);
+    }
+
     create(data: Partial<CashMovement>): Observable<CashMovement> {
         return this.http.post<CashMovement>(`${this.apiUrl}/movements`, data);
     }
 
-    findAll(date?: string): Observable<CashMovement[]> {
+    findAll(date?: string, cashRegisterId?: string, cashSessionId?: string): Observable<CashMovement[]> {
         let params = new HttpParams();
-        if (date) {
-            params = params.set('date', date);
-        }
+        if (date) params = params.set('date', date);
+        if (cashRegisterId) params = params.set('cashRegisterId', cashRegisterId);
+        if (cashSessionId) params = params.set('cashSessionId', cashSessionId);
+
         return this.http.get<CashMovement[]>(`${this.apiUrl}/movements`, { params });
     }
 
-    getDailySummary(date?: string): Observable<DailySummary> {
+    getDailySummary(date?: string, cashRegisterId?: string): Observable<DailySummary> {
         let params = new HttpParams();
-        if (date) {
-            params = params.set('date', date);
-        }
+        if (date) params = params.set('date', date);
+        if (cashRegisterId) params = params.set('cashRegisterId', cashRegisterId);
+
         return this.http.get<DailySummary>(`${this.apiUrl}/summary`, { params });
     }
 
-    getStatus(date?: string): Observable<CashStatus> {
+    getStatus(date?: string, cashRegisterId?: string): Observable<CashStatus> {
         let params = new HttpParams();
-        if (date) {
-            params = params.set('date', date);
-        }
+        if (date) params = params.set('date', date);
+        if (cashRegisterId) params = params.set('cashRegisterId', cashRegisterId);
+
         return this.http.get<CashStatus>(`${this.apiUrl}/status`, { params });
     }
 
-    openCash(initialAmount: number): Observable<CashMovement> {
-        return this.http.post<CashMovement>(`${this.apiUrl}/open`, { initialAmount });
+    openCash(initialAmount: number, cashRegisterId?: string): Observable<CashMovement> {
+        return this.http.post<CashMovement>(`${this.apiUrl}/open`, { initialAmount, cashRegisterId });
     }
 
-    closeCash(): Observable<CashMovement> {
-        return this.http.post<CashMovement>(`${this.apiUrl}/close`, {});
+    closeCash(cashRegisterId?: string): Observable<CashMovement> {
+        return this.http.post<CashMovement>(`${this.apiUrl}/close`, { cashRegisterId });
     }
 
-    getHistory(): Observable<any[]> {
-        return this.http.get<any[]>(`${this.apiUrl}/history`);
+    getHistory(cashRegisterId?: string): Observable<CashSession[]> {
+        let params = new HttpParams();
+        if (cashRegisterId) params = params.set('cashRegisterId', cashRegisterId);
+        return this.http.get<CashSession[]>(`${this.apiUrl}/history`, { params });
     }
 }

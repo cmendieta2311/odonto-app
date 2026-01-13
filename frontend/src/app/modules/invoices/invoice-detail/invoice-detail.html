@@ -17,7 +17,8 @@
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
             <div class="flex items-center gap-3 flex-wrap">
-                <h1 class="text-[#111718] dark:text-white text-3xl font-extrabold tracking-tight">Factura
+                <h1 class="text-[#111718] dark:text-white text-3xl font-extrabold tracking-tight">{{ isReceipt ?
+                    'Recibo' : 'Factura' }}
                     {{invoice.number || invoice.id}}
                 </h1>
                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium"
@@ -38,7 +39,7 @@
                 <span class="material-symbols-outlined text-[20px]">mail</span>
                 <span>Enviar Email</span>
             </button>
-            <button
+            <button (click)="downloadPdf()"
                 class="flex-1 md:flex-none flex items-center justify-center gap-2 h-10 px-4 rounded-lg bg-primary text-white text-sm font-bold shadow-md hover:bg-primary/90 transition-colors">
                 <span class="material-symbols-outlined text-[20px]">download</span>
                 <span>Descargar PDF</span>
@@ -46,7 +47,8 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Invoice Layout -->
+    <div *ngIf="!isReceipt" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div class="lg:col-span-2 flex flex-col gap-6">
             <div
                 class="bg-white dark:bg-[#1a2c30] rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm p-6 md:p-10 print:shadow-none">
@@ -214,6 +216,84 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Receipt Layout -->
+    <div *ngIf="isReceipt" class="flex flex-col items-center">
+        <div
+            class="bg-white dark:bg-[#1a2c30] rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm p-8 md:p-12 max-w-4xl w-full">
+            <!-- Receipt Header -->
+            <div
+                class="flex flex-col md:flex-row justify-between mb-8 pb-8 border-b border-gray-100 dark:border-gray-700">
+                <!-- Left: Clinic Info -->
+                <div>
+                    <img *ngIf="clinicConfig?.logoUrl" [src]="clinicConfig.logoUrl"
+                        class="h-16 w-auto object-contain mb-3" alt="Logo">
+                    <h2 class="text-2xl font-bold text-primary mb-2">{{ clinicConfig?.businessName || 'Dental Manager'
+                        }}</h2>
+                    <p class="text-sm text-gray-500 leading-relaxed">
+                        <span *ngIf="clinicConfig?.ruc" class="block">RUC: {{ clinicConfig.ruc }}</span>
+                        <span *ngIf="clinicConfig?.address" class="block">{{ clinicConfig.address }}</span>
+                        <span *ngIf="clinicConfig?.phone" class="block">Tel: {{ clinicConfig.phone }}</span>
+                        <span *ngIf="clinicConfig?.email" class="block">{{ clinicConfig.email }}</span>
+                    </p>
+                </div>
+                <!-- Right: Receipt Title -->
+                <div class="text-right mt-6 md:mt-0">
+                    <h1 class="text-3xl font-extrabold text-[#111718] dark:text-white tracking-tight text-gray-900">
+                        RECIBO DE DINERO</h1>
+                    <p class="text-lg font-bold text-gray-500 mt-1">NO. {{invoice.number || invoice.id}}</p>
+                    <p class="text-sm text-gray-400 mt-1">Fecha: {{invoice.issuedAt | date:'mediumDate'}}</p>
+                </div>
+            </div>
+
+            <!-- Receipt Body -->
+            <div class="flex flex-col gap-6">
+                <!-- Row 1: Amount -->
+                <div class="flex flex-col md:flex-row md:items-center gap-2">
+                    <span class="w-32 font-bold text-gray-500">Monto:</span>
+                    <div
+                        class="flex-1 bg-gray-50 dark:bg-gray-800/50 p-3 rounded-lg border border-gray-100 dark:border-gray-700">
+                        <span class="text-xl font-bold text-[#111718] dark:text-white">{{ invoice.amount |
+                            currency:'PYG':'symbol-narrow':'1.0-0' }}</span>
+                    </div>
+                </div>
+
+                <!-- Row 2: Received From -->
+                <div class="flex flex-col md:flex-row md:items-center gap-2">
+                    <span class="w-32 font-bold text-gray-500">Recibí de:</span>
+                    <div
+                        class="flex-1 border-b border-dotted border-gray-300 dark:border-gray-600 pb-1 text-lg text-[#111718] dark:text-white">
+                        <span class="font-medium">{{invoice.patient?.firstName}} {{invoice.patient?.lastName}}</span>
+                        <span *ngIf="invoice.patient?.dni" class="ml-2 text-sm text-gray-500">(CI:
+                            {{invoice.patient?.dni}})</span>
+                    </div>
+                </div>
+
+                <!-- Row 3: Concept -->
+                <div class="flex flex-col md:flex-row md:items-start gap-2">
+                    <span class="w-32 font-bold text-gray-500 mt-1">En concepto de:</span>
+                    <div
+                        class="flex-1 bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg italic text-gray-600 dark:text-gray-300 border border-gray-100 dark:border-gray-700 min-h-[80px]">
+                        <ng-container *ngIf="invoice.items?.length; else defaultConcept">
+                            <span *ngFor="let item of invoice.items; let last = last">{{item.description}}{{!last ? ', '
+                                : ''}}</span>
+                        </ng-container>
+                        <ng-template #defaultConcept>Pago de servicios profesionales</ng-template>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Signature Section -->
+            <div class="mt-16 flex justify-center">
+                <div class="flex flex-col items-center gap-2 w-64">
+                    <div class="h-px bg-gray-300 w-full"></div>
+                    <p class="text-sm font-bold text-gray-500">Firma y Aclaración</p>
+                    <p class="text-xs text-gray-400">{{ clinicConfig?.businessName || 'Dental Manager' }}</p>
+                </div>
+            </div>
+
         </div>
     </div>
 </div>
