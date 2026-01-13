@@ -608,6 +608,292 @@ export class PdfService {
         window.open(doc.output('bloburl'), '_blank');
     }
 
+    async generateAccountStatementPdf(patient: any, summary: any, groupedData: any[], clinicInfo: any) {
+        const doc = new jsPDF();
+        const pageWidth = doc.internal.pageSize.width;
+        let currentY = 20;
+
+        // --- 1. HEADER (New Layout) ---
+        // Logo
+        if (clinicInfo?.logoUrl) {
+            try {
+                const imgData = await this.getBase64ImageFromURL(clinicInfo.logoUrl);
+                if (imgData) {
+                    doc.addImage(imgData, 14, 10, 25, 25, undefined, 'FAST');
+                }
+            } catch (e) { console.error('Logo error', e); }
+        }
+
+        const infoX = 45;
+        let infoY = 18;
+
+        // Clinic Name (Blue, Large)
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(22);
+        doc.setTextColor(0, 169, 224); // Primary Blue
+        doc.text((clinicInfo?.businessName || 'Dental App').toUpperCase(), infoX, infoY);
+
+        // Clinic Details (Gray, Small)
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(100);
+        infoY += 6;
+        if (clinicInfo?.ruc) {
+            doc.text(`RUC: ${clinicInfo.ruc}`, infoX, infoY);
+            infoY += 5;
+        }
+        if (clinicInfo?.address) {
+            doc.text(clinicInfo.address, infoX, infoY);
+            infoY += 5;
+        }
+        let contact = '';
+        if (clinicInfo?.phone) contact += `Tel: ${clinicInfo.phone}`;
+        if (clinicInfo?.email) contact += (contact ? ' | ' : '') + clinicInfo.email;
+        if (contact) doc.text(contact, infoX, infoY);
+
+        // Report Title (Right Aligned)
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(16);
+        doc.setTextColor(30); // Dark
+        doc.text('EXTRACTO DE CUENTA', pageWidth - 14, 18, { align: 'right' });
+
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(10);
+        doc.setTextColor(100);
+        doc.text(`Fecha: ${new Date().toLocaleDateString('es-PY')}`, pageWidth - 14, 24, { align: 'right' });
+
+
+        // --- PATIENT INFO Section ---
+        const patientY = 50;
+
+        // Horizontal Line Separator
+        doc.setDrawColor(230);
+        doc.line(14, 45, pageWidth - 14, 45);
+
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(0);
+        doc.text('Datos del Paciente', 14, patientY);
+
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(80);
+
+        doc.text(`Nombre: ${patient.firstName} ${patient.lastName}`, 14, patientY + 6);
+        doc.text(`CI/RUC: ${patient.dni || 'N/A'}`, 14, patientY + 11);
+        doc.text(`Teléfono: ${patient.phone || patient.phoneNumber || 'N/A'}`, 14, patientY + 16);
+
+        // Update Start Y for Summary Cards
+        currentY = patientY + 25;
+        const cardWidth = (pageWidth - 28 - 10) / 3; // 3 cards, 14 margin left/right, 5 gap
+        const cardHeight = 25; // Compact Height
+
+        // Helper to draw summary card
+        const drawSummaryCard = (x: number, title: string, amount: number, colorVals: [number, number, number]) => {
+            // Card Border/Bg
+            doc.setDrawColor(230);
+            doc.setFillColor(252, 252, 253);
+            doc.roundedRect(x, currentY, cardWidth, cardHeight, 3, 3, 'FD');
+
+            // Title
+            doc.setFontSize(8);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(100);
+            doc.text(title, x + 5, currentY + 8);
+
+            // Amount
+            const formattedAmount = new Intl.NumberFormat('es-PY', { style: 'currency', currency: 'PYG' }).format(amount || 0);
+            doc.setFontSize(14); // Slightly smaller for compact
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(colorVals[0], colorVals[1], colorVals[2]);
+            doc.text(formattedAmount, x + 5, currentY + 19);
+
+            // Subtext hidden for compact mode
+        };
+
+        drawSummaryCard(14, 'SALDO PENDIENTE', summary.pendingBalance, [220, 38, 38]);
+        drawSummaryCard(14 + cardWidth + 5, 'TOTAL FACTURADO', summary.totalInvoiced, [30, 41, 59]);
+        drawSummaryCard(14 + (cardWidth + 5) * 2, 'TOTAL PAGADO', summary.totalPaid, [22, 163, 74]);
+
+        currentY += cardHeight + 15;
+
+        // --- 3. CONTRACT GROUPS ---
+
+        groupedData.forEach((group: any) => {
+            // Check Page Break for Card Header
+            if (currentY + 25 > doc.internal.pageSize.height - 20) {
+                doc.addPage();
+                currentY = 20;
+            }
+
+            // --- Group Card Header ---
+            // Container styling
+            const cardStartY = currentY;
+            doc.setDrawColor(220);
+            doc.setFillColor(255, 255, 255);
+            // We don't draw the rect yet, we need the height after the table. 
+            // Actually, usually easier to just draw a header bar and leave the table as open content or draw a rect around everything after.
+            // Let's draw a header bg for the contract info.
+
+            doc.setFillColor(248, 250, 252); // Light Slate 50
+            doc.roundedRect(14, currentY, pageWidth - 28, 20, 2, 2, 'F');
+
+            // Contract / Invoice Info
+            doc.setTextColor(30, 41, 59);
+            doc.setFontSize(11);
+            doc.setFont('helvetica', 'bold');
+            doc.text(group.title || 'N/A', 20, currentY + 9); // e.g. "Factura #F-2024-001" or "Contrato #..."
+
+            doc.setTextColor(100);
+            doc.setFontSize(9);
+            doc.setFont('helvetica', 'normal');
+            doc.text(group.treatment || 'Tratamiento General', 20, currentY + 16);
+
+            // Right Side Totals
+            const rightMargin = pageWidth - 20;
+            doc.setFontSize(7);
+            doc.setTextColor(100);
+            doc.text('MONTO TOTAL', rightMargin - 40, currentY + 8, { align: 'right' });
+            doc.text('SALDO PENDIENTE', rightMargin, currentY + 8, { align: 'right' });
+
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(30);
+            doc.text(new Intl.NumberFormat('es-PY').format(group.totalAmount || 0), rightMargin - 40, currentY + 16, { align: 'right' });
+
+            // Conditional Color for Pending
+            if ((group.pendingBalance || 0) > 0) doc.setTextColor(220, 38, 38);
+            else doc.setTextColor(22, 163, 74);
+
+            doc.text(new Intl.NumberFormat('es-PY').format(group.pendingBalance || 0), rightMargin, currentY + 16, { align: 'right' });
+
+            currentY += 25;
+
+            // --- Installment Table ---
+            autoTable(doc, {
+                startY: currentY,
+                head: [['NO. CUOTA', 'VENCIMIENTO', 'MONTO CUOTA', 'MONTO PAGADO', 'SALDO', 'ESTADO']],
+                body: group.installments.map((inst: any) => [
+                    inst.number,
+                    new Date(inst.dueDate).toLocaleDateString('es-PY'),
+                    new Intl.NumberFormat('es-PY').format(inst.amount || 0),
+                    new Intl.NumberFormat('es-PY').format(inst.paid || 0),
+                    new Intl.NumberFormat('es-PY').format(inst.balance || 0),
+                    inst.status
+                ]),
+                theme: 'plain', // Minimalist as requested
+                headStyles: {
+                    fillColor: [255, 255, 255],
+                    textColor: [100, 116, 139], // Slate 500
+                    fontSize: 7,
+                    fontStyle: 'bold',
+                    cellPadding: 2,
+                    valign: 'middle'
+                },
+                bodyStyles: {
+                    textColor: [0, 0, 0], // Pure Black for rows
+                    fontSize: 9,
+                    cellPadding: 4,
+                    valign: 'middle'
+                },
+                columnStyles: {
+                    0: { cellWidth: 20, fontStyle: 'bold' }, // No
+                    1: { cellWidth: 30 }, // Vencimiento (Black)
+                    2: { cellWidth: 30, fontStyle: 'bold' }, // Monto
+                    3: { cellWidth: 30 }, // Pagado (Black)
+                    4: { cellWidth: 30, fontStyle: 'bold' }, // Saldo
+                    5: { cellWidth: 30, halign: 'center' } // Estado (Badge handled below)
+                },
+                // Draw bottom border for rows
+                didParseCell: (data) => {
+                    if (data.section === 'body') {
+                        data.cell.styles.lineWidth = { bottom: 0.1 };
+                        data.cell.styles.lineColor = [226, 232, 240];
+                    }
+                },
+                didDrawCell: (data) => {
+                    // Badge for Status
+                    if (data.section === 'body' && data.column.index === 5) {
+                        const status = data.cell.raw as string;
+                        let fillColor = [220, 220, 220]; // Gray default
+                        let textColor = [50, 50, 50];
+
+                        if (status === 'Pagado') {
+                            fillColor = [220, 252, 231]; // Green 100
+                            textColor = [22, 163, 74];   // Green 600
+                        } else if (status === 'Vencido') {
+                            fillColor = [254, 226, 226]; // Red 100
+                            textColor = [220, 38, 38];   // Red 600
+                        } else if (status === 'Pendiente') {
+                            fillColor = [254, 243, 199]; // Amber 100
+                            textColor = [217, 119, 6];   // Amber 600
+                        }
+
+                        // Draw Badge
+                        const { x, y, width, height } = data.cell;
+                        doc.setFillColor(fillColor[0], fillColor[1], fillColor[2]);
+
+                        // Centered Badge
+                        const badgeWidth = 18;
+                        const badgeHeight = 5;
+                        const badgeX = x + (width - badgeWidth) / 2;
+                        const badgeY = y + (height - badgeHeight) / 2;
+
+                        doc.roundedRect(badgeX, badgeY, badgeWidth, badgeHeight, 1.5, 1.5, 'F');
+
+                        doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+                        doc.setFontSize(6);
+                        doc.setFont('helvetica', 'bold');
+                        doc.text(status, x + width / 2, y + height / 2 + 1, { align: 'center' });
+
+                        // Hide original text
+                        // We actually don't want to draw the text again if we just drew it, or rather suppress default text
+                        // autoTable doesn't easily suppress default text unless we return false/undefined in a specific hook or just overpaint
+                        // But since we are in didDrawCell, the text might have been drawn or not.
+                        // Actually didDrawCell is called AFTER text output usually unless we prevent it in willDrawCell. 
+                        // To keep it simple, we let it draw the text, but wait... 
+                        // Better approach: In `didParseCell`, set text color to transparent? 
+                        // Or just draw a white box over it first?
+                        // Let's rely on standard text rendering but position is tricky.
+                        // Actually, simpler: don't draw text manually, just set the styles in didParseCell maybe?
+                        // But autoTable doesn't support background color per cell easily for "Badges".
+                        // So correct way: Empty string in data, draw manually in didDrawCell.
+                    }
+                },
+                willDrawCell: (data) => {
+                    // Prevent default text drawing for Status column so we can draw badge manually
+                    if (data.section === 'body' && data.column.index === 5) {
+                        if (data.cell.raw) {
+                            // Store original value to use in didDrawCell if needed, but we have data.cell.raw
+                            // Just return false to skip drawing? willDrawCell doesn't support return false to skip.
+                            // We set opacity? or text color transparent?
+                            doc.setTextColor(255, 255, 255); // White text effectively hides it if bg is white
+                        }
+                    }
+                }
+            });
+
+            currentY = (doc as any).lastAutoTable.finalY + 15;
+
+            // Removed outer border container to simplify design and support multi-page tables correctly.
+            // The Headers (filled rect) and the table rows (lines) provide sufficient structure.
+
+        });
+
+        // Footer with Page Numbers
+        const pageCount = doc.getNumberOfPages();
+        for (let i = 1; i <= pageCount; i++) {
+            doc.setPage(i);
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(8);
+            doc.setTextColor(150);
+            doc.text('Generado por DentalApp', 14, doc.internal.pageSize.height - 10);
+            doc.text(`Página ${i} de ${pageCount}`, pageWidth - 14, doc.internal.pageSize.height - 10, { align: 'right' });
+        }
+
+        window.open(doc.output('bloburl'), '_blank');
+    }
+
     private retrieveOriginalItem(data: any[], index: number) {
         return data[index];
     }

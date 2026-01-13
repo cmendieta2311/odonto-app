@@ -5,12 +5,14 @@ import { GetPaymentsDto } from './dto/get-payments.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { CashService } from '../cash/cash.service';
 import { CreditStatus, CashMovementType } from '@prisma/client';
+import { SystemConfigService } from '../configuration/system-config/system-config.service';
 
 @Injectable()
 export class PaymentsService {
   constructor(
     private prisma: PrismaService,
-    private cashService: CashService
+    private cashService: CashService,
+    private systemConfigService: SystemConfigService
   ) { }
 
   async create(createPaymentDto: CreatePaymentDto) {
@@ -65,7 +67,7 @@ export class PaymentsService {
         await this.cashService.create({
           amount: Number(amount),
           type: CashMovementType.INCOME,
-          description: `Cobro Factura #${invoice.number}`,
+          description: createPaymentDto.notes || `Cobro Factura #${invoice.number}`,
           paymentMethod: resolvedMethod!,
           referenceId: payment.id,
           source: 'SYSTEM'
@@ -175,7 +177,7 @@ export class PaymentsService {
         await this.cashService.create({
           amount: Number(amount),
           type: CashMovementType.INCOME,
-          description: `Cobro Contrato (Pago directo)`,
+          description: createPaymentDto.notes || `Cobro Contrato (Pago directo)`,
           paymentMethod: resolvedMethod!,
           referenceId: payment.id,
           source: 'SYSTEM'
@@ -234,18 +236,46 @@ export class PaymentsService {
 
         // 3. Generate Factura (Invoice) or Recibo (Receipt)
         const documentType = createPaymentDto.documentType || 'INVOICE';
-        const prefix = documentType === 'RECEIPT' ? 'REC' : 'FAC';
         const year = new Date().getFullYear();
+        let invoiceNumber = '';
 
-        // Count existing documents of this type for the current year (or total if preferred, sticking to total as per previous logic but filtered by prefix)
-        // Note: Previous logic was global count. Better to count by prefix to have separate sequences.
-        const count = await prisma.invoice.count({
-          where: {
-            number: { startsWith: `${prefix}-` }
+        if (documentType === 'RECEIPT') {
+          const prefix = 'REC';
+          const count = await prisma.invoice.count({
+            where: { number: { startsWith: `${prefix}-${year}` } }
+          });
+          invoiceNumber = `${prefix}-${year}-${(count + 1).toString().padStart(5, '0')}`;
+        } else {
+          // INVOICE Logic
+          // Fetch configuration
+          const configs = await this.systemConfigService.findAll();
+          const invoiceConfig = configs['invoice_config'] as any; // Cast to avoid TS errors if typed strictly
+
+          let establishment = '001';
+          let emissionPoint = '001';
+
+          if (invoiceConfig) {
+            establishment = invoiceConfig.establishmentCode || '001';
+            emissionPoint = invoiceConfig.emissionPoint || '001';
           }
-        });
 
-        const invoiceNumber = `${prefix}-${year}-${(count + 1).toString().padStart(5, '0')}`;
+          const prefix = `${establishment}-${emissionPoint}`;
+
+          // Count invoices with this prefix to determine next sequence
+          // Note: This simple count method might duplicate numbers if records are deleted. 
+          // A more robust sequence table is better, but using count + 1 for now as per legacy.
+          // We should use prisma max if possible, but string manipulation is needed.
+          // Let's stick to count + 1 for simplicity unless we see a sequence tracker.
+
+          const count = await prisma.invoice.count({
+            where: {
+              number: { startsWith: prefix }
+            }
+          });
+
+          const sequence = (count + 1).toString().padStart(7, '0');
+          invoiceNumber = `${prefix}-${sequence}`;
+        }
 
         const description = paidItemsDescription.length > 0
           ? `Pago: ${paidItemsDescription.join(', ')}`

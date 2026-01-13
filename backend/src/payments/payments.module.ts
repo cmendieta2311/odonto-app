@@ -5,8 +5,10 @@ import { PrismaModule } from 'src/prisma/prisma.module';
 
 import { CashModule } from '../cash/cash.module';
 
+import { SystemConfigModule } from '../configuration/system-config/system-config.module';
+
 @Module({
-  imports: [PrismaModule, CashModule],
+  imports: [PrismaModule, CashModule, SystemConfigModule],
   controllers: [PaymentsController],
   providers: [PaymentsService],
 })
