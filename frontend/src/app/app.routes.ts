@@ -169,6 +169,10 @@ export const routes: Routes = [
             {
                 path: 'admin/cash',
                 loadComponent: () => import('./modules/cash/pages/cash-dashboard/cash-dashboard.component').then(m => m.CashDashboardComponent)
+            },
+            {
+                path: 'manual',
+                loadChildren: () => import('./modules/manual/manual.routes').then(m => m.MANUAL_ROUTES)
             }
         ]
     },

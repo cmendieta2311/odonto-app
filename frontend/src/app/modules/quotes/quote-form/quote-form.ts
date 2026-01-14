@@ -445,7 +445,7 @@ export class QuoteFormComponent implements OnInit {
       initialPayment: Number(rawValue.initialPayment ?? 0),
       installments: Number(rawValue.installments ?? 1),
       observations: rawValue.observations ?? undefined,
-      firstPaymentDate: rawValue.firstPaymentDate ?? undefined
+      firstPaymentDate: rawValue.firstPaymentDate ? new Date(rawValue.firstPaymentDate).toISOString() : null
     };
 
     const action = this.isEditMode && this.quoteId

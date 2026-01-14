@@ -37,13 +37,7 @@
             </div>
             <!-- Top Actions -->
             <div class="flex items-center gap-2">
-                <button type="button" (click)="save(QuoteStatus.DRAFT)" *ngIf="!isReadOnly && isEditMode"
-                    [disabled]="isSaving"
-                    class="px-4 py-2 rounded-lg border border-border-light bg-surface-light dark:bg-surface-dark dark:border-border-dark text-sm font-bold flex items-center gap-2 hover:bg-gray-50 dark:hover:bg-white/5 transition-all text-text-main dark:text-white disabled:opacity-50">
-                    <span class="material-symbols-outlined text-lg" *ngIf="!isSaving">save</span>
-                    <span class="material-symbols-outlined text-lg animate-spin" *ngIf="isSaving">sync</span>
-                    Guardar Borrador
-                </button>
+                <!-- Removed redundant Save Draft button -->
             </div>
         </div>
 
