@@ -74,7 +74,8 @@ export class MainLayoutComponent {
       title: 'OTROS',
       items: [
         { label: 'Mi Perfil', icon: 'person', route: '/profile' },
-        { label: 'Configuración', icon: 'settings', route: '/configuration/general' }
+        { label: 'Configuración', icon: 'settings', route: '/configuration/general' },
+        { label: 'Ayuda', icon: 'help_center', route: '/manual' }
       ]
     }
   ];
