@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, HostListener } from '@angular/core';
 import { BaseListComponent } from '../../../shared/classes/base-list.component';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
@@ -171,5 +171,21 @@ export class QuoteListComponent extends BaseListComponent<Quote> implements OnIn
         });
       }
     });
+  }
+
+  @HostListener('window:keydown', ['$event'])
+  handleKeyboardEvent(event: KeyboardEvent) {
+    if (
+      event.target instanceof HTMLInputElement ||
+      event.target instanceof HTMLTextAreaElement ||
+      event.target instanceof HTMLSelectElement
+    ) {
+      return;
+    }
+
+    if (event.altKey && event.code === 'KeyN') {
+      event.preventDefault();
+      this.navigateToQuoteForm();
+    }
   }
 }

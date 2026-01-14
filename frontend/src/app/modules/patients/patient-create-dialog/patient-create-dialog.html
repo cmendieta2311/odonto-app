@@ -1,0 +1,118 @@
+<div
+    class="flex flex-col h-[80vh] md:h-auto md:max-h-[85vh] overflow-hidden bg-white dark:bg-surface-dark rounded-xl shadow-2xl w-full max-w-2xl font-sans">
+    <!-- Header -->
+    <div class="flex items-center justify-between p-5 border-b border-gray-100 dark:border-gray-800">
+        <h2 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary">person_add</span>
+            Nuevo Paciente
+        </h2>
+        <button (click)="close()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors">
+            <span class="material-symbols-outlined">close</span>
+        </button>
+    </div>
+
+    <!-- Body -->
+    <div class="flex-1 overflow-y-auto p-6 md:p-8 custom-scrollbar">
+        <form [formGroup]="form" (ngSubmit)="save()" class="flex flex-col gap-6">
+
+            <!-- Grid Layout -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+                <!-- Document Type -->
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Tipo de Documento <span
+                            class="text-red-500">*</span></label>
+                    <select formControlName="documentTypeId"
+                        [class.border-red-500]="form.get('documentTypeId')?.invalid && form.get('documentTypeId')?.touched"
+                        class="w-full h-10 px-3 rounded-lg bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-1 focus:ring-primary text-sm font-medium text-gray-900 dark:text-white transition-all appearance-none cursor-pointer">
+                        <option value="" disabled>Seleccione...</option>
+                        <option *ngFor="let doc of documentTypes" [value]="doc.id">{{ doc.name }} ({{ doc.code }})
+                        </option>
+                    </select>
+                </div>
+
+                <!-- Document Number -->
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Nº Documento <span
+                            class="text-red-500">*</span></label>
+                    <input formControlName="dni"
+                        [class.border-red-500]="form.get('dni')?.invalid && form.get('dni')?.touched"
+                        class="w-full h-10 px-3 rounded-lg bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-1 focus:ring-primary text-sm font-medium text-gray-900 dark:text-white placeholder-gray-400 transition-all"
+                        type="text" placeholder="Ej: 1234567" />
+                </div>
+
+                <!-- First Name -->
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Nombres <span
+                            class="text-red-500">*</span></label>
+                    <input formControlName="firstName"
+                        [class.border-red-500]="form.get('firstName')?.invalid && form.get('firstName')?.touched"
+                        class="w-full h-10 px-3 rounded-lg bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-1 focus:ring-primary text-sm font-medium text-gray-900 dark:text-white placeholder-gray-400 transition-all"
+                        type="text" />
+                </div>
+
+                <!-- Last Name -->
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Apellidos <span
+                            class="text-red-500">*</span></label>
+                    <input formControlName="lastName"
+                        [class.border-red-500]="form.get('lastName')?.invalid && form.get('lastName')?.touched"
+                        class="w-full h-10 px-3 rounded-lg bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-1 focus:ring-primary text-sm font-medium text-gray-900 dark:text-white placeholder-gray-400 transition-all"
+                        type="text" />
+                </div>
+            </div>
+
+            <!-- Divider -->
+            <div class="border-t border-gray-100 dark:border-gray-800"></div>
+
+            <!-- Contact Info -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Teléfono / Celular</label>
+                    <div class="relative">
+                        <span
+                            class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-[18px]">phone</span>
+                        <input formControlName="phone"
+                            class="w-full h-10 pl-9 pr-3 rounded-lg bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-1 focus:ring-primary text-sm font-medium text-gray-900 dark:text-white placeholder-gray-400 transition-all"
+                            type="tel" />
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Correo Electrónico</label>
+                    <div class="relative">
+                        <span
+                            class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-[18px]">mail</span>
+                        <input formControlName="email"
+                            [class.border-red-500]="form.get('email')?.invalid && form.get('email')?.touched"
+                            class="w-full h-10 pl-9 pr-3 rounded-lg bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-1 focus:ring-primary text-sm font-medium text-gray-900 dark:text-white placeholder-gray-400 transition-all"
+                            type="email" />
+                    </div>
+                </div>
+
+                <div class="md:col-span-2 flex flex-col gap-1.5">
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Dirección</label>
+                    <textarea formControlName="address"
+                        class="w-full p-3 rounded-lg bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 focus:border-primary focus:ring-1 focus:ring-primary text-sm font-medium text-gray-900 dark:text-white placeholder-gray-400 resize-none transition-all"
+                        rows="2"></textarea>
+                </div>
+            </div>
+
+        </form>
+    </div>
+
+    <!-- Footer -->
+    <div
+        class="p-5 border-t border-gray-100 dark:border-gray-800 flex justify-end gap-3 bg-gray-50/50 dark:bg-gray-800/10">
+        <button (click)="close()" type="button"
+            class="px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 font-bold text-xs uppercase tracking-wide hover:bg-white hover:border-gray-300 dark:hover:bg-gray-800 transition-all">
+            Cancelar
+        </button>
+        <button (click)="save()" [disabled]="form.invalid || isSaving"
+            class="px-6 py-2 rounded-lg bg-primary text-white font-bold text-sm hover:bg-emerald-600 transition-all shadow-lg shadow-primary/20 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+            <span class="material-symbols-outlined text-[18px]" *ngIf="!isSaving">check</span>
+            <span class="material-symbols-outlined text-[18px] animate-spin" *ngIf="isSaving">sync</span>
+            Registrar Paciente
+        </button>
+    </div>
+</div>

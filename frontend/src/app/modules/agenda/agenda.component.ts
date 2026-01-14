@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CalendarViewComponent } from './components/calendar-view/calendar-view.component';
@@ -166,5 +166,30 @@ export class AgendaComponent implements OnInit {
         this.view = event.view;
         this.currentDate = event.date;
         this.loadAppointments();
+    }
+
+
+    @HostListener('window:keydown', ['$event'])
+    handleKeyboardEvent(event: KeyboardEvent) {
+        // Esc to close dialog
+        if (event.code === 'Escape' && this.isDialogOpen) {
+            event.preventDefault();
+            this.isDialogOpen = false;
+            return;
+        }
+
+        if (
+            event.target instanceof HTMLInputElement ||
+            event.target instanceof HTMLTextAreaElement ||
+            event.target instanceof HTMLSelectElement
+        ) {
+            return;
+        }
+
+        // Alt + N -> New Appointment
+        if (event.altKey && event.code === 'KeyN') {
+            event.preventDefault();
+            this.openNewAppointmentDialog();
+        }
     }
 }

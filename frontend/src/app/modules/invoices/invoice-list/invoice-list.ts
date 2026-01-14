@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, Input } from '@angular/core';
+import { Component, OnInit, inject, Input, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormsModule, FormControl } from '@angular/forms';
@@ -229,5 +229,33 @@ export class InvoiceListComponent extends BaseListComponent<any> implements OnIn
                 this.notificationService.showError('Error al registrar pago');
             }
         });
+    }
+
+    @HostListener('window:keydown', ['$event'])
+    handleKeyboardEvent(event: KeyboardEvent) {
+        // If editing in modal, we might want Esc to close it, but not prevent typing.
+        // If typing in input, ignore Alt+N but listen to specific Esc behavior?
+        // Usually Esc works even in inputs to cancel/close.
+
+        if (event.code === 'Escape') {
+            if (this.selectedInvoice) {
+                event.preventDefault(); // Only prevent default if we actually closed something
+                this.closePaymentModal();
+            }
+            return;
+        }
+
+        if (
+            event.target instanceof HTMLInputElement ||
+            event.target instanceof HTMLTextAreaElement ||
+            event.target instanceof HTMLSelectElement
+        ) {
+            return;
+        }
+
+        if (event.altKey && event.code === 'KeyN') {
+            event.preventDefault();
+            this.navigateToCreateInvoice();
+        }
     }
 }

@@ -14,14 +14,14 @@
             </div>
         </div>
         <div class="flex items-center gap-2">
-            <button (click)="cancel()"
+            <button (click)="cancel()" title="Esc"
                 class="px-4 py-2 rounded-lg border border-border-light dark:border-border-dark bg-white dark:bg-surface-dark text-text-primary-light dark:text-white font-bold text-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors shadow-sm">
-                Cancelar
+                Cancelar (Esc)
             </button>
-            <button (click)="save()" [disabled]="form.invalid || isSaving"
+            <button (click)="save()" [disabled]="form.invalid || isSaving" title="Alt + G"
                 class="px-4 py-2 rounded-lg bg-primary text-white font-bold text-sm hover:bg-primary/90 transition-colors shadow-sm flex items-center gap-2 disabled:opacity-50">
                 <span class="material-symbols-outlined text-[18px]">save</span>
-                {{ isSaving ? 'Guardando...' : 'Guardar Paciente' }}
+                {{ isSaving ? 'Guardando...' : 'Guardar Paciente (Alt+G)' }}
             </button>
         </div>
     </header>

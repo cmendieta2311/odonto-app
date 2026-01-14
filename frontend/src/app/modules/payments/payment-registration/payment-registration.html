@@ -285,8 +285,9 @@
                     </div>
 
                     <button (click)="registerPayment()" [disabled]="totalSelectedAmount <= 0 || isSaving"
+                        title="Alt + G"
                         class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-600/30 transition-all disabled:opacity-50 disabled:shadow-none translate-y-0 hover:-translate-y-0.5 active:translate-y-0">
-                        <span *ngIf="!isSaving">Confirmar Pago</span>
+                        <span *ngIf="!isSaving">Confirmar Pago (Alt+G)</span>
                         <span *ngIf="isSaving">Procesando...</span>
                     </button>
                 </div>

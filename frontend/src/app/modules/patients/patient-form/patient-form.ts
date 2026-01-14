@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -119,5 +119,19 @@ export class PatientFormComponent implements OnInit {
 
     cancel() {
         this.router.navigate(['/reception/patients']);
+    }
+
+    @HostListener('window:keydown', ['$event'])
+    handleKeyboardEvent(event: KeyboardEvent) {
+        if (event.code === 'Escape') {
+            event.preventDefault();
+            this.cancel();
+            return;
+        }
+
+        if (event.altKey && event.code === 'KeyG') {
+            event.preventDefault();
+            this.save();
+        }
     }
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormArray, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -15,6 +15,7 @@ import { PdfService } from '../../../shared/services/pdf.service';
 import { NotificationService } from '../../../shared/services/notification.service';
 import { Dialog, DialogModule } from '@angular/cdk/dialog';
 import { ServiceCatalogDialogComponent } from './service-catalog-dialog.component';
+import { PatientCreateDialogComponent } from '../../patients/patient-create-dialog/patient-create-dialog';
 
 @Component({
   selector: 'app-quote-form',
@@ -51,6 +52,20 @@ export class QuoteFormComponent implements OnInit {
     }).closed.subscribe(service => {
       if (service) {
         this.addService(service);
+      }
+    });
+  }
+
+  openNewPatientDialog() {
+    this.dialog.open<Patient>(PatientCreateDialogComponent, {
+      width: '100%',
+      maxWidth: '800px',
+      maxHeight: '90vh',
+      panelClass: 'custom-dialog-container'
+    }).closed.subscribe(patient => {
+      if (patient) {
+        this.patients = [patient];
+        this.selectPatient(patient);
       }
     });
   }
@@ -482,5 +497,39 @@ export class QuoteFormComponent implements OnInit {
       };
       this.pdfService.generateQuotePdf(this.quote!, clinicInfo, this.expirationDays);
     });
+  }
+
+
+  @HostListener('window:keydown', ['$event'])
+  handleKeyboardEvent(event: KeyboardEvent) {
+    // Ignore if input is focused, EXCEPT for Alt+ keys which act as commands
+    const isInput = event.target instanceof HTMLInputElement ||
+      event.target instanceof HTMLTextAreaElement ||
+      event.target instanceof HTMLSelectElement;
+
+    if (event.code === 'Escape') {
+      // If a dialog is open (like New Patient), let the dialog handle Esc and do nothing here
+      if (this.dialog.openDialogs.length > 0) {
+        return;
+      }
+
+      // Always allow Escape to cancel/back unless strictly modal (which this component isn't really, it's a page)
+      event.preventDefault();
+      this.cancel();
+      return;
+    }
+
+    // Commands with Alt
+    if (event.altKey) {
+      if (event.code === 'KeyG') {
+        // Alt + G -> Accept/Save
+        event.preventDefault();
+        this.save(QuoteStatus.APPROVED);
+      } else if (event.code === 'KeyB') {
+        // Alt + B -> Draft (Borrador)
+        event.preventDefault();
+        this.save(QuoteStatus.DRAFT);
+      }
+    }
   }
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CashService, CashMovement, DailySummary, CashMovementType, CashStatus } from '../../cash.service';
@@ -51,9 +51,9 @@ import { AuthService } from '../../../../auth/auth.service';
          </div>
 
          <div class="flex items-center gap-3">
-            <button (click)="openHistory()" class="h-10 px-4 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 text-slate-600 dark:text-slate-300 text-sm font-bold transition-colors flex items-center gap-2">
+            <button (click)="openHistory()" class="h-10 px-4 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 text-slate-600 dark:text-slate-300 text-sm font-bold transition-colors flex items-center gap-2" title="Alt + H">
                <span class="material-symbols-outlined text-[20px]">history</span>
-               Historial
+               Historial <span class="text-[10px] opacity-60 font-normal ml-1 border border-slate-300 dark:border-slate-600 rounded px-1 hidden md:inline-block">Alt+H</span>
             </button>
 
             <button *ngIf="!status.isOpen" (click)="openCash()" class="h-10 px-4 rounded-lg bg-emerald-100 text-emerald-700 hover:bg-emerald-200 text-sm font-bold transition-colors flex items-center gap-2">
@@ -66,9 +66,9 @@ import { AuthService } from '../../../../auth/auth.service';
                Cerrar Caja
             </button>
 
-            <button (click)="openModal()" [disabled]="!status.isOpen" class="h-10 px-4 rounded-lg bg-primary hover:bg-[#0fd692] text-slate-900 font-bold shadow-lg shadow-primary/20 transition-all active:scale-[0.98] flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+            <button (click)="openModal()" [disabled]="!status.isOpen" class="h-10 px-4 rounded-lg bg-primary hover:bg-[#0fd692] text-slate-900 font-bold shadow-lg shadow-primary/20 transition-all active:scale-[0.98] flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed" title="Alt + M">
                <span class="material-symbols-outlined text-[20px]">add_circle</span>
-               Registrar Movimiento
+               Registrar Movimiento <span class="text-[10px] opacity-60 font-normal ml-1 border border-slate-800 rounded px-1 hidden md:inline-block">Alt+M</span>
             </button>
          </div>
       </div>
@@ -95,10 +95,7 @@ import { AuthService } from '../../../../auth/auth.service';
                <div class="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400">
                   <span class="material-symbols-outlined">arrow_downward</span>
                </div>
-               <div class="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 text-xs font-bold bg-emerald-50 dark:bg-emerald-900/20 px-2 py-1 rounded-lg">
-                  <span class="material-symbols-outlined text-sm">trending_up</span>
-                  + 15%
-               </div>
+
             </div>
             <div>
                <p class="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider">Ingresos</p>
@@ -113,10 +110,7 @@ import { AuthService } from '../../../../auth/auth.service';
                <div class="p-3 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400">
                   <span class="material-symbols-outlined">arrow_upward</span>
                </div>
-               <div class="flex items-center gap-1 text-rose-600 dark:text-rose-400 text-xs font-bold bg-rose-50 dark:bg-rose-900/20 px-2 py-1 rounded-lg">
-                  <span class="material-symbols-outlined text-sm">trending_down</span>
-                  - 2%
-               </div>
+
             </div>
             <div>
                <p class="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider">Egresos</p>
@@ -136,7 +130,7 @@ import { AuthService } from '../../../../auth/auth.service';
             <div class="relative z-10">
                <p class="text-slate-400 text-xs font-bold uppercase tracking-wider">Saldo Actual</p>
                <h3 class="text-3xl font-bold text-white mt-1">{{ status.currentBalance | currency }}</h3>
-               <p class="text-xs text-slate-500 mt-1">Disponible en caja física</p>
+               <p class="text-xs text-slate-500 mt-1">Disponible en caja</p>
             </div>
          </div>
       </div>
@@ -394,5 +388,36 @@ export class CashDashboardComponent implements OnInit {
 
    openHistory() {
       this.showHistory = true;
+   }
+
+   @HostListener('window:keydown', ['$event'])
+   handleKeyboardEvent(event: KeyboardEvent) {
+      if (
+         event.target instanceof HTMLInputElement ||
+         event.target instanceof HTMLTextAreaElement ||
+         event.target instanceof HTMLSelectElement
+      ) {
+         return;
+      }
+
+      if (event.altKey && event.code === 'KeyM') {
+         event.preventDefault();
+         if (this.status.isOpen) {
+            this.openModal();
+         }
+      }
+
+      if (event.altKey && event.code === 'KeyH') {
+         event.preventDefault();
+         this.openHistory();
+      }
+
+      if (event.code === 'Escape') {
+         event.preventDefault();
+         this.showModal = false;
+         this.showHistory = false;
+         this.showOpenModal = false;
+         this.showCloseModal = false;
+      }
    }
 }

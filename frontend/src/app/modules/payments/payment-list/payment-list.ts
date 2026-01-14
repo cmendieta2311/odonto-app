@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, Input } from '@angular/core';
+import { Component, inject, OnInit, Input, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule, ReactiveFormsModule, FormControl } from '@angular/forms';
@@ -163,5 +163,21 @@ export class PaymentListComponent extends BaseListComponent<ContractReceivable> 
         this.searchQuery = query;
         this.page = 1;
         this.loadData();
+    }
+
+    @HostListener('window:keydown', ['$event'])
+    handleKeyboardEvent(event: KeyboardEvent) {
+        if (
+            event.target instanceof HTMLInputElement ||
+            event.target instanceof HTMLTextAreaElement ||
+            event.target instanceof HTMLSelectElement
+        ) {
+            return;
+        }
+
+        if (event.altKey && event.code === 'KeyN') {
+            event.preventDefault();
+            this.router.navigate(['/payments/new']);
+        }
     }
 }

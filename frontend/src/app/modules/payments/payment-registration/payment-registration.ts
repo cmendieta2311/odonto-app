@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormControl } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -534,4 +534,24 @@ export class PaymentRegistrationComponent implements OnInit {
 
     // Helper to allow template usage `Number(val)`
     Number(val: any) { return Number(val); }
+
+    @HostListener('window:keydown', ['$event'])
+    handleKeyboardEvent(event: KeyboardEvent) {
+        const isInput = event.target instanceof HTMLInputElement ||
+            event.target instanceof HTMLTextAreaElement ||
+            event.target instanceof HTMLSelectElement;
+
+        // Escape -> Back to list
+        if (event.code === 'Escape') {
+            event.preventDefault();
+            this.router.navigate(['/payments']);
+            return;
+        }
+
+        // Alt + G -> Confirm Payment
+        if (event.altKey && event.code === 'KeyG') {
+            event.preventDefault();
+            this.registerPayment();
+        }
+    }
 }

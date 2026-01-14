@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, inject, OnInit, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject, OnInit, OnChanges, SimpleChanges, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PatientsService } from '../../../patients/patients.service';
@@ -179,5 +179,21 @@ export class AppointmentDialogComponent implements OnInit, OnChanges {
             duration: false,
             dentist: false
         };
+    }
+
+    @HostListener('window:keydown', ['$event'])
+    handleKeyboardEvent(event: KeyboardEvent) {
+        if (!this.isOpen) return;
+
+        if (event.code === 'Escape') {
+            event.preventDefault();
+            this.close();
+            return;
+        }
+
+        if (event.altKey && event.code === 'KeyG') {
+            event.preventDefault();
+            this.save();
+        }
     }
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, HostListener } from '@angular/core';
 import { BaseListComponent } from '../../../shared/classes/base-list.component';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
@@ -139,5 +139,20 @@ export class ContractListComponent extends BaseListComponent<Contract> implement
     this.router.navigate(['/commercial/contracts/view', contract.id]);
   }
 
+  @HostListener('window:keydown', ['$event'])
+  handleKeyboardEvent(event: KeyboardEvent) {
+    if (
+      event.target instanceof HTMLInputElement ||
+      event.target instanceof HTMLTextAreaElement ||
+      event.target instanceof HTMLSelectElement
+    ) {
+      return;
+    }
 
+    if (event.altKey && event.code === 'KeyN') {
+      event.preventDefault();
+      // Redirect to Quotes as per UI button behavior for new contract
+      this.router.navigate(['/commercial/quotes']);
+    }
+  }
 }

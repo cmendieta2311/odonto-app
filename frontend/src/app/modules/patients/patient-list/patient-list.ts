@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, HostListener } from '@angular/core';
 import { BaseListComponent } from '../../../shared/classes/base-list.component';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
@@ -83,6 +83,22 @@ export class PatientListComponent extends BaseListComponent<Patient> implements 
         this.loadData();
         this.notificationService.showSuccess('Paciente eliminado');
       });
+    }
+  }
+
+  @HostListener('window:keydown', ['$event'])
+  handleKeyboardEvent(event: KeyboardEvent) {
+    if (
+      event.target instanceof HTMLInputElement ||
+      event.target instanceof HTMLTextAreaElement ||
+      event.target instanceof HTMLSelectElement
+    ) {
+      return;
+    }
+
+    if (event.altKey && event.code === 'KeyN') {
+      event.preventDefault();
+      this.createPatient();
     }
   }
 }
