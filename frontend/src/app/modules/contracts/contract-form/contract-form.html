@@ -279,6 +279,13 @@
                             </button>
                         </div>
                         <div class="flex flex-col gap-3" *ngIf="viewMode">
+                            <!-- Promissory Note Button: Show if CREDIT or has installments -->
+                            <button type="button" (click)="generatePromissoryNote()"
+                                *ngIf="contract?.paymentMethod === 'CREDIT' || (contract?.installments || 1) > 1"
+                                class="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold h-12 rounded-lg transition-all shadow-lg shadow-indigo-600/20 transform active:scale-95">
+                                <span class="material-symbols-outlined">description</span>
+                                Generar Pagaré
+                            </button>
                             <button type="button" (click)="cancel()"
                                 class="w-full flex items-center justify-center gap-2 bg-primary hover:bg-cyan-400 text-white font-bold h-12 rounded-lg transition-all shadow-lg shadow-primary/20 transform active:scale-95">
                                 <span class="material-symbols-outlined">arrow_back</span>

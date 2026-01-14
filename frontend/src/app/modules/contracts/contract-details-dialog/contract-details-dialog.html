@@ -143,6 +143,12 @@
             class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">
             Cerrar
         </button>
+        <!-- Promissory Note Button: Show if CREDIT or has installments -->
+        <button (click)="generatePromissoryNote()" *ngIf="contract?.paymentMethod === 'CREDIT' || (contract?.installments || 0) > 1"
+            class="px-4 py-2 text-sm font-semibold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 shadow transition-colors flex items-center gap-2">
+            <span class="material-symbols-outlined text-[18px]">description</span>
+            Generar Pagaré
+        </button>
         <button (click)="close()"
             class="px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 shadow transition-colors flex items-center gap-2">
             <span class="material-symbols-outlined text-[18px]">print</span>

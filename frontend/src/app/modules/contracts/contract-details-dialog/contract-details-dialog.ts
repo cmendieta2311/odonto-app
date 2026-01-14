@@ -1,6 +1,8 @@
-import { Component, Inject, Input } from '@angular/core';
+import { Component, Inject, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Contract } from '../contracts.models';
+import { PdfService } from '../../../shared/services/pdf.service';
+import { SystemConfigService } from '../../configuration/system-config.service';
 
 @Component({
     selector: 'app-contract-details-dialog',
@@ -17,6 +19,9 @@ export class ContractDetailsDialogComponent {
     // Support either direct input or data object wrapper
     @Input() data: { contract: Contract } | undefined;
     @Input() activeModal: any;
+
+    private pdfService = inject(PdfService);
+    private configService = inject(SystemConfigService);
 
     ngOnInit() {
         if (this.data && this.data.contract) {
@@ -47,5 +52,17 @@ export class ContractDetailsDialogComponent {
             'OTHER': 'Otro'
         };
         return methodMap[method] || method;
+    }
+
+    generatePromissoryNote() {
+        if (!this.contract) return;
+
+        this.configService.getConfigs().subscribe(configs => {
+            const clinicInfo = {
+                ...configs['clinic_info'],
+                logoUrl: configs['clinicLogoUrl']
+            };
+            this.pdfService.generatePromissoryNotePdf(this.contract!, clinicInfo, 'TOTAL');
+        });
     }
 }

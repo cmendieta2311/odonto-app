@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { Quote } from '../../modules/quotes/quotes.models';
+import { numberToSpanishWords } from '../utils/number-to-words.utils';
 
 @Injectable({
     providedIn: 'root'
@@ -1004,5 +1005,275 @@ export class PdfService {
 
     private formatCurrency(amount: number): string {
         return Math.round(amount).toLocaleString('es-PY');
+    }
+    async generatePromissoryNotePdf(contract: any, clinicInfo: any, mode: 'TOTAL' | 'INSTALLMENTS' = 'TOTAL') {
+        const doc = new jsPDF();
+
+        let notesToGenerate: any[] = [];
+
+        if (mode === 'TOTAL') {
+            const initialPayment = Number(contract.quote?.initialPayment || 0);
+            const total = Number(contract.totalAmount || contract.total || 0);
+            const financedAmount = total - initialPayment;
+
+            // Find the last due date
+            const schedule = contract.schedule || contract.creditSchedule || [];
+            let dueDate = new Date(); // Default to today if no schedule
+
+            if (schedule.length > 0) {
+                // Sort by due date desc to find last
+                const sorted = [...schedule].sort((a: any, b: any) => new Date(b.dueDate).getTime() - new Date(a.dueDate).getTime());
+                dueDate = new Date(sorted[0].dueDate);
+            } else {
+                // Try to estimate from Installments if schedule missing?
+                // Or check if contract has 'endDate' or similar?
+                // For now, logging might be needed if this persists, but robust access helps.
+            }
+
+            const year = new Date().getFullYear();
+            const idSuffix = contract.id.slice(0, 6).toUpperCase();
+
+            notesToGenerate.push({
+                number: `PAG-${year}-${idSuffix}`,
+                amount: financedAmount,
+                dueDate: dueDate,
+                emissionDate: new Date()
+            });
+        } else {
+            // Future: Implement per installment
+            const schedule = contract.schedule || contract.creditSchedule || [];
+            notesToGenerate = schedule.map((inst: any, index: number) => ({
+                number: `${contract.id}-${index + 1}`,
+                amount: Number(inst.amount),
+                dueDate: new Date(inst.dueDate),
+                emissionDate: new Date()
+            }));
+        }
+
+        const patient = contract.quote?.patient;
+        const debtorName = `${patient?.firstName || ''} ${patient?.lastName || ''}`.toUpperCase();
+        const debtorDni = patient?.dni || '';
+        const debtorAddress = patient?.address || ''; // Assuming address exists on patient, or blank
+        const debtorPhone = patient?.phone || patient?.phoneNumber || '';
+
+        const creditorName = (clinicInfo?.businessName || 'LA CLÍNICA').toUpperCase();
+
+        notesToGenerate.forEach((note, index) => {
+            if (index > 0) doc.addPage();
+
+            const amountText = numberToSpanishWords(Math.round(note.amount));
+            const amountFormatted = Math.round(note.amount).toLocaleString('es-PY');
+
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(16);
+            doc.text('PAGARÉ A LA ORDEN', 105, 20, { align: 'center' });
+
+            doc.setFontSize(11);
+            doc.setFont('helvetica', 'normal');
+
+            // Header Info
+            let y = 35;
+
+            doc.setFont('helvetica', 'normal');
+            doc.text('Pagaré Nro.: ', 20, y);
+
+            // Calculate X correctly and print once
+            let nextX = 20 + doc.getTextWidth('Pagaré Nro.: ');
+            doc.setFont('helvetica', 'bold');
+            doc.text(note.number, nextX, y);
+
+            doc.setFont('helvetica', 'normal');
+            doc.text('Factura Nro.: ', 120, y);
+            nextX = 120 + doc.getTextWidth('Factura Nro.: ');
+            doc.setFont('helvetica', 'bold');
+            doc.text('____________________', nextX, y);
+
+            y += 8;
+            doc.setFont('helvetica', 'normal');
+            doc.text('Fecha de Emisión: ', 20, y);
+            nextX = 20 + doc.getTextWidth('Fecha de Emisión: ');
+            doc.setFont('helvetica', 'bold');
+            doc.text(this.formatDate(note.emissionDate), nextX, y);
+
+            y += 8;
+            doc.setFont('helvetica', 'normal');
+            doc.text('Vencimiento: ', 20, y);
+            nextX = 20 + doc.getTextWidth('Vencimiento: ');
+            doc.setFont('helvetica', 'bold');
+            doc.text(this.formatDate(note.dueDate), nextX, y);
+
+            doc.text('Importe: Gs. ', 120, y);
+            nextX = 120 + doc.getTextWidth('Importe: Gs. ');
+            doc.text(amountFormatted, nextX, y);
+
+            // Body
+            y += 15;
+            const maxWidth = 170;
+            const startX = 20;
+            const lineHeight = 5; // Reduced line height
+            const paraGap = 5; // Consistent paragraph gap
+
+            // Reset font for body to ensure consistency
+            doc.setFontSize(10);
+
+            const part1 = [
+                { text: 'El día ' },
+                { text: this.formatDate(note.dueDate), bold: true },
+                { text: ' por este PAGARE A LA ORDEN, me (nos) obligo(amos) a PAGAR A LA VISTA, a ' },
+                { text: creditorName, bold: true },
+                { text: ' o a su orden, en su domicilio ' },
+                { text: clinicInfo?.address || '____________________', bold: true },
+                { text: ' sin protesto, la cantidad de guaraníes: ' },
+                { text: amountText, bold: true },
+                { text: '.' }
+            ];
+
+            y = this.writeRichText(doc, startX, y, maxWidth, lineHeight, part1, true);
+            y += paraGap;
+
+            const part2 = [
+                { text: 'Queda expresamente convenido entre ' },
+                { text: creditorName, bold: true },
+                { text: ' (acreedor) y el(los) deudor(es), que la falta de pago a su vencimiento de éste pagaré, producirá la caducidad automática y el decaimiento anticipado de los plazos establecidos en todos los demás pagarés documentos cualquiera sea su naturaleza, causa u origen y causará de pleno derecho el vencimiento anticipado de los pagarés o documentos no vencidos, facultando al acreedor irrevocablemente a exigir pago inmediato del saldo total de la deuda. La mora se producirá por el mero vencimiento del plazo, sin necesidad de protesto ni de ningún requerimiento judicial o extrajudicial por parte del acreedor.' }
+            ];
+
+            y = this.writeRichText(doc, startX, y, maxWidth, lineHeight, part2, true);
+            y += paraGap;
+
+            const part3 = [
+                { text: 'Se establece un interés moratorio de __%, interés punitorio del__%, comisión del __ %, como así el ___%por daños y perjuicios ocasionados por el simple retardo sin que esto implique prórroga en el plazo de obligación.' }
+            ];
+            y = this.writeRichText(doc, startX, y, maxWidth, lineHeight, part3, true);
+            y += paraGap;
+
+            const part4 = [
+                { text: 'Declaro (amos) expresamente con carácter irrevocable que la(s) firma(s) puestas al pie de instrumento me(nos) obliga(n) al cumplimiento de todas y cada una de las cuotas establecidas condicionamiento general obrante en este pagaré.' }
+            ];
+            y = this.writeRichText(doc, startX, y, maxWidth, lineHeight, part4, true);
+            y += paraGap;
+
+            const part5 = [
+                { text: 'Este pagaré se rige por las leyes de la República del Paraguay y en especial por los artículos 51, 53 siguientes y concordantes de la ley 489/95. El simple vencimiento de una cuota autoriza al acreedor de fe irrevocable a la consulta e inclusión a la base de datos de INFORMCONF u otra agencia de informaciones. A todos los efectos legales y procesales queda aceptada la jurisdicción y competencia de los juzgados en lo civil y comercial de la Circunscripción Judicial del Caaguazú.' }
+            ];
+            y = this.writeRichText(doc, startX, y, maxWidth, lineHeight, part5, true);
+
+            // Signatures
+            y += 30; // Reduced gap
+
+            // Check page end
+            if (y + 40 > doc.internal.pageSize.height) {
+                doc.addPage();
+                y = 40;
+            }
+
+            // Deudor
+            doc.line(20, y, 90, y);
+            doc.text('DEUDOR', 45, y + 5, { align: 'center' });
+
+            doc.setFontSize(9);
+            doc.text(`NOMBRE: ${debtorName}`, 20, y + 12);
+            doc.text(`C.I: ${debtorDni}`, 20, y + 17);
+            doc.text(`DIRECCIÓN: ${debtorAddress}`, 20, y + 22);
+            doc.text(`TELEF.: ${debtorPhone}`, 20, y + 27);
+
+            // Codeudor
+            doc.line(110, y, 180, y);
+            doc.setFontSize(11); // Title size
+            doc.text('CODEUDOR', 145, y + 5, { align: 'center' });
+
+            doc.setFontSize(9);
+            doc.text(`NOMBRE: ____________________________`, 110, y + 12);
+            doc.text(`C.I.: _______________________________`, 110, y + 17);
+            doc.text(`DIRECCIÓN: _________________________`, 110, y + 22);
+            doc.text(`TELEF.: _____________________________`, 110, y + 27);
+
+        });
+
+        // Add Page Numbers
+        const pageCount = doc.getNumberOfPages();
+        if (pageCount > 1) {
+            for (let i = 1; i <= pageCount; i++) {
+                doc.setPage(i);
+                doc.setFontSize(8);
+                doc.setTextColor(150);
+                doc.text(`Página ${i} de ${pageCount}`, doc.internal.pageSize.width - 20, doc.internal.pageSize.height - 10, { align: 'right' });
+            }
+        }
+
+
+
+        window.open(doc.output('bloburl'), '_blank');
+    }
+
+    private writeRichText(doc: jsPDF, x: number, y: number, maxWidth: number, lineHeight: number, parts: { text: string, bold?: boolean }[], justify: boolean = false): number {
+        let currentY = y;
+
+        const setFont = (bold: boolean) => {
+            if (bold) doc.setFont('helvetica', 'bold');
+            else doc.setFont('helvetica', 'normal');
+        };
+
+        const words: { text: string, width: number, bold: boolean }[] = [];
+
+        // 1. Flatten into words
+        parts.forEach(part => {
+            setFont(!!part.bold);
+            const split = part.text.split(' ');
+            split.forEach((w, i) => {
+                if (w === '') return; // Skip empty
+                const width = doc.getTextWidth(w);
+                words.push({ text: w, width, bold: !!part.bold });
+            });
+        });
+
+        // 2. Buffer Lines
+        const lines: { words: typeof words, width: number }[] = [];
+        let currentLineWords: typeof words = [];
+        let currentLineWidth = 0;
+        const spaceWidth = doc.getTextWidth(' ');
+
+        words.forEach((word) => {
+            const potentialWidth = currentLineWidth + word.width + (currentLineWords.length > 0 ? spaceWidth : 0);
+            if (potentialWidth > maxWidth) {
+                lines.push({ words: currentLineWords, width: currentLineWidth });
+                currentLineWords = [word];
+                currentLineWidth = word.width;
+            } else {
+                if (currentLineWords.length > 0) currentLineWidth += spaceWidth;
+                currentLineWords.push(word);
+                currentLineWidth += word.width;
+            }
+        });
+        if (currentLineWords.length > 0) {
+            lines.push({ words: currentLineWords, width: currentLineWidth });
+        }
+
+        // 3. Render Lines
+        lines.forEach((line, index) => {
+            let currentX = x;
+            const isLastLine = index === lines.length - 1;
+
+            let extraSpace = 0;
+            if (justify && !isLastLine && line.words.length > 1) {
+                const availableSpace = maxWidth - line.width; // This width includes normal spaces
+                // But wait, line.width calculated above ALREADY included spaceWidth for each gap.
+                // So (maxWidth - line.width) is the *additional* space to distribute.
+                extraSpace = availableSpace / (line.words.length - 1);
+            }
+
+            line.words.forEach((word, wIndex) => {
+                setFont(word.bold);
+                doc.text(word.text, currentX, currentY);
+                currentX += word.width;
+
+                if (wIndex < line.words.length - 1) {
+                    currentX += spaceWidth + extraSpace;
+                }
+            });
+
+            currentY += lineHeight;
+        });
+
+        return currentY;
     }
 }

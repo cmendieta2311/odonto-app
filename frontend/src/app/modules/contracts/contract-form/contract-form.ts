@@ -9,6 +9,7 @@ import { Quote } from '../../quotes/quotes.models';
 import { PaymentMethod } from '../contracts.models';
 import { SystemConfigService } from '../../configuration/system-config.service';
 import { NotificationService } from '../../../shared/services/notification.service';
+import { PdfService } from '../../../shared/services/pdf.service';
 
 @Component({
     selector: 'app-contract-form',
@@ -29,6 +30,7 @@ export class ContractFormComponent implements OnInit {
     private contractsService = inject(ContractsService);
     private notificationService = inject(NotificationService);
     private configService = inject(SystemConfigService);
+    private pdfService = inject(PdfService);
 
     quoteId: string | null = null;
     contractId: string | null = null;
@@ -250,5 +252,17 @@ export class ContractFormComponent implements OnInit {
         } else {
             this.router.navigate(['/commercial/quotes']);
         }
+    }
+
+    generatePromissoryNote() {
+        if (!this.contract) return;
+
+        this.configService.getConfigs().subscribe(configs => {
+            const clinicInfo = {
+                ...configs['clinic_info'],
+                logoUrl: configs['clinicLogoUrl']
+            };
+            this.pdfService.generatePromissoryNotePdf(this.contract, clinicInfo, 'TOTAL');
+        });
     }
 }
